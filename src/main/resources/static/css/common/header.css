@@ -1,0 +1,199 @@
+.site-header {
+    border-bottom: 1px solid var(--border-light);
+    background-color: #fff;
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2.4rem;
+}
+
+/* 로고 */
+.logo {
+    height: 80px;
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 100px;
+    width: auto;
+    display: block;
+}
+
+/* 메뉴 + 검색 */
+.header-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 3.2rem;
+}
+
+.gnb {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    font-size: 1.4rem;
+}
+
+.gnb-item {
+    color: var(--text-light);
+    padding: 0.4rem 0;
+}
+
+.gnb-item.active {
+    color: var(--text-strong);
+    font-weight: 600;
+}
+
+/* ===========================
+   PC 드롭다운 메뉴 (강의목록)
+=========================== */
+
+/* 드롭다운 부모: 강의목록 */
+.gnb-item.has-sub {
+    position: relative;
+    display: inline-flex;
+    align-items: center;
+}
+
+/* 서브메뉴 박스 */
+.submenu {
+    position: absolute;
+    top: calc(100% + 1.2rem);   /* 강의목록 아래로 조금 띄우기 */
+    left: 0;
+    display: none;
+    background: #fff;
+    border: 1px solid var(--border-light);
+    border-radius: 0.6rem;
+    padding: 0.6rem 0;
+    min-width: 16rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    z-index: 9999;
+}
+
+/* 한 줄씩 딱딱 떨어지게 */
+.submenu a {
+    display: block;                 /* ✅ 겹침 방지 */
+    padding: 0.7rem 1.6rem;
+    font-size: 1.4rem;
+    line-height: 1.4;               /* ✅ 글자 겹침 방지 */
+    color: var(--text-normal);
+    white-space: nowrap;
+}
+
+/* hover 시 강조만 */
+.submenu a:hover {
+    background: var(--bg-light);
+    color: var(--text-strong);
+}
+
+/* 강의목록 위/아래 hover 시 서브메뉴 유지 */
+.gnb-item.has-sub:hover .submenu {
+    display: block;
+}
+
+/* 강의목록 텍스트 강조 (선택) */
+.gnb-item.has-sub:hover > .menu-link {
+    color: var(--text-strong);
+}
+
+/* 메뉴와 서브메뉴 사이 hover 끊김 방지용 */
+.gnb-item.has-sub::after {
+    content: "";
+    position: absolute;
+    top: 100%;
+    left: 0;
+    width: 100%;
+    height: 1.2rem;   /* 위에서 띄운 간격과 맞추기 */
+    background: transparent;
+}
+
+
+
+/* 검색 */
+.header-search {
+    flex: 1;
+    max-width: 42rem;
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-light);
+    background-color: #fafafa;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 1.3rem;
+}
+
+.search-input::placeholder {
+    color: #b5b5b5;
+}
+
+.search-btn {
+    font-size: 1.4rem;
+}
+
+/* 오른쪽 버튼 */
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8rem 1.8rem;
+    border-radius: 999px;
+    background-color: #222;
+    color: #fff;
+    font-size: 1.3rem;
+}
+
+/* 햄버거 버튼: 기본은 안 보이게 */
+.menu-toggle {
+    display: none;
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+
+/* =============================
+   반응형: 768px 이하
+   → 햄버거 + 가운데 로고만
+============================= */
+@media (max-width: 768px) {
+
+    .header-inner {
+        position: relative;
+        justify-content: center; /* 로고 가운데 정렬 */
+    }
+
+    /* 햄버거 버튼 보이기 + 왼쪽 고정 */
+    .menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 0 1.2rem;
+    }
+
+    /* 가운데 메뉴/검색, 오른쪽 버튼 숨기기 */
+    .header-center,
+    .header-right {
+        display: none;
+    }
+}
