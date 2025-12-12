@@ -1,0 +1,80 @@
+<!-- src/main/resources/templates/fragments/header.html -->
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<body>
+
+<!-- ▼▼▼ 모바일 사이드 카테고리 메뉴 ▼▼▼ -->
+<nav class="mobile-nav" id="mobile-nav" aria-hidden="true">
+    <div class="mobile-nav__overlay" id="mobile-nav-overlay"></div>
+
+    <div class="mobile-nav__panel">
+        <!-- 상단: LearnIT 로고 + 로그인 + X -->
+        <div class="mobile-nav__header">
+            <div class="mobile-nav__logo-wrap">
+                <!-- Thymeleaf 경로 사용 -->
+                <img th:src="@{/img/logo.png}" alt="LearnIT 로고" class="mobile-nav__logo">
+            </div>
+
+            <div class="mobile-nav__header-actions">
+                <button class="mobile-nav__login" type="button">로그인</button>
+                <button class="mobile-nav__close" id="mobile-nav-close" aria-label="카테고리 닫기" type="button">
+                    &times;
+                </button>
+            </div>
+        </div>
+
+        <!-- 메뉴: 강의목록 / 퀴즈 / 커뮤니티 -->
+        <ul class="mobile-nav__list">
+            <li class="mobile-nav__item">
+                <button class="mobile-nav__item-header" type="button">
+                    <span>강의목록</span>
+                </button>
+            </li>
+
+            <li class="mobile-nav__item">
+                <button class="mobile-nav__item-header" type="button">
+                    <span>퀴즈</span>
+                </button>
+            </li>
+
+            <li class="mobile-nav__item">
+                <button class="mobile-nav__item-header" type="button">
+                    <span>커뮤니티</span>
+                </button>
+            </li>
+        </ul>
+    </div>
+</nav>
+<!-- ▲▲▲ 모바일 사이드 카테고리 메뉴 끝 ▲▲▲ -->
+
+<!-- ▼▼▼ JS: 사이드바 열고 닫기 (inline, Thymeleaf) ▼▼▼ -->
+<script th:inline="javascript">
+    /*<![CDATA[*/
+        document.addEventListener("DOMContentLoaded", function () {
+            const btnMenu   = document.getElementById("btn-menu");          // 다른 팀원이 만든 헤더의 햄버거 버튼
+            const mobileNav = document.getElementById("mobile-nav");
+            const overlay   = document.getElementById("mobile-nav-overlay");
+            const btnClose  = document.getElementById("mobile-nav-close");
+
+            function openNav() {
+                if (!mobileNav) return;
+                mobileNav.classList.add("is-open");
+                mobileNav.setAttribute("aria-hidden", "false");
+            }
+
+            function closeNav() {
+                if (!mobileNav) return;
+                mobileNav.classList.remove("is-open");
+                mobileNav.setAttribute("aria-hidden", "true");
+            }
+
+            if (btnMenu)  btnMenu.addEventListener("click", openNav);
+            if (overlay)  overlay.addEventListener("click", closeNav);
+            if (btnClose) btnClose.addEventListener("click", closeNav);
+        });
+    /*]]>*/
+</script>
+<!-- ▲▲▲ JS 끝 ▲▲▲ -->
+
+</body>
+</html>
