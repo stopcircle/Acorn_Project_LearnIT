@@ -1,0 +1,149 @@
+/* 햄버거 버튼 */
+.btn-menu {
+    display: none;
+    width: 3.2rem;
+    height: 3.2rem;
+    padding: 0;
+    margin-right: 0.8rem;
+    border: none;
+    background: transparent;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 0.4rem;
+    cursor: pointer;
+}
+.btn-menu span {
+    display: block;
+    width: 2rem;
+    height: 0.2rem;
+    background: #222;
+    border-radius: 999rem;
+}
+
+/* 모바일 사이드 카테고리 메뉴 */
+.mobile-nav {
+    position: fixed;
+    inset: 0;
+    pointer-events: none;
+    z-index: 200;
+}
+.mobile-nav__overlay {
+    position: absolute;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.4);
+    opacity: 0;
+    transition: opacity 0.25s ease;
+}
+.mobile-nav__panel {
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 26rem;
+    max-width: 80%;
+    height: 100%;
+    background: #fff;
+    box-shadow: 0.2rem 0 1rem rgba(0, 0, 0, 0.15);
+    transform: translateX(-100%);
+    transition: transform 0.25s ease;
+    display: flex;
+    flex-direction: column;
+}
+
+/* 상단 영역 */
+.mobile-nav__header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 1.6rem;
+    border-bottom: 0.1rem solid #eee;
+}
+.mobile-nav__logo-wrap {
+    display: flex;
+    align-items: center;
+}
+.mobile-nav__logo {
+    height: 8.7rem;
+    object-fit: contain;
+}
+.mobile-nav__header-actions {
+    display: flex;
+    align-items: center;
+    gap: 0.8rem;
+}
+.mobile-nav__login {
+    padding: 0.4rem 1rem;
+    font-size: 1.2rem;
+    border-radius: 999rem;
+    border: 0.1rem solid #222;
+    background: transparent;
+    color: #222;
+    cursor: pointer;
+}
+.mobile-nav__login:hover {
+    background: #f4f4f4;
+}
+.mobile-nav__close {
+    border: none;
+    background: transparent;
+    font-size: 2.4rem;
+    cursor: pointer;
+}
+
+/* 메뉴 리스트 */
+.mobile-nav__list {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+.mobile-nav__item {
+    border-bottom: 0.1rem solid #f0f0f0;
+}
+.mobile-nav__item-header {
+    width: 100%;
+    padding: 1.2rem 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    background: transparent;
+    border: none;
+    font-size: 1.4rem;
+    color: #333;
+    cursor: pointer;
+}
+
+/* 서브 메뉴 (지금은 접힌 상태로만 사용) */
+.mobile-nav__sublist {
+    max-height: 0;
+    overflow: hidden;
+    transition: max-height 0.2s ease;
+    padding: 0 2rem;
+}
+.mobile-nav__item--open .mobile-nav__sublist {
+    max-height: 20rem;
+}
+.mobile-nav__sublist li a {
+    display: block;
+    padding: 0.8rem 0;
+    font-size: 1.3rem;
+    color: #777;
+    text-decoration: none;
+}
+
+/* 메뉴 열렸을 때 상태 */
+.mobile-nav.is-open {
+    pointer-events: auto;
+}
+.mobile-nav.is-open .mobile-nav__overlay {
+    opacity: 1;
+}
+.mobile-nav.is-open .mobile-nav__panel {
+    transform: translateX(0);
+}
+
+/* 768px 이하에서만 햄버거 보이기 */
+@media screen and (max-width: 768px) {
+    .btn-menu {
+        display: inline-flex;
+    }
+}
