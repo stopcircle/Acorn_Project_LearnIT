@@ -1,0 +1,51 @@
+<header th:fragment="site-header" class="site-header">
+    <div class="container header-inner">
+
+        <!-- 모바일: 햄버거 버튼 -->
+        <button type="button" class="menu-toggle" aria-label="메뉴 열기">
+            ☰
+        </button>
+
+        <!-- 로고 -->
+        <div class="logo">
+            <a th:href="@{/}">
+                <img th:src="@{/images/logo.png}" alt="LearnIT 로고" class="logo-img">
+            </a>
+        </div>
+
+        <!-- 가운데 메뉴 + 검색 -->
+        <div class="header-center">
+            <nav class="gnb">
+
+                <!-- ▼ 드롭다운 부모 -->
+                <div class="gnb-item has-sub">
+                    <a th:href="@{/lecture/list}">강의목록</a>
+
+                    <!-- ▼ 드롭다운 메뉴 -->
+                    <div class="submenu">
+                        <a th:href="@{/lecture/java}">Java 강의</a>
+                        <a th:href="@{/lecture/spring}">Spring 강의</a>
+                        <a th:href="@{/lecture/frontend}">Frontend 강의</a>
+                        <a th:href="@{/lecture/db}">Database 강의</a>
+                    </div>
+                </div>
+
+                <!-- 나머지 메뉴는 그대로 -->
+                <a th:href="@{/quiz}" class="gnb-item">퀴즈</a>
+                <a th:href="@{/community}" class="gnb-item">커뮤니티</a>
+
+            </nav>
+
+            <form class="header-search" th:action="@{/search}" method="get">
+                <input type="text" name="q" placeholder="Value" class="search-input">
+                <button type="submit" class="search-btn">🔍</button>
+            </form>
+        </div>
+
+        <!-- 오른쪽 로그인 버튼 -->
+        <div class="header-right">
+            <a th:href="@{/login}" class="login-btn">로그인/회원가입</a>
+        </div>
+
+    </div>
+</header>

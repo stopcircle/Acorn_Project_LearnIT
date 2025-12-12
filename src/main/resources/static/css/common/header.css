@@ -1,0 +1,184 @@
+.site-header {
+    border-bottom: 1px solid var(--border-light);
+    background-color: #fff;
+}
+
+.header-inner {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 2.4rem;
+}
+
+/* 로고 */
+.logo {
+    height: 80px;
+    display: flex;
+    align-items: center;
+}
+
+.logo-img {
+    height: 100px;
+    width: auto;
+    display: block;
+}
+
+/* 메뉴 + 검색 */
+.header-center {
+    flex: 1;
+    display: flex;
+    align-items: center;
+    gap: 3.2rem;
+}
+
+.gnb {
+    display: flex;
+    align-items: center;
+    gap: 1.6rem;
+    font-size: 1.4rem;
+}
+
+.gnb-item {
+    color: var(--text-light);
+    padding: 0.4rem 0;
+}
+
+.gnb-item.active {
+    color: var(--text-strong);
+    font-weight: 600;
+}
+
+/* ===========================
+   PC 드롭다운 메뉴 (강의목록)
+=========================== */
+
+/* 드롭다운 부모 */
+.gnb-item.has-sub {
+    position: relative;
+    display: flex;
+    align-items: center;
+}
+
+/* 초기엔 숨김 */
+.submenu {
+    position: absolute;
+    top: 110%;
+    left: 0;
+    display: none;
+    flex-direction: column;
+    background: #fff;
+    border: 1px solid var(--border-light);
+    border-radius: 0.6rem;
+    padding: 1rem 0;
+    min-width: 16rem;
+    box-shadow: 0 6px 20px rgba(0,0,0,0.08);
+    z-index: 2000;
+}
+
+/* 메뉴 항목 */
+.submenu a {
+    padding: 0.8rem 1.6rem;
+    font-size: 1.4rem;
+    color: var(--text-normal);
+    white-space: nowrap;
+}
+
+.submenu a:hover {
+    background: var(--bg-light);
+    color: var(--text-strong);
+}
+
+/* Hover → 드롭다운 보이기 */
+.gnb-item.has-sub:hover .submenu {
+    display: flex;
+}
+
+/* 강의목록 hover 시 강조 (선택사항) */
+.gnb-item.has-sub:hover > a {
+    color: var(--text-strong);
+}
+
+/* 검색 */
+.header-search {
+    flex: 1;
+    max-width: 42rem;
+    display: flex;
+    align-items: center;
+    padding: 0.6rem 1.2rem;
+    border-radius: 999px;
+    border: 1px solid var(--border-light);
+    background-color: #fafafa;
+}
+
+.search-input {
+    flex: 1;
+    border: none;
+    outline: none;
+    background: transparent;
+    font-size: 1.3rem;
+}
+
+.search-input::placeholder {
+    color: #b5b5b5;
+}
+
+.search-btn {
+    font-size: 1.4rem;
+}
+
+/* 오른쪽 버튼 */
+.header-right {
+    display: flex;
+    align-items: center;
+}
+
+.login-btn {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    padding: 0.8rem 1.8rem;
+    border-radius: 999px;
+    background-color: #222;
+    color: #fff;
+    font-size: 1.3rem;
+}
+
+/* 햄버거 버튼: 기본은 안 보이게 */
+.menu-toggle {
+    display: none;
+    font-size: 2rem;
+    background: none;
+    border: none;
+    cursor: pointer;
+}
+
+
+/* =============================
+   반응형: 768px 이하
+   → 햄버거 + 가운데 로고만
+============================= */
+@media (max-width: 768px) {
+
+    .header-inner {
+        position: relative;
+        justify-content: center; /* 로고 가운데 정렬 */
+    }
+
+    /* 햄버거 버튼 보이기 + 왼쪽 고정 */
+    .menu-toggle {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        position: absolute;
+        left: 0;
+        top: 50%;
+        transform: translateY(-50%);
+        padding: 0 1.2rem;
+    }
+
+    /* 가운데 메뉴/검색, 오른쪽 버튼 숨기기 */
+    .header-center,
+    .header-right {
+        display: none;
+    }
+}

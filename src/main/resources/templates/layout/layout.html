@@ -1,0 +1,27 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title, content)">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0"> <!-- ✅ 추가 -->
+
+    <title th:replace="${title}">LearnIT</title>
+
+    <!-- 공통 CSS -->
+    <link rel="stylesheet" th:href="@{/css/common/base.css}">
+    <link rel="stylesheet" th:href="@{/css/common/header.css}">
+</head>
+
+<body>
+
+<!-- 공통 헤더 -->
+<div th:replace="fragments/header :: site-header"></div>
+
+<!-- 각 페이지에서 넘겨주는 content fragment -->
+<main>
+    <div th:replace="${content}"></div>
+</main>
+
+</body>
+</html>
