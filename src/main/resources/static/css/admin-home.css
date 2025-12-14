@@ -72,6 +72,7 @@
 
 .notice-wrap, .certificate-wrap {
     flex: 1;
+    height: 341px;
     background-color: #fff;
     padding: 25px;
     border-radius: 12px;
@@ -122,6 +123,13 @@
 }
 
 .item-title {
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+
+    flex: 1;
+    min-width: 0;
     font-size: 14px;
     font-weight: 500;
     color: #333;
