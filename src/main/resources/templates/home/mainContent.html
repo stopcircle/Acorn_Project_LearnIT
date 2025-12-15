@@ -6,17 +6,127 @@
   <!-- title fragment -->
   <title th:fragment="title">learnit main</title>
 
-  <th:block th:fragment="css"></th:block>
+  <!--main content css-->
+  <th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/home/home.css}">
+    <link rel="stylesheet" th:href="@{/css/home/main_blog.css}">
+    <link rel="stylesheet" th:href="@{/css/home/chatbot.css}">
+  </th:block>
 
-  <th:block th:fragment="script"></th:block>
+  <!--main content js-->
+  <th:block th:fragment="script">
+    <script th:src="@{/js/banner.js}"></script>
+    <script th:src="@{/js/main_blog.js}"></script>
+    <script th:src="@{/js/chatbot.js}"></script>
+  </th:block>
 </head>
 
 <body>
 
 <!-- content fragment -->
-<div th:fragment="content" class="container">
-  <p>여기는 콘텐츠 영역입니다.</p>
+<div th:fragment="content" class="home-container">
+
+  <!--1. 썸네일 배너-->
+  <section class="home-section banner-section">
+
+    <div class="banner-slider">
+
+      <div class="banner-nav prev" data-dir="prev">
+        <span class="arrow-icon"></span>
+      </div>
+
+      <div class="banner-track">
+        <div class="banner-item" th:each="b : ${bannerList}">
+          <a th:href="@{/course/{id}(id=${b.courseId})}">
+            <img th:src="${b.thumbnailUrl}" alt="강의 배너 이미지">
+            <div class="banner-title" th:text="${b.title}"></div>
+          </a>
+        </div>
+      </div>
+
+      <div class="banner-nav next" data-dir="next">
+        <span class="arrow-icon"></span>
+      </div>
+
+      <div class="banner-progress">
+      <span th:each="b, stat : ${bannerList}"
+            th:classappend="${stat.index == 0} ? 'active'"></span>
+      </div>
+
+    </div>
+  </section>
+
+  <!--2. 인기강좌 목록-->
+  <section class="home-section course-section">
+    <div class="section-header">
+      <h3>인기 강의</h3>
+      <p>지금 가장 많은 수강생이 선택한 강의</p>
+    </div>
+
+    <div class="course-feature-layout">
+
+      <!-- 🔥 인기 1위 -->
+      <a class="course-card featured"
+         th:href="@{/course/{id}(id=${courseList[0].courseId})}">
+        <div class="course-thumb">
+          <img th:src="${courseList[0].thumbnailUrl}">
+          <span class="course-badge">🔥 인기 1위</span>
+        </div>
+        <h4 th:text="${courseList[0].title}"></h4>
+        <p th:text="${#numbers.formatInteger(courseList[0].price, 3, 'COMMA')} + '원'"></p>
+      </a>
+
+      <!-- 나머지 강의 -->
+      <div class="course-sub-list">
+        <a class="course-card"
+           th:each="c, stat : ${courseList}"
+           th:if="${stat.index > 0}"
+           th:href="@{/course/{id}(id=${c.courseId})}">
+          <div class="course-thumb">
+            <img th:src="${c.thumbnailUrl}">
+            <span class="course-badge">모집중</span>
+          </div>
+          <h4 th:text="${c.title}"></h4>
+          <p th:text="${#numbers.formatInteger(c.price, 3, 'COMMA')} + '원'"></p>
+        </a>
+      </div>
+
+    </div>
+  </section>
+
+  <!--3. 커뮤니티(추후 확장 예정)-->
+
+  <!--4. 블로그 글-->
+  <section class="home-section blog-section">
+    <div class="section-header">
+      <h3>지금 개발 트렌드</h3>
+      <p>IT 업계에서 주목받는 기술과 인사이트</p>
+    </div>
+
+    <!-- 여기 JS에서 최신 3개 글을 넣음 -->
+    <div id="blogGrid" class="blog-grid"></div>
+  </section>
+
+  <!--5. 챗봇-->
+  <div id="chatbot">
+    <div id="chatbot-toggle">문의하기</div>
+    <div id="chatbot-window">
+      <div id="chatbot-header">
+        <strong>LearnIT 문의 상담</strong>
+        <span id="chatbot-close">✕</span>
+      </div>
+      <div id="chatbot-body">
+        <div class="bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
+      </div>
+      <div id="chatbot-input-area">
+        <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." />
+        <button id="chatbot-send">전송</button>
+      </div>
+    </div>
+  </div>
+
 </div>
+
 
 </body>
 </html>

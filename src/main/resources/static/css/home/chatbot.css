@@ -1,0 +1,139 @@
+#chatbot {
+    position: fixed;
+    right: 2.4rem;
+    bottom: 2.4rem;
+    z-index: 1000;
+}
+
+#chatbot-toggle {
+    position: fixed;
+    right: 2.4rem;
+    bottom: 7rem;
+
+    padding: 1.2rem 1.8rem;
+    border-radius: 1.5rem;
+    background: #4f46e5;
+    color: #fff;
+    font-size: 1.6rem;
+    font-weight: 600;
+    cursor: pointer;
+
+    box-shadow: 0 0.8rem 2rem rgba(0,0,0,0.25);
+}
+
+#chatbot-window {
+    width: 340px;
+    height: 480px;
+    background: #fff;
+    border-radius: 1.6rem;
+    box-shadow: 0 1.2rem 3.6rem rgba(0,0,0,0.2);
+    position: absolute;
+    bottom: 72px;
+    right: 0;
+    display: none;
+    flex-direction: column;
+    overflow: hidden;
+}
+
+#chatbot-header {
+    background: #4f46e5;
+    color: #fff;
+    padding: 1.2rem 1.6rem;
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    font-size: 1.4rem;
+}
+
+#chatbot-close {
+    cursor: pointer;
+    font-size: 1.6rem;
+}
+
+#chatbot-body {
+    flex: 1;
+    padding: 1.2rem;
+    background: #f9fafb;
+    overflow-y: auto;
+}
+
+.bot-message,
+.user-message {
+    padding: 0.8rem 1.2rem;
+    border-radius: 1.2rem;
+    font-size: 1.3rem;
+    margin-bottom: 0.8rem;
+    max-width: 75%;
+    word-break: break-word;
+}
+
+.bot-message {
+    background: #e0e7ff;
+    color: #1e1b4b;
+    margin-right: auto;
+    border-top-left-radius: 0.4rem;
+}
+
+.user-message {
+    background: #4f46e5;
+    color: #fff;
+    margin-left: auto;
+    border-top-right-radius: 0.4rem;
+    text-align: left;
+}
+
+#chatbot-input-area {
+    display: flex;
+    padding: 1rem;
+    border-top: 1px solid #e5e7eb;
+    background: #fff;
+}
+
+#chatbot-input {
+    flex: 1;
+    border: 1px solid #ddd;
+    border-radius: 0.8rem;
+    padding: 0.8rem;
+    font-size: 1.3rem;
+}
+
+#chatbot-send {
+    margin-left: 0.8rem;
+    background: #4f46e5;
+    color: #fff;
+    border: none;
+    border-radius: 0.8rem;
+    padding: 0 1.2rem;
+    cursor: pointer;
+}
+
+
+/* 반응형 버전 */
+@media (max-width: 768px) {
+    #chatbot {
+        right: 1.6rem;
+        bottom: 1.6rem;
+    }
+
+    #chatbot-window {
+        width: 300px;
+        height: 420px;
+    }
+}
+
+@media (max-width: 480px) {
+
+    #chatbot {
+        right: 0;
+        bottom: 0;
+    }
+
+    #chatbot-toggle {
+        width: 52px;
+        height: 52px;
+        position: fixed;
+        right: 1.6rem;
+        bottom: 1.6rem;
+    }
+
+}

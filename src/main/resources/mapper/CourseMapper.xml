@@ -10,4 +10,35 @@
         WHERE title LIKE CONCAT('%', #{keyword}, '%') OR
               description LIKE CONCAT('%', #{keyword}, '%')
     </select>
+
+    <!--인기강의 목록 불러오기 (최대5개)-->
+    <select id="selectPopularCourse" resultType="com.learnit.learnit.home.MainCourse">
+        SELECT
+            c.course_id AS courseId,
+            c.title,
+            c.price,
+            c.thumbnail_url AS thumbnailUrl,
+            c.status,
+            count(pd.pay_detail_id) AS salesCount
+        FROM course c JOIN payment_detail pd
+                           ON c.course_id = pd.course_id
+        WHERE c.delete_flg = 0 AND c.status = 'ACTIVE'
+        GROUP BY c.course_id
+        ORDER BY salesCount DESC
+            LIMIT #{limit}
+    </select>
+
+
+    <!--썸네일 배너용 최신 강의 불러오기(최대4개)-->
+    <select id="selectBannerCourse" resultType="com.learnit.learnit.home.MainCourse">
+        SELECT
+            course_id,
+            title,
+            thumbnail_url,
+            detail_img_url
+        FROM course
+        WHERE delete_flg = 0 AND status = 'ACTIVE'
+        ORDER BY created_at DESC
+            LIMIT #{limit}
+    </select>
 </mapper>
