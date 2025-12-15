@@ -6,8 +6,9 @@
 <mapper namespace="com.learnit.learnit.course.repository.CategoryRepository">
 
     <select id="findAll" resultType="com.learnit.learnit.course.dto.CategoryDTO">
-
-
+        SELECT category_id,name
+        FROM category
+        ORDER BY category_id ASC;
     </select>
 
 </mapper>
