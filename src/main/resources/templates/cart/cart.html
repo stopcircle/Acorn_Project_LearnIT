@@ -1,7 +1,10 @@
 <!DOCTYPE html>
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
-      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{}, ~{})}">
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{})}">
 
+<th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/common/cart.css}">
+</th:block>
 <head>
     <title th:fragment="title">장바구니</title>
 </head>
