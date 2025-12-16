@@ -85,6 +85,286 @@
     color: #7c8a9a;
 }
 
+/* 카드 헤더 스타일 */
+.card-header {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 1.6rem;
+}
+
+.card-header h2 {
+    margin-bottom: 0;
+}
+
+.view-all-link {
+    font-size: 1.4rem;
+    color: #0A4A7A;
+    text-decoration: none;
+    font-weight: 500;
+}
+
+.view-all-link:hover {
+    text-decoration: underline;
+}
+
+.icon-btn {
+    background: none;
+    border: none;
+    cursor: pointer;
+    font-size: 1.6rem;
+    color: #7c8a9a;
+    padding: 0.4rem;
+}
+
+.icon-btn:hover {
+    color: #0A4A7A;
+}
+
+/* 최근 학습 강의 카드 */
+.recent-course-content {
+    display: flex;
+    align-items: center;
+    gap: 2rem;
+}
+
+.course-icon {
+    width: 6rem;
+    height: 6rem;
+    background: #4CAF50;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    flex-shrink: 0;
+}
+
+.play-icon {
+    color: white;
+    font-size: 2.4rem;
+    margin-left: 0.3rem;
+}
+
+.course-info {
+    flex: 1;
+}
+
+.course-title {
+    font-size: 1.8rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 0.8rem;
+}
+
+.course-progress {
+    font-size: 1.4rem;
+    color: #666;
+}
+
+.progress-text {
+    color: #666;
+}
+
+.empty-message {
+    color: #999;
+    text-align: center;
+    padding: 2rem 0;
+    font-size: 1.4rem;
+}
+
+/* 주간 학습 카드 */
+.week-navigation {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 1.6rem;
+}
+
+.week-label {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #111;
+}
+
+.nav-btn {
+    background: none;
+    border: none;
+    font-size: 2rem;
+    color: #7c8a9a;
+    cursor: pointer;
+    padding: 0.4rem 0.8rem;
+}
+
+.nav-btn:hover {
+    color: #0A4A7A;
+}
+
+.weekly-calendar {
+    display: flex;
+    justify-content: space-between;
+    margin-bottom: 1.6rem;
+    gap: 0.8rem;
+}
+
+.day-item {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 0.8rem;
+}
+
+.day-name {
+    font-size: 1.2rem;
+    color: #666;
+    font-weight: 500;
+}
+
+.day-circle {
+    width: 4rem;
+    height: 4rem;
+    border-radius: 50%;
+    background: #f4f6fa;
+    border: 2px solid #e0e0e0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: all 0.2s;
+}
+
+.day-circle.has-study {
+    background: #0A4A7A;
+    border-color: #0A4A7A;
+    width: 5rem;
+    height: 5rem;
+}
+
+.weekly-stats {
+    display: flex;
+    justify-content: space-around;
+    padding-top: 1.6rem;
+    border-top: 1px solid #e0e0e0;
+}
+
+.stat-item {
+    display: flex;
+    align-items: center;
+    gap: 0.4rem;
+    font-size: 1.4rem;
+    color: #666;
+}
+
+.stat-icon {
+    font-size: 1.6rem;
+}
+
+.stat-value {
+    font-weight: 600;
+}
+
+/* 수료증 카드 */
+.certificate-content {
+    min-height: 8rem;
+}
+
+.certificate-item {
+    display: flex;
+    align-items: center;
+    gap: 1.2rem;
+}
+
+.certificate-icon {
+    font-size: 3.2rem;
+    flex-shrink: 0;
+}
+
+.certificate-info {
+    flex: 1;
+}
+
+.certificate-title {
+    font-size: 1.6rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 0.4rem;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+}
+
+.certificate-date {
+    font-size: 1.3rem;
+    color: #999;
+}
+
+/* 캘린더 카드 */
+#dashboard-calendar {
+    min-height: 30rem;
+    padding: 1.6rem 0;
+}
+
+.calendar-grid {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.8rem;
+}
+
+.calendar-header {
+    display: grid;
+    grid-template-columns: repeat(7, 1fr);
+    gap: 0.8rem;
+    margin-bottom: 1.6rem;
+}
+
+.calendar-day-header {
+    text-align: center;
+    font-weight: 600;
+    color: #666;
+    font-size: 1.4rem;
+    padding: 0.8rem;
+}
+
+.calendar-day {
+    aspect-ratio: 1;
+    border: 1px solid #e0e0e0;
+    border-radius: 0.8rem;
+    padding: 0.8rem;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    cursor: pointer;
+    transition: all 0.2s;
+    background: #fff;
+}
+
+.calendar-day:hover {
+    background: #f4f6fa;
+    border-color: #0A4A7A;
+}
+
+.calendar-day.has-study {
+    background: #e3f2fd;
+    border-color: #0A4A7A;
+}
+
+.calendar-day.has-attendance {
+    background: #c8e6c9;
+}
+
+.calendar-day-number {
+    font-size: 1.4rem;
+    font-weight: 600;
+    color: #111;
+    margin-bottom: 0.4rem;
+}
+
+.calendar-day-stats {
+    font-size: 1rem;
+    color: #666;
+    text-align: center;
+}
+
 /* 모바일 */
 @media (max-width: 768px) {
     .layout-container {

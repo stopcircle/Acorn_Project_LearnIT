@@ -1,4 +1,4 @@
-package com.learnit.learnit.mypage;
+package com.learnit.learnit.mypage.dashboard.controller;
 
 import com.learnit.learnit.mypage.dashboard.dto.DashboardDTO;
 import com.learnit.learnit.mypage.dashboard.service.DashboardService;
@@ -9,18 +9,19 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 @RequiredArgsConstructor
-public class MyPageController {
+public class DashboardController {
 
     private final DashboardService dashboardService;
 
-    @GetMapping("/mypage")
-    public String myPage(Model model) {
+    @GetMapping("/mypage/dashboard")
+    public String dashboard(Model model) {
         // TODO: 실제 사용자 ID를 세션에서 가져오도록 수정 필요
         Long userId = 1L; // 임시로 1L 사용
         
         DashboardDTO dashboard = dashboardService.getDashboardData(userId);
         model.addAttribute("dashboard", dashboard);
-
-        return "mypage/main";
+        
+        return "mypage/dashboard/dashboard";
     }
 }
+
