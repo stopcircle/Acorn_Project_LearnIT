@@ -1,26 +1,16 @@
 package com.learnit.learnit.mypage;
 
-import com.learnit.learnit.mypage.dashboard.dto.DashboardDTO;
-import com.learnit.learnit.mypage.dashboard.service.DashboardService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
-import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 @RequiredArgsConstructor
 public class MyPageController {
 
-    private final DashboardService dashboardService;
-
     @GetMapping("/mypage")
-    public String myPage(Model model) {
-        // TODO: 실제 사용자 ID를 세션에서 가져오도록 수정 필요
-        Long userId = 1L; // 임시로 1L 사용
-        
-        DashboardDTO dashboard = dashboardService.getDashboardData(userId);
-        model.addAttribute("dashboard", dashboard);
-
-        return "mypage/main";
+    public String myPage() {
+        // 마이페이지 기본 라우팅: /mypage → 대시보드 호출
+        return "redirect:/mypage/dashboard";
     }
 }

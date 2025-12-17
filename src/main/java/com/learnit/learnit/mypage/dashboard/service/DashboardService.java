@@ -25,8 +25,17 @@ public class DashboardService {
         try {
             // 최근 학습 강의
             CourseSummaryDTO recentCourse = dashboardRepository.selectRecentCourse(userId);
-            if (recentCourse == null) {
+            if (recentCourse == null || recentCourse.getTotalLectures() == null || recentCourse.getTotalLectures() == 0) {
                 recentCourse = getDummyRecentCourse();
+            }
+            // 진행률 재계산
+            if (recentCourse != null) {
+                if (recentCourse.getTotalLectures() != null && recentCourse.getTotalLectures() > 0) {
+                    double progress = (recentCourse.getCurrentLecture() != null ? recentCourse.getCurrentLecture() : 0) * 100.0 / recentCourse.getTotalLectures();
+                    recentCourse.setProgressRate(Math.round(progress * 100.0) / 100.0);
+                } else {
+                    recentCourse.setProgressRate(0.0);
+                }
             }
             dashboard.setRecentCourse(recentCourse);
 
@@ -117,11 +126,11 @@ public class DashboardService {
     private CourseSummaryDTO getDummyRecentCourse() {
         CourseSummaryDTO course = new CourseSummaryDTO();
         course.setCourseId(1L);
-        course.setTitle("시작하는 PM들을 위한 필수지식");
+        course.setTitle("스프링부트 입문");
         course.setThumbnailUrl("/images/course-thumbnail.jpg");
-        course.setCurrentLecture(3);
-        course.setTotalLectures(29);
-        course.setProgressRate(10.34);
+        course.setCurrentLecture(1);
+        course.setTotalLectures(10); // 0이 아닌 값으로 설정
+        course.setProgressRate(10.0); // 진행률 계산
         course.setEnrollmentId(1L);
         return course;
     }

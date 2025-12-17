@@ -3,12 +3,14 @@
       th:fragment="layout(title, content, css, script)">
 <head>
     <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title th:replace="${title}">마이페이지 | LearnI</title>
 
     <link rel="stylesheet" th:href="@{/css/common/base.css}">
     <link rel="stylesheet" th:href="@{/css/common/header.css}">
     <link rel="stylesheet" th:href="@{/css/common/footer.css}">
     <link rel="stylesheet" th:href="@{/css/common/mainnav.css}">
+    <link rel="stylesheet" th:href="@{/css/mypage-navbar.css}">
 
     <!--페이지별 css-->
     <th:block th:replace="${css}"></th:block>
@@ -18,8 +20,11 @@
 
 <div th:replace="fragments/header :: site-header"></div>
 
+<!-- 모바일 상단 프로필 및 네비게이션 -->
+<div th:replace="fragments/mypage-navbar :: mobile-header-nav"></div>
+
 <div class="layout-container">
-    <aside th:replace="fragments/mypage-navbar :: mypage-nav"></aside>
+    <aside th:replace="fragments/mypage-navbar :: desktop-sidebar"></aside>
 
     <main class="layout-content">
         <div th:replace="${content}"></div>
@@ -28,6 +33,28 @@
 
 <div th:replace="fragments/footer :: footer"></div>
 
+<!-- 모바일 네비게이션 활성 상태 관리 -->
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // 현재 URL에 따라 활성 메뉴 표시
+        const currentPath = window.location.pathname;
+        const mobileNavLinks = document.querySelectorAll('.mypage-mobile-nav a');
+        const desktopNavLinks = document.querySelectorAll('.mypage-nav a');
+        
+        function setActiveLink(links) {
+            links.forEach(link => {
+                link.classList.remove('active');
+                const href = link.getAttribute('href');
+                if (href && currentPath.startsWith(href)) {
+                    link.classList.add('active');
+                }
+            });
+        }
+        
+        setActiveLink(mobileNavLinks);
+        setActiveLink(desktopNavLinks);
+    });
+</script>
 
 <th:block th:replace="${script}"></th:block>
 

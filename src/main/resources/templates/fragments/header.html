@@ -96,13 +96,24 @@
 
           function closeNav() {
             if (!mobileNav) return;
+            // 포커스를 먼저 제거한 후 aria-hidden 설정
+            if (document.activeElement && mobileNav.contains(document.activeElement)) {
+              document.activeElement.blur();
+            }
             mobileNav.classList.remove("is-open");
-            mobileNav.setAttribute("aria-hidden", "true");
+            // 약간의 지연 후 aria-hidden 설정하여 포커스 문제 방지
+            setTimeout(() => {
+              mobileNav.setAttribute("aria-hidden", "true");
+            }, 100);
           }
 
           if (btnMenu)  btnMenu.addEventListener("click", openNav);
           if (overlay)  overlay.addEventListener("click", closeNav);
-          if (btnClose) btnClose.addEventListener("click", closeNav);
+          if (btnClose) {
+            btnClose.addEventListener("click", function() {
+              closeNav();
+            });
+          }
         });
         /*]]>*/
     </script>

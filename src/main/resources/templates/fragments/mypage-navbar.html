@@ -1,11 +1,10 @@
 <!-- 마이페이지 네비 Fragment -->
 <div th:fragment="mypage-nav">
-
-    <aside class="mypage-sidebar">
-
+    <!-- 데스크탑 사이드바 -->
+    <aside th:fragment="desktop-sidebar" class="mypage-sidebar desktop-sidebar" id="mypage-sidebar">
         <div class="profile-box">
             <div class="photo">
-                <img src="/images/profile-default.png">
+                <img th:src="@{/images/logo_icon.png}" alt="프로필 이미지" onerror="this.src='/images/logo_icon.png'">
             </div>
             <p class="nickname">닉네임</p>
             <p class="user-id">@아이디</p>
@@ -20,9 +19,28 @@
                 <li><a href="/mypage/purchase">구매 / 혜택</a></li>
             </ul>
         </nav>
-
     </aside>
 
+    <!-- 모바일 상단 프로필 및 네비게이션 -->
+    <div th:fragment="mobile-header-nav" class="mobile-header-nav">
+        <div class="mobile-profile-section">
+            <div class="mobile-photo">
+                <img th:src="@{/images/logo_icon.png}" alt="프로필 이미지" onerror="this.src='/images/logo_icon.png'">
+            </div>
+            <div class="mobile-profile-info">
+                <p class="mobile-nickname">닉네임</p>
+                <p class="mobile-user-id">@아이디</p>
+            </div>
+        </div>
+        
+        <nav class="mypage-mobile-nav">
+            <ul>
+                <li><a href="/mypage" class="active">대시보드</a></li>
+                <li><a href="/mypage/settings">개인정보 수정</a></li>
+                <li><a href="/mypage/courses">내 학습 강의</a></li>
+                <li><a href="/mypage/qa">강의 Q&A</a></li>
+                <li><a href="/mypage/purchase">구매/혜택</a></li>
+            </ul>
+        </nav>
+    </div>
 </div>
-
-</html>

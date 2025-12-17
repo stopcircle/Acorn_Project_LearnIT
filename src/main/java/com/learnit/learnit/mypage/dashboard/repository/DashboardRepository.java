@@ -27,5 +27,13 @@ public interface DashboardRepository {
             @Param("year") Integer year,
             @Param("month") Integer month
     );
+
+    // 특정 날짜의 수강한 강의 목록 조회
+    List<DailyCourseDTO> selectDailyCourses(
+            @Param("userId") Long userId,
+            @Param("year") Integer year,
+            @Param("month") Integer month,
+            @Param("day") Integer day
+    );
 }
 
