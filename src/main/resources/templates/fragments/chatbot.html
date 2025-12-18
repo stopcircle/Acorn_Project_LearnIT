@@ -1,0 +1,24 @@
+<!-- 챗봇 Fragment -->
+<div th:fragment="chatbot">
+    <div id="chatbot">
+        <div id="chatbot-toggle">
+            <i class="fa-solid fa-comment-dots"></i>
+            <span class="chatbot-text">문의하기</span>
+        </div>
+        <div id="chatbot-window">
+            <div id="chatbot-header">
+                <strong>LearnIT 문의 상담</strong>
+                <span id="chatbot-close">✕</span>
+            </div>
+            <div id="chatbot-body">
+                <div class="bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
+            </div>
+            <div id="chatbot-input-area">
+                <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." />
+                <button id="chatbot-send">전송</button>
+            </div>
+        </div>
+    </div>
+
+</div>
+
