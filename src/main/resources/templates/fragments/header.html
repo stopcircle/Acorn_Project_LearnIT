@@ -19,17 +19,9 @@
             <!-- 가운데 메뉴 + 검색 -->
             <div class="header-center">
                 <nav class="gnb">
-
-                    <!-- ✅ 강의목록 (아이콘 클릭 토글) -->
-                    <div class="gnb-item has-sub" id="courseMenu">
-                        <a th:href="@{/CourseList}" class="menu-link">강의목록</a>
-
-                        <!-- ✅ 아이콘 버튼 (클릭하면 서브메뉴 열림/닫힘) -->
-                        <button type="button" class="submenu-toggle" id="courseMenuToggle" aria-label="강의목록 카테고리 열기">
-                            <img th:src="@{/images/category/icon-admin-down-arrow.png}" alt="열기" class="submenu-icon">
-                        </button>
-
-                        <div class="submenu" id="courseSubmenu">
+                    <div class="gnb-item has-sub">
+                        <a th:href="@{/CourseList}">강의목록</a>
+                        <div class="submenu">
                             <a th:each="cat : ${categories}"
                                th:text="${cat.name}"
                                th:href="@{/CourseList(categoryId=${cat.categoryId})}">
