@@ -1,6 +1,8 @@
 document.addEventListener('DOMContentLoaded', () => {
     const state = {
-        keyword: null,
+        keyword: (typeof serverKeyword === 'string' && serverKeyword.trim())
+            ? serverKeyword.trim()
+            : null,
         page: 0,
         size: 12,
         loading: false,

@@ -1,6 +1,7 @@
 package com.learnit.learnit.course;
 
 import com.learnit.learnit.common.PageResponse;
+import com.learnit.learnit.mapper.CourseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

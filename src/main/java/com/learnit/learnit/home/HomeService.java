@@ -1,6 +1,6 @@
 package com.learnit.learnit.home;
 
-import com.learnit.learnit.course.CourseMapper;
+import com.learnit.learnit.mapper.CourseMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

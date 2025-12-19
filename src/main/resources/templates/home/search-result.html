@@ -7,7 +7,7 @@
 
   <th:block th:fragment="css">
     <link rel="stylesheet" th:href="@{/css/home/home.css}">
-    <link rel="stylesheet" th:href="@{/css/courseList/course-list.css}">
+    <link rel="stylesheet" th:href="@{/css/courselist/course-list.css}">
   </th:block>
 </head>
 
@@ -31,7 +31,12 @@
       <div id="searchMessage" style="text-align:center; padding:100px 0;"></div>
     </main>
 
+    <script>
+      // 서버에서 내려준 keyword 사용 (SearchController에서 model.addAttribute("keyword", keyword); 했으니)
+      const serverKeyword = /*[[${keyword}]]*/ '';
+    </script>
     <script src="/js/search/search-result.js"></script>
+
   </div>
 </section>
 </div>
