@@ -1,24 +1,25 @@
-package com.learnit.learnit.dashboard;
-
+package com.learnit.learnit.mypage;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
 
 @Controller
+@RequestMapping("/mypage")
 @RequiredArgsConstructor
-public class DashboardController {
+public class MyPageController {
 
     private final DashboardService dashboardService;
     private final UserMapper userMapper;
 
-    @GetMapping("/mypage")
+    @GetMapping
     public String myPage() {
         // 마이페이지 기본 라우팅: /mypage → 대시보드 호출
         return "redirect:/mypage/dashboard";
     }
 
-    @GetMapping("/mypage/dashboard")
+    @GetMapping("/dashboard")
     public String dashboard(Model model) {
         // TODO: 실제 사용자 ID를 세션에서 가져오도록 수정 필요
         Long userId = 1L; // 임시로 1L 사용

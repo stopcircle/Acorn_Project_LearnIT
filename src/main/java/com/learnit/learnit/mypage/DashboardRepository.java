@@ -1,4 +1,4 @@
-package com.learnit.learnit.dashboard;
+package com.learnit.learnit.mypage;
 
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
