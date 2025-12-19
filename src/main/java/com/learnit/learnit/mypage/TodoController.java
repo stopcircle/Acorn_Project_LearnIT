@@ -1,4 +1,4 @@
-package com.learnit.learnit.dashboard;
+package com.learnit.learnit.mypage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
