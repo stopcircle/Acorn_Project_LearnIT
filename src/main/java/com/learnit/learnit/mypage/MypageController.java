@@ -1,4 +1,4 @@
-package com.learnit.learnit.dashboard;
+package com.learnit.learnit.mypage;
 
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -7,7 +7,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 
 @Controller
 @RequiredArgsConstructor
-public class DashboardController {
+public class MypageController {
 
     private final DashboardService dashboardService;
     private final UserMapper userMapper;
