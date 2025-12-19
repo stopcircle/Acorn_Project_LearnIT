@@ -1,4 +1,4 @@
-package com.learnit.learnit;
+package com.learnit.learnit.test;
 
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.GetMapping;

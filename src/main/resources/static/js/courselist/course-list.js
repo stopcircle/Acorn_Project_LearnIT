@@ -1,6 +1,6 @@
 document.addEventListener('DOMContentLoaded', () => {
     const state = {
-        categoryId: (typeof serverCategoryId === 'number') ? serverCategoryId : null,
+        categoryId: null,
         tab: 'all',
         sort: 'popular',
         page: 0,
