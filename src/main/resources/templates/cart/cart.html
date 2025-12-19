@@ -2,61 +2,12 @@
 <html lang="ko" xmlns:th="http://www.thymeleaf.org"
       th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
 
-<th:block th:fragment="css">
-    <link rel="stylesheet" th:href="@{/css/common/cart.css}">
-</th:block>
-
-<th:block th:fragment="script">
-    <script>
-        document.addEventListener("DOMContentLoaded", () => {
-            const checkAll = document.getElementById("checkAll");
-            const itemChecks = () => Array.from(document.querySelectorAll(".itemCheck"));
-
-            const totalText = document.getElementById("totalPriceText");
-            const discountText = document.getElementById("discountText");
-            const finalText = document.getElementById("finalPriceText");
-
-            function formatWon(n) {
-                return n.toLocaleString("ko-KR") + "원";
-            }
-
-            function calcSelectedTotal() {
-                return itemChecks()
-                    .filter(chk => chk.checked)
-                    .reduce((sum, chk) => sum + Number(chk.dataset.price || 0), 0);
-            }
-
-            function renderPrice() {
-                const total = calcSelectedTotal();
-                const discount = 0;
-                const final = total - discount;
-
-                if (totalText) totalText.textContent = formatWon(total);
-                if (discountText) discountText.textContent = "-" + formatWon(discount);
-                if (finalText) finalText.textContent = formatWon(final);
-
-                const all = itemChecks();
-                if (checkAll && all.length > 0) {
-                    checkAll.checked = all.every(chk => chk.checked);
-                }
-            }
-
-            if (checkAll) {
-                checkAll.addEventListener("change", () => {
-                    itemChecks().forEach(chk => (chk.checked = checkAll.checked));
-                    renderPrice();
-                });
-            }
-
-            itemChecks().forEach(chk => chk.addEventListener("change", renderPrice));
-
-            renderPrice();
-        });
-    </script>
-</th:block>
 
 <head>
     <title th:fragment="title">장바구니</title>
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/common/cart.css}">
+    </th:block>
 </head>
 
 <body>
@@ -161,5 +112,9 @@
     </section>
 
 </div>
+<!--main content js-->
+<th:block th:fragment="script">
+    <script th:src="@{/js/cart/cart.js}"></script>
+</th:block>
 </body>
 </html>

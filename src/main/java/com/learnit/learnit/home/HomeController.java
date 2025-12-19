@@ -1,6 +1,5 @@
-package com.learnit.learnit;
+package com.learnit.learnit.home;
 
-import com.learnit.learnit.home.HomeService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
