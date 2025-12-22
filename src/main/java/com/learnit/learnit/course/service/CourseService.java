@@ -1,6 +1,8 @@
-package com.learnit.learnit.course;
+package com.learnit.learnit.course.service;
 
 import com.learnit.learnit.common.PageResponse;
+import com.learnit.learnit.course.repository.CourseMapper;
+import com.learnit.learnit.course.dto.CourseDTO;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 

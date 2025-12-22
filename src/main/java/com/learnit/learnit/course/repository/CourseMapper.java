@@ -1,5 +1,6 @@
-package com.learnit.learnit.course;
+package com.learnit.learnit.course.repository;
 
+import com.learnit.learnit.course.dto.CourseDTO;
 import com.learnit.learnit.home.MainCourse;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;

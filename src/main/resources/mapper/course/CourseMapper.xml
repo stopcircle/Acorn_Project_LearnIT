@@ -2,9 +2,9 @@
 <!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
-<mapper namespace="com.learnit.learnit.course.CourseMapper">
+<mapper namespace="com.learnit.learnit.course.repository.CourseMapper">
     <select id="searchCourses"
-            resultType="com.learnit.learnit.course.CourseDTO">
+            resultType="com.learnit.learnit.course.dto.CourseDTO">
         SELECT
             c.course_id      AS courseId,
             c.category_id    AS categoryId,
@@ -65,7 +65,7 @@
     </select>
 
     <!-- ✅ 무한스크롤(페이지) 목록 -->
-    <select id="selectCoursesPage" resultType="com.learnit.learnit.course.CourseDTO">
+    <select id="selectCoursesPage" resultType="com.learnit.learnit.course.dto.CourseDTO">
         SELECT
         c.course_id      AS courseId,
         c.category_id    AS categoryId,

@@ -1,4 +1,4 @@
-package com.learnit.learnit.course;
+package com.learnit.learnit.course.dto;
 
 import lombok.Data;
 

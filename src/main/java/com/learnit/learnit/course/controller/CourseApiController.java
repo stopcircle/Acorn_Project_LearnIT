@@ -1,6 +1,8 @@
-package com.learnit.learnit.course;
+package com.learnit.learnit.course.controller;
 
 import com.learnit.learnit.common.PageResponse;
+import com.learnit.learnit.course.dto.CourseDTO;
+import com.learnit.learnit.course.service.CourseService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.RequestParam;
