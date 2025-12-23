@@ -13,8 +13,38 @@
 </head>
 <body>
 
-<header class="top-header" th:text="${chapter.title}">
-    강의 타이틀
+<header class="top-header">
+
+    <div class="header-left">
+        <span class="course-title" th:text="${chapter.title}">강의 제목</span>
+    </div>
+
+    <div class="header-right">
+        <button class="header-nav-btn prev"
+                th:if="${prevChapterId != null}"
+                th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${prevChapterId})}'|">
+            <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전">
+            <span>이전</span>
+        </button>
+        <button class="header-nav-btn prev disabled" th:if="${prevChapterId == null}" disabled>
+            <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전">
+            <span>이전</span>
+        </button>
+
+        <div class="nav-divider"></div>
+
+        <button class="header-nav-btn next"
+                th:if="${nextChapterId != null}"
+                th:onclick="|location.href='@{/course/play(courseId=${courseId}, chapterId=${nextChapterId})}'|">
+            <span>다음</span>
+            <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
+        </button>
+        <button class="header-nav-btn next disabled" th:if="${nextChapterId == null}" disabled>
+            <span>다음</span>
+            <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
+        </button>
+    </div>
+
 </header>
 
 <div class="main-container">
@@ -23,43 +53,25 @@
         <div class="video-wrapper">
             <div id="player"></div>
         </div>
-
-        <div class="nav-controls">
-            <button class="nav-btn prev"
-                    th:if="${prevChapterId != null}"
-                    th:onclick="|location.href='@{/course/{cId}/video/{chId}(cId=${courseId}, chId=${prevChapterId})}'|">
-                <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전">
-            </button>
-            <button class="nav-btn prev disabled" th:if="${prevChapterId == null}" disabled>
-                <img th:src="@{/images/course/icon-left-arrow.png}" alt="이전" style="opacity: 0.3;">
-            </button>
-
-
-            <button class="nav-btn next"
-                    th:if="${nextChapterId != null}"
-                    th:onclick="|location.href='@{/course/{cId}/video/{chId}(cId=${courseId}, chId=${nextChapterId})}'|">
-                <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음">
-            </button>
-            <button class="nav-btn next disabled" th:if="${nextChapterId == null}" disabled>
-                <img th:src="@{/images/course/icon-left-arrow.png}" class="rotate-180" alt="다음" style="opacity: 0.3;">
-            </button>
-        </div>
     </main>
 
+    <div th:replace="~{course/fragments/sidePanels :: integratedPanel}"></div>
+
     <aside class="right-sidebar">
-        <a href="#" class="menu-item">
+
+        <a href="javascript:void(0)" class="menu-item" onclick="openPanel('curriculum')">
             <div class="icon-wrap"><img th:src="@{/images/course/icon-curriculum.png}" class="menu-icon"></div>
             <span class="menu-label">커리큘럼</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="javascript:void(0)" class="menu-item" onclick="openPanel('interpreter')">
             <div class="icon-wrap"><img th:src="@{/images/course/icon-interpreter.png}" class="menu-icon"></div>
             <span class="menu-label">인터프리터</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="javascript:void(0)" class="menu-item" onclick="openPanel('qna')">
             <div class="icon-wrap"><img th:src="@{/images/course/icon-qna.png}" class="menu-icon"></div>
             <span class="menu-label">Q&A</span>
         </a>
-        <a href="#" class="menu-item">
+        <a href="javascript:void(0)" class="menu-item" onclick="openPanel('file')">
             <div class="icon-wrap"><img th:src="@{/images/course/icon-file-download.png}" class="menu-icon"></div>
             <span class="menu-label">자료실</span>
         </a>

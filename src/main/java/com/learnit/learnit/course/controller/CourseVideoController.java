@@ -14,10 +14,10 @@ import java.util.Map;
 public class CourseVideoController {
     private final CourseVideoService courseVideoService;
 
-    // 1. 강의 재생 화면
-    @GetMapping("/course/{courseId}/video/{chapterId}")
-    public String playCourseVideo(@PathVariable Long courseId,
-                                  @PathVariable Long chapterId,
+    // 강의 재생 화면
+    @GetMapping("/course/play")
+    public String playCourseVideo(@RequestParam("courseId") Long courseId,
+                                  @RequestParam("chapterId") Long chapterId,
                                   Model model){
 
         // 현재 챕터 정보 가져오기
@@ -41,17 +41,17 @@ public class CourseVideoController {
         return "course/courseVideo";
     }
 
-    // 2. [추가] 진도율 DB 저장 (Ajax 요청)
-    @PostMapping("/course/{courseId}/video/{chapterId}/log")
+    // 진도율 DB 저장 (Ajax 요청)
+    @PostMapping("/course/log")
     @ResponseBody
-    public String saveProgress(@PathVariable Long courseId,
-                               @PathVariable Long chapterId,
+    public String saveProgress(@RequestParam("courseId") Long courseId,
+                               @RequestParam("chapterId") Long chapterId,
                                @RequestBody Map<String, Object> payload) {
 
         // Map에서 시간 꺼내기 (JSON -> Java)
         Integer playTime = (Integer) payload.get("playTime");
 
-        // [임시] 로그인 기능 전이므로 '1번 유저'로 고정
+        // 로그인 기능 전이므로 '1번 유저'로 고정
         Long userId = 1L;
 
         // 로그 확인

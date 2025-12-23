@@ -1,3 +1,8 @@
+@charset "UTF-8";
+
+/* =========================================
+   1. Global & Layout Reset
+   ========================================= */
 * {
     box-sizing: border-box;
     margin: 0;
@@ -5,33 +10,133 @@
 }
 
 body {
-    height: 100vh; /* 화면 전체 높이 사용 */
+    height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* 스크롤바 숨김 (앱 느낌) */
+    overflow: hidden; /* 스크롤바 숨김 (App-like layout) */
+    font-family: 'Noto Sans KR', sans-serif;
 }
 
-
-/* [2] 상단 헤더 (강의 타이틀 영역) */
+/* =========================================
+   2. Top Header (Title & Navigation)
+   ========================================= */
 .top-header {
     height: 60px;
     background-color: #ffffff;
     border-bottom: 1px solid #ddd;
     display: flex;
     align-items: center;
-    padding: 0 30px;
-    font-size: 18px;
-    font-weight: bold;
+    justify-content: space-between; /* 좌우 배분 */
+    padding: 0 20px;
+    z-index: 101; /* 사이드바보다 위에 위치 */
+}
+
+/* [Left] 강의 제목 영역 */
+.header-left {
+    flex: 1;
+    min-width: 0; /* 텍스트 말줄임 처리를 위해 필수 */
+    margin-right: 20px;
+}
+
+.course-title {
+    font-size: 16px;
+    font-weight: 600;
+    color: #333;
+    display: block;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis; /* 긴 제목은 ... 처리 */
+}
+
+/* [Right] 네비게이션 버튼 그룹 */
+.header-right {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* 버튼 사이 간격 */
+    flex-shrink: 0;
+}
+
+/* 공통 버튼 스타일 (수정됨: 글자 포함형) */
+.header-nav-btn {
+    width: auto; /* 글자 길이에 맞춰 늘어남 */
+    height: 36px;
+    padding: 0 12px; /* 좌우 여백 */
+    border: 1px solid #e5e5e5;
+    background-color: #ffffff;
+    border-radius: 8px;
+    cursor: pointer;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    gap: 6px; /* 아이콘과 글자 사이 간격 */
+    transition: all 0.2s ease;
+}
+
+/* 버튼 내부 텍스트 */
+.header-nav-btn span {
+    font-size: 13px;
+    font-weight: 500;
+    color: #555;
+    line-height: 1;
+    padding-bottom: 1px; /* 시각적 중앙 보정 */
+}
+
+.header-nav-btn:hover {
+    background-color: #f8f9fa;
+    border-color: #ccc;
+}
+
+.header-nav-btn:hover span {
     color: #333;
 }
 
-/* [3] 메인 컨테이너 (좌측 영상 + 우측 사이드바) */
+.header-nav-btn:active {
+    transform: translateY(0);
+}
+
+/* 비활성화 버튼 (Disabled) */
+.header-nav-btn.disabled {
+    opacity: 0.5;
+    cursor: default;
+    background-color: #f9f9f9;
+    border-color: #eee;
+}
+
+.header-nav-btn.disabled:hover {
+    transform: none;
+    background-color: #f9f9f9;
+}
+
+/* 아이콘 이미지 */
+.header-nav-btn img {
+    width: 12px;
+    height: 12px;
+    opacity: 0.6;
+    object-fit: contain;
+}
+
+/* 다음 버튼 아이콘 회전 */
+.rotate-180 {
+    transform: rotate(180deg);
+}
+
+/* 구분선 */
+.nav-divider {
+    width: 1px;
+    height: 16px;
+    background-color: #eee;
+    margin: 0 4px;
+}
+
+/* =========================================
+   3. Main Container & Video Section
+   ========================================= */
 .main-container {
     display: flex;
     flex: 1; /* 남은 높이 모두 차지 */
+    position: relative;
 }
 
-/* --- [좌측] 영상 영역 --- */
 .video-section {
     flex: 1; /* 가변 너비 */
     display: flex;
@@ -40,90 +145,90 @@ body {
     align-items: center;
     padding: 40px;
     background-color: #f5f5f5;
+    transition: flex 0.3s ease-in-out;
 }
 
-/* 영상 플레이어 박스 (16:9 비율 유지) */
+/* 영상 래퍼 (16:9 비율 유지) */
 .video-wrapper {
     width: 100%;
-    max-width: 1100px; /* 너무 커지지 않게 제한 */
+    max-width: 1500px;
     aspect-ratio: 16 / 9;
-    background-color: #dcdcdc; /* 회색 배경 (영상 없을 때) */
-    border-radius: 4px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    font-size: 24px;
-    color: #777;
-    box-shadow: 0 4px 15px rgba(0,0,0,0.1);
-    margin-bottom: 30px;
+    background-color: #000;
+    border-radius: 8px;
+    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
+    overflow: hidden;
 }
 
 .video-wrapper iframe {
     width: 100%;
     height: 100%;
-    border-radius: 4px; /* 기존 디자인 유지 */
-}
-
-/* 하단 네비게이션 버튼 (< >) */
-.nav-controls {
-    display: flex;
-    gap: 100px;
-}
-
-.nav-btn {
-    width: 45px;
-    height: 45px;
-    border-radius: 50%;
     border: none;
-    background-color: #e0e0e0;
-    color: #555;
-    font-size: 18px;
-    font-weight: bold;
-    cursor: pointer;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    transition: 0.2s;
 }
 
-.nav-btn:hover {
-    background-color: #d0d0d0;
-}
-
-.nav-btn img {
-    width: 50%;
-    height: 50%;
-    object-fit: contain;
-    display: block;
-}
-
-.nav-btn.prev img {
-    transform: translate(-2px);
-}
-
-.nav-btn.next img {
-    transform: rotate(180deg) translate(-2px);
-}
-
-/* [추가] 비활성화 버튼 스타일 */
-.nav-btn.disabled {
-    cursor: default;     /* 마우스 커서 기본으로 */
-    background-color: #f0f0f0; /* 더 연한 회색 */
-}
-.nav-btn.disabled:hover {
-    background-color: #f0f0f0; /* 호버 효과 제거 */
-}
-
-/* --- [우측] 사이드바 메뉴 --- */
-.right-sidebar {
-    width: 70px; /* 고정 너비 */
+/* =========================================
+   4. Side Panel (Expandable Content)
+   ========================================= */
+.side-panel-wrapper {
+    width: 0; /* 기본 상태: 숨김 */
+    overflow: hidden;
     background-color: #ffffff;
     border-left: 1px solid #ddd;
     display: flex;
-    padding-top: 15px;
+    flex-direction: column;
+    flex-shrink: 0;
+    transition: width 0.3s ease-in-out;
+}
+
+/* 패널 열림 상태 */
+.side-panel-wrapper.open {
+    width: 320px;
+}
+
+/* 내부 콘텐츠 박스 */
+.panel-content-box {
+    width: 320px;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+}
+
+.panel-header {
+    height: 50px;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 0 20px;
+    border-bottom: 1px solid #eee;
+    font-weight: bold;
+    color: #333;
+}
+
+.close-btn {
+    background: none;
+    border: none;
+    font-size: 24px;
+    cursor: pointer;
+    color: #999;
+}
+
+.panel-body {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* =========================================
+   5. Right Sidebar (Menu Tabs)
+   ========================================= */
+.right-sidebar {
+    width: 70px;
+    background-color: #ffffff;
+    border-left: 1px solid #ddd;
+    display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 30px; /* 메뉴 간 간격 */
+    padding-top: 20px;
+    gap: 30px;
+    z-index: 100;
 }
 
 .menu-item {
@@ -131,36 +236,93 @@ body {
     flex-direction: column;
     align-items: center;
     text-decoration: none;
-    color: #333;
+    color: #555;
     cursor: pointer;
+    transition: opacity 0.2s;
 }
 
 .menu-item:hover {
-    opacity: 0.7;
+    color: #000;
 }
 
-/* 아이콘 박스 (이미지 대신 CSS로 모양 잡음) */
 .icon-wrap {
-    width: 30px;
-    height: 30px;
+    width: 36px;
+    height: 36px;
     border-radius: 8px;
-    margin-bottom: 8px;
+    margin-bottom: 6px;
     display: flex;
     justify-content: center;
     align-items: center;
-    /* font-size: 20px;  <- 이모지용 폰트 사이즈는 이미지에 영향 없으므로 주석 처리해도 됨 */
+    background-color: #f8f9fa;
 }
 
-/* [추가된 CSS] 아이콘 이미지 크기 조절 */
 .menu-icon {
-    width: 24px;       /* 40px 박스 안에 적당히 들어가는 크기 */
-    height: 24px;
-    object-fit: contain; /* 이미지 비율 유지 */
-    display: block;    /* 이미지 하단 공백 제거 */
+    width: 20px;
+    height: 20px;
+    object-fit: contain;
 }
 
 .menu-label {
-    font-size: 12px;
+    font-size: 11px;
     font-weight: 600;
-    color: #555;
+}
+
+/* =========================================
+   6. Responsive (Mobile <= 768px)
+   ========================================= */
+@media (max-width: 768px) {
+
+    .main-container {
+        flex-direction: column;
+        padding-bottom: 70px; /* 하단 네비바 높이 확보 */
+    }
+
+    .header-right {
+        gap: 2px; /* 버튼 사이 간격 */
+    }
+
+    /* 패널: 하단에서 위로 슬라이드 & 영상 밀어내기 */
+    .side-panel-wrapper {
+        position: relative;
+        width: 100% !important;
+        height: 0;
+        border-left: none;
+        border-top: 1px solid #ddd;
+        border-radius: 20px 20px 0 0;
+        transition: height 0.3s ease-in-out;
+        order: 2; /* 영상 아래 배치 */
+        z-index: 200;
+    }
+
+    .side-panel-wrapper.open {
+        height: 45vh; /* 화면 높이의 45% 차지 */
+    }
+
+    .panel-content-box {
+        width: 100%;
+    }
+
+    /* 사이드바: 하단 고정 네비게이션 */
+    .right-sidebar {
+        position: fixed;
+        bottom: 0;
+        left: 0;
+        width: 100%;
+        height: 70px;
+        flex-direction: row;
+        justify-content: space-between;
+        padding: 0 30px;
+        border-left: none;
+        border-top: 1px solid #ddd;
+        z-index: 300;
+    }
+
+    .right-sidebar .menu-item {
+        flex: 1;
+        justify-content: center;
+    }
+
+    .icon-wrap {
+        background-color: transparent; /* 모바일은 배경 제거 */
+    }
 }
