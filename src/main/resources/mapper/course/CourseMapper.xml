@@ -132,5 +132,27 @@
             AND c.price = 0
         </if>
     </select>
+    <!-- ✅ 강의 상세 1건 -->
+    <select id="selectCourseById" resultType="com.learnit.learnit.course.CourseDTO">
+        SELECT
+        c.course_id      AS courseId,
+        c.category_id    AS categoryId,
+        c.user_id        AS userId,
+        c.title          AS title,
+        c.description    AS description,
+        c.price          AS price,
+        c.thumbnail_url  AS thumbnailUrl,
+        c.detail_img_url AS detailImgUrl,
+        c.open_type      AS openType,
+        c.open_start     AS openStart,
+        c.open_end       AS openEnd,
+        c.status         AS status,
+        c.created_at     AS createdAt,
+        c.updated_at     AS updatedAt,
+        c.delete_flg     AS deleteFlg
+        FROM course c
+        WHERE c.delete_flg = 0
+        AND c.course_id = #{courseId}
+    </select>
 
 </mapper>

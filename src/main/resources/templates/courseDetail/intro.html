@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+<head>
+    <title th:fragment="title">강의 소개</title>
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/courseDetail/course-detail.css}">
+    </th:block>
+</head>
+<body>
+<div th:fragment="content" class="course-detail-wrap">
+
+    <section class="course-hero">
+        <div>
+            <h1 th:text="${course.title}">강의 제목</h1>
+            <p class="sub" th:text="${course.description}">한 줄 설명</p>
+
+            <div class="meta-row">
+                <span>★ <span th:text="${ratingAvg}">4.9</span></span>
+                <span>(<span th:text="${reviewCount}">27</span>)</span>
+                <span>수강생 <span th:text="${studentCount}">1750</span>명</span>
+            </div>
+
+            <div class="meta-row">
+                <span th:text="${instructorName}">Sonic AI</span>
+            </div>
+
+            <div class="badges">
+                <span class="badge" th:each="t : ${tags}" th:text="${t}">tag</span>
+            </div>
+        </div>
+
+        <div style="display:flex;justify-content:flex-end;align-items:center;">
+            <div class="preview">
+                <img th:if="${course.detailImgUrl != null}" th:src="${course.detailImgUrl}" alt="">
+                <div th:if="${course.detailImgUrl == null}">미리보기</div>
+            </div>
+        </div>
+    </section>
+
+    <nav class="course-tabs">
+        <a th:href="@{/CourseDetail/intro(courseId=${course.courseId})}"
+           th:classappend="${activeTab=='intro'} ? ' is-active' : ''">강의 소개</a>
+        <a th:href="@{/CourseDetail/curriculum(courseId=${course.courseId})}"
+           th:classappend="${activeTab=='curriculum'} ? ' is-active' : ''">커리큘럼</a>
+        <a th:href="@{/CourseDetail/reviews(courseId=${course.courseId})}"
+           th:classappend="${activeTab=='reviews'} ? ' is-active' : ''">수강평</a>
+    </nav>
+
+    <section class="course-body">
+        <div class="content-box">
+            <div class="section-title">강의 소개</div>
+
+            <p style="line-height:1.8; color:#444;">
+                ✅ 여기는 “강의 소개만” 보여주는 페이지야.<br><br>
+                지금은 DB에 소개글 컬럼이 없어서 임시 문구로 넣어뒀고,<br>
+                나중에 course_intro 같은 컬럼이 생기면 여기서 출력만 바꾸면 돼.
+            </p>
+        </div>
+
+        <aside class="side-card">
+            <div class="price"
+                 th:text="${course.price == 0 ? '무료' : #numbers.formatInteger(course.price, 3, 'COMMA') + '원'}">무료</div>
+
+            <!-- ✅ 결제/로그인 아직이라 버튼은 준비중 -->
+            <a class="btn-enroll is-disabled" href="javascript:void(0)">바로 수강신청 하기(준비중)</a>
+
+            <div class="spec">
+                <div class="spec-row"><span>지식공유자</span><span th:text="${instructorName}">-</span></div>
+                <div class="spec-row"><span>커리큘럼</span><span th:text="${lectureCount} + '개'">8개</span></div>
+                <div class="spec-row"><span>강의 시간</span><span th:text="${lectureTime}">2시간 49분</span></div>
+                <div class="spec-row"><span>수강기간</span><span>무제한</span></div>
+                <div class="spec-row"><span>난이도</span><span th:text="${levelText}">입문</span></div>
+            </div>
+        </aside>
+    </section>
+
+</div>
+<th:block th:fragment="script"></th:block>
+</body>
+</html>

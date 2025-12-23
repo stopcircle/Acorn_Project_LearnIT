@@ -1,0 +1,15 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+<head>
+    <title th:fragment="title">강의 없음</title>
+    <th:block th:fragment="css"></th:block>
+</head>
+<body>
+<div th:fragment="content" style="width:1200px;margin:60px auto;padding:0 20px;">
+    <h2 th:text="${message}">해당 강의를 찾을 수 없습니다.</h2>
+    <a href="/CourseList" style="display:inline-block;margin-top:12px;">강의 목록으로</a>
+</div>
+<th:block th:fragment="script"></th:block>
+</body>
+</html>

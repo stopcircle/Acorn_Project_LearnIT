@@ -122,7 +122,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
         return `
       <article class="course-card">
-        <a class="course-link" href="/CourseDetail?courseId=${c.courseId}">
+        <a class="course-link" href="/CourseDetail/intro?courseId=${c.courseId}">
           <div class="thumb-wrap">
             ${thumb
             ? `<img class="thumb" src="${escapeHtml(thumb)}" alt="">`
