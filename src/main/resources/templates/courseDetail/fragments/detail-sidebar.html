@@ -1,0 +1,30 @@
+<html xmlns:th="http://www.thymeleaf.org">
+<th:block th:fragment="detailSidebar(course, isLoggedIn)">
+
+    <aside class="cd-sidebar">
+        <div class="cd-price">
+            <span th:text="${course.price == 0 ? '무료' : #numbers.formatInteger(course.price, 0, 'COMMA') + '원'}">69,000원</span>
+        </div>
+
+        <!-- ✅ 로그인 전 -->
+        <button class="cd-btn primary"
+                th:if="${!isLoggedIn}"
+                data-action="login">
+            바로 수강신청 하기
+        </button>
+
+        <!-- ✅ 로그인 후 -->
+        <div th:if="${isLoggedIn}" class="cd-btn-group">
+            <button class="cd-btn secondary" data-action="cart">장바구니</button>
+            <button class="cd-btn primary" data-action="buy">구매하기</button>
+        </div>
+
+        <div class="cd-info">
+            <div class="row"><span>지식공유자</span><b>Sonic AI</b></div>
+            <div class="row"><span>수강기간</span><b>무제한</b></div>
+            <div class="row"><span>난이도</span><b>입문 · 초급 · 중급이상</b></div>
+        </div>
+    </aside>
+
+</th:block>
+</html>
