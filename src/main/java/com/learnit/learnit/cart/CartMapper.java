@@ -12,4 +12,7 @@ public interface CartMapper {
 
     // ✅ 전체삭제
     int deleteAllByUserId(@Param("userId") Long userId);
+    int insertCart(@Param("userId") Long userId, @Param("courseId") Long courseId);
+    int existsInCart(@Param("userId") Long userId, @Param("courseId") Long courseId);
+
 }

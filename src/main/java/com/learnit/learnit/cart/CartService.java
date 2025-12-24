@@ -32,4 +32,15 @@ public class CartService {
         }
         return sum;
     }
+    public int addItem(Long userId, Long courseId) {
+        return cartMapper.insertCart(userId, courseId);
+    }
+    public boolean addItemIfNotExists(Long userId, Long courseId) {
+        int cnt = cartMapper.existsInCart(userId, courseId);
+        if (cnt > 0) return false;   // 이미 담김
+        cartMapper.insertCart(userId, courseId);
+        return true;                 // 새로 담음
+    }
+
+
 }

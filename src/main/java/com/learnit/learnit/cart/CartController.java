@@ -45,4 +45,13 @@ public class CartController {
         cartService.clearCart(userId);
         return "redirect:/cart";
     }
+
+    @PostMapping("/cart/add")
+    @ResponseBody
+    public String addToCart(@RequestParam("courseId") Long courseId) {
+        Long userId = 5L; // 임시 고정
+        boolean added = cartService.addItemIfNotExists(userId, courseId);
+        return added ? "OK" : "DUP";
+    }
+
 }

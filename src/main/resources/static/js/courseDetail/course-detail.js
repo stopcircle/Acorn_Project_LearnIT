@@ -14,13 +14,28 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      if (action === "cartGo") {
-        const ok = confirm("장바구니 화면으로 이동하시겠습니까?");
-        if (ok) {
-          location.href = "/cart"; // 임시 페이지로 바꿔도 됨
-        }
+if (action === "cartGo") {
+  const ok = confirm("장바구니에 담고 이동하시겠습니까?");
+  if (!ok) return;
+
+  const params = new URLSearchParams(location.search);
+  const courseId = params.get("courseId");
+
+  fetch("/cart/add?courseId=" + courseId, { method: "POST" })
+    .then(res => res.text())
+    .then(text => {
+      if (text === "DUP") {
+        alert("이미 장바구니에 담긴 강의입니다.");
+        location.href = "/cart"; // 원하면 여기서 이동 안 시켜도 됨
         return;
       }
+      location.href = "/cart";
+    })
+    .catch(() => alert("장바구니 담기 실패"));
+  return;
+}
+
+
 
       if (action === "payGo") {
         const ok = confirm("결제하기 화면으로 이동하시겠습니까?");
