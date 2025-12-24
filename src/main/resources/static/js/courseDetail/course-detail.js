@@ -8,15 +8,16 @@ document.addEventListener("DOMContentLoaded", () => {
         return;
       }
 
-      if (action === "enroll") {
-        alert("수강신청 처리(추후 API 연결)");
+      if (action === "enrollGo") {
+        const ok = confirm("수강신청 페이지로 이동하시겠습니까?");
+        if (ok) location.href = "/Enroll"; // 너희 수강신청 페이지 URL로 바꿔
         return;
       }
 
       if (action === "cartGo") {
         const ok = confirm("장바구니 화면으로 이동하시겠습니까?");
         if (ok) {
-          location.href = "/Cart"; // 임시 페이지로 바꿔도 됨
+          location.href = "/cart"; // 임시 페이지로 바꿔도 됨
         }
         return;
       }

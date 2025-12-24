@@ -8,10 +8,9 @@
                 <p class="cd-sub" th:text="${course.description}">강의 설명</p>
 
                 <div class="cd-tags">
-                    <span class="tag">Spring</span>
-                    <span class="tag">Spring Boot</span>
-                    <span class="tag">RAG</span>
+                    <span class="tag" th:text="${course.categoryName}">프론트엔드</span>
                 </div>
+
             </div>
 
             <div class="cd-hero__right">

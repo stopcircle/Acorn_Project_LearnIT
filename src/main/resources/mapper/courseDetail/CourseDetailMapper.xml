@@ -20,11 +20,27 @@
         c.status         AS status,
         c.created_at     AS createdAt,
         c.updated_at     AS updatedAt,
-        c.delete_flg     AS deleteFlg
+        c.delete_flg     AS deleteFlg,
+
+        -- ✅ 카테고리명
+        cat.name         AS categoryName,
+
+        -- ✅ 지식공유자 (nickname 우선, 없으면 name)
+        COALESCE(u.nickname, u.name) AS instructorName,
+
+        -- ✅ 수강기간 텍스트
+        CASE
+        WHEN c.open_type = 'ALWAYS' THEN '무제한'
+        ELSE CONCAT(DATE_FORMAT(c.open_start, '%Y.%m.%d'), ' ~ ', DATE_FORMAT(c.open_end, '%Y.%m.%d'))
+        END AS periodText
+
         FROM course c
+        LEFT JOIN category cat ON cat.category_id = c.category_id
+        LEFT JOIN users u ON u.user_id = c.user_id
         WHERE c.course_id = #{courseId}
         AND c.delete_flg = 0
     </select>
+
 
     <!-- ✅ 커리큘럼(챕터) 조회 -->
     <select id="selectChaptersByCourseId" resultType="com.learnit.learnit.courseDetail.ChapterDTO">
