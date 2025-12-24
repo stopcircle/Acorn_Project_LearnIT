@@ -33,4 +33,8 @@ public class CourseVideoService {
 
         return (int) ((double) completed / total * 100);
     }
+
+    public void updateChapterDuration(Long chapterId, int duration) {
+        courseVideoMapper.updateChapterDuration(chapterId, duration);
+    }
 }

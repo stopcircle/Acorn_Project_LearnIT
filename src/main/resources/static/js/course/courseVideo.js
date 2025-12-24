@@ -49,6 +49,7 @@ window.onYouTubeIframeAPIReady = function() {
             'autoplay': 0
         },
         events: {
+            'onReady': onPlayerReady,
             'onStateChange': onPlayerStateChange
         }
     });
@@ -170,4 +171,36 @@ function closePanel() {
     const wrapper = document.getElementById('side-panel-wrapper');
     wrapper.classList.remove('open');
     currentActiveTab = null; // 상태 초기화
+}
+
+// 플레이어가 로딩되자마자 실행되는 함수
+function onPlayerReady(event) {
+    // 1. 영상 길이 가져오기 (재생 안 해도 가져올 수 있음!)
+    if(player && player.getDuration) {
+        const duration = Math.floor(player.getDuration());
+        if (duration > 0) {
+            saveDurationToServer(duration); // 즉시 서버 전송
+        }
+    }
+
+    // 2. (기존 로직) 저장된 시간부터 이어보기
+    if(savedTime > 0) {
+        player.seekTo(savedTime);
+    }
+}
+
+// 서버로 전체 시간(duration) 전송 함수
+function saveDurationToServer(duration) {
+    if (!currentChapterId) return;
+
+    // Controller 주소와 파라미터가 맞는지 꼭 확인하세요!
+    const url = `/course/log/duration?chapterId=${currentChapterId}&duration=${duration}`;
+
+    fetch(url, {
+        method: 'POST',
+    })
+        .then(response => {
+            if (response.ok) console.log("DB에 영상 길이 저장 완료");
+        })
+        .catch(error => console.error("영상 길이 저장 실패:", error));
 }

@@ -64,4 +64,11 @@ public class CourseVideoController {
 
         return "ok";
     }
+
+    @PostMapping("/course/log/duration")
+    @ResponseBody
+    public void updateDuration(@RequestParam Long chapterId, @RequestParam int duration) {
+        System.out.println("영상 전체 길이 업데이트: " + duration + "초 (ChapterId: " + chapterId + ")");
+        courseVideoService.updateChapterDuration(chapterId, duration);
+    }
 }
