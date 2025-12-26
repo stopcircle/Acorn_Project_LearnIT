@@ -116,6 +116,28 @@
     cursor: pointer;
 }
 
+/* ✅ 퀵 메뉴 */
+.quick-menu{
+    display:flex;
+    flex-wrap:wrap;
+    gap:0.6rem;
+    margin:0.4rem 0 1rem;
+}
+
+.quick-btn{
+    border:1px solid #e5e7eb;
+    background:#fff;
+    color:#111827;
+    border-radius:999px;
+    padding:0.6rem 1rem;
+    font-size:1.2rem;
+    cursor:pointer;
+}
+
+.quick-btn:hover{
+    background:#eef2ff;
+    border-color:#c7d2fe;
+}
 
 /* 반응형 버전 */
 @media (max-width: 768px) {

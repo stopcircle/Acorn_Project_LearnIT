@@ -1,5 +1,6 @@
 <!-- 챗봇 Fragment -->
 <div th:fragment="chatbot">
+    <!-- ✅ 로그인 여부: 서버에서 JS로 전달 -->
     <div id="chatbot">
         <div id="chatbot-toggle">
             <i class="fa-solid fa-comment-dots"></i>
@@ -12,6 +13,9 @@
             </div>
             <div id="chatbot-body">
                 <div class="bot-message">안녕하세요! 무엇을 도와드릴까요?</div>
+
+                <!-- ✅ 퀵 메뉴: JS가 메뉴를 생성 -->
+                <div class="quick-menu" id="quick-menu"></div>
             </div>
             <div id="chatbot-input-area">
                 <input type="text" id="chatbot-input" placeholder="메시지를 입력하세요..." />
