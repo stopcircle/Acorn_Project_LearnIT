@@ -2,6 +2,8 @@ package com.learnit.learnit.review;
 
 import jakarta.persistence.*;
 import lombok.*;
+import org.hibernate.annotations.CreationTimestamp;
+import org.hibernate.annotations.UpdateTimestamp;
 
 @Entity
 @Table(name = "review")
@@ -32,8 +34,13 @@ public class ReviewDTO {
 
     private String commentStatus;
 
-    @Column(updatable = false)
+    // ✅ 저장 시 자동으로 값 들어감
+    @CreationTimestamp
+    @Column(name = "created_at", updatable = false)
     private java.time.LocalDateTime createdAt;
 
+    // ✅ 저장/수정 시 자동으로 값 들어감
+    @UpdateTimestamp
+    @Column(name = "updated_at")
     private java.time.LocalDateTime updatedAt;
 }
