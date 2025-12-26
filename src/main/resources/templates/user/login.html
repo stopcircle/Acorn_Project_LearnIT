@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+  <title th:fragment="title">로그인 - LearnIT</title>
+  
+  <th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/user/login.css}">
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="content" class="login-container">
+    <div class="login-wrapper">
+      
+      <!-- 상단 타이틀 영역 -->
+      <div class="login-header">
+        <div class="login-title-area">
+          <span class="login-icon">◆</span>
+          <h1 class="login-title">로그인</h1>
+        </div>
+        <a th:href="@{/signup}" class="signup-btn">회원가입</a>
+      </div>
+
+      <!-- 로그인 폼 -->
+      <div class="login-content">
+        <div class="login-form-wrapper">
+          
+          <!-- 에러 메시지 -->
+          <div th:if="${error}" class="error-message" th:text="${error}"></div>
+          <div th:if="${param.error}" class="error-message">이메일 또는 비밀번호가 올바르지 않습니다.</div>
+          
+          <form th:action="@{/login}" method="post" class="login-form">
+            <div class="form-group">
+              <label for="email">Email</label>
+              <input type="email" id="email" name="email" placeholder="Value" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="password">Password</label>
+              <input type="password" id="password" name="password" placeholder="Value" required>
+            </div>
+            
+            <button type="submit" class="btn-login">로그인</button>
+          </form>
+          
+          <!-- 하단 링크 -->
+          <div class="login-links">
+            <a th:href="@{/find}" class="link-find">아이디/비밀번호 찾기</a>
+            <span class="link-divider">|</span>
+            <a th:href="@{/signup}" class="link-signup">회원가입</a>
+          </div>
+          
+          <!-- SNS 로그인 -->
+          <div class="sns-login">
+            <div class="sns-divider">
+              <span>SNS login</span>
+            </div>
+            <div class="sns-buttons">
+              <a th:href="@{/oauth2/authorization/kakao}" class="sns-btn kakao-btn">카카오</a>
+              <a th:href="@{/oauth2/authorization/google}" class="sns-btn naver-btn">네이버</a>
+            </div>
+          </div>
+          
+          <!-- 하단 회원가입 링크 -->
+          <div class="signup-link-bottom">
+            <span>회원가입이 필요하신가요?</span>
+            <a th:href="@{/signup}">회원가입</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="script">
+    <!-- 필요시 JavaScript 추가 -->
+  </th:block>
+</body>
+</html>
+

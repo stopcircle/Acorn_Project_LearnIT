@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
+
+<head>
+  <title th:fragment="title">회원가입 - LearnIT</title>
+  
+  <th:block th:fragment="css">
+    <link rel="stylesheet" th:href="@{/css/user/signup.css}">
+  </th:block>
+</head>
+
+<body>
+  <div th:fragment="content" class="signup-container">
+    <div class="signup-wrapper">
+      
+      <!-- 상단 타이틀 영역 -->
+      <div class="signup-header">
+        <div class="signup-title-area">
+          <span class="signup-icon">◆</span>
+          <h1 class="signup-title">회원가입</h1>
+        </div>
+        <a th:href="@{/login}" class="login-btn">로그인</a>
+      </div>
+
+      <!-- 회원가입 폼 -->
+      <div class="signup-content">
+        <div class="signup-form-wrapper">
+          
+          <!-- 에러 메시지 -->
+          <div th:if="${error}" class="error-message" th:text="${error}"></div>
+          
+          <form th:action="@{/signup}" method="post" class="signup-form" id="signupForm">
+            
+            <div class="form-group">
+              <label for="nickname">이름</label>
+              <input type="text" id="nickname" name="nickname" placeholder="Value" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="name">아이디</label>
+              <div class="input-with-button">
+                <input type="text" id="name" name="name" placeholder="Value" required>
+                <button type="button" class="btn-check-duplicate" onclick="checkUsername()">중복확인</button>
+              </div>
+            </div>
+            
+            <div class="form-group">
+              <label for="password">비밀번호</label>
+              <input type="password" id="password" name="password" placeholder="Value" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="confirmPassword">비밀번호 확인</label>
+              <input type="password" id="confirmPassword" name="confirmPassword" placeholder="Value" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="email">이메일</label>
+              <input type="email" id="email" name="email" placeholder="Value" required>
+            </div>
+            
+            <div class="form-group">
+              <label for="phone">전화번호</label>
+              <input type="tel" id="phone" name="phone" placeholder="Value">
+            </div>
+            
+            <div class="form-group">
+              <label for="region">지역</label>
+              <input type="text" id="region" name="region" placeholder="Value">
+            </div>
+            
+            <div class="form-group">
+              <label for="consentReceive">수신 동의</label>
+              <select id="consentReceive" name="consentReceive">
+                <option value="Value">Value</option>
+              </select>
+            </div>
+            
+            <div class="form-group checkbox-group">
+              <label>
+                <input type="checkbox" id="consentSms" name="consentSms" value="true">
+                SMS 수신 동의
+              </label>
+            </div>
+            
+            <div class="form-actions">
+              <button type="submit" class="btn-signup">가입하기</button>
+              <button type="button" class="btn-cancel" onclick="location.href='/home'">취소</button>
+            </div>
+          </form>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <th:block th:fragment="script">
+    <script>
+      function checkUsername() {
+        const username = document.getElementById('name').value;
+        if (!username) {
+          alert('아이디를 입력해주세요.');
+          return;
+        }
+        
+        fetch('/api/check-username?username=' + username)
+          .then(response => response.json())
+          .then(data => {
+            if (data.exists) {
+              alert('이미 사용 중인 아이디입니다.');
+            } else {
+              alert('사용 가능한 아이디입니다.');
+            }
+          })
+          .catch(error => {
+            console.error('Error:', error);
+            alert('중복 확인 중 오류가 발생했습니다.');
+          });
+      }
+    </script>
+  </th:block>
+</body>
+</html>
+

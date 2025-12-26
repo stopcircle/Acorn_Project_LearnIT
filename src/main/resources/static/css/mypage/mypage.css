@@ -1782,3 +1782,10 @@
         height: 70px;
     }
 }
+
+/* 인라인 스타일 분리 - 초기 숨김 상태 */
+.goal-content.hidden,
+.todo-input-section.hidden,
+.completed-list.hidden {
+    display: none;
+}
