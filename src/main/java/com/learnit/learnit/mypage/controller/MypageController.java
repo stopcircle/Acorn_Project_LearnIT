@@ -2,8 +2,8 @@ package com.learnit.learnit.mypage.controller;
 
 import com.learnit.learnit.mypage.dto.DashboardDTO;
 import com.learnit.learnit.mypage.service.DashboardService;
+import com.learnit.learnit.mypage.service.UserIdentityService;
 import com.learnit.learnit.user.dto.UserDTO;
-import com.learnit.learnit.user.mapper.UserMapper;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -15,7 +15,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class MypageController {
 
     private final DashboardService dashboardService;
-    private final UserMapper userMapper;
+    private final UserIdentityService userIdentityService;
 
     @GetMapping("/mypage")
     public String myPage() {
@@ -25,16 +25,14 @@ public class MypageController {
 
     @GetMapping("/mypage/dashboard")
     public String dashboard(HttpSession session, Model model) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return "redirect:/login";
-        }
+        // 사용자 식별 서비스를 통해 현재 사용자 ID 조회
+        Long userId = userIdentityService.requireCurrentUserId(session);
         
         DashboardDTO dashboard = dashboardService.getDashboardData(userId);
         model.addAttribute("dashboard", dashboard);
         
-        // 사용자 정보 조회 및 추가
-        UserDTO user = userMapper.selectUserById(userId);
+        // 사용자 정보 조회 및 추가 (식별 서비스 사용)
+        UserDTO user = userIdentityService.getUserById(userId);
         model.addAttribute("user", user);
         
         return "mypage/dashboard/dashboard";

@@ -2,6 +2,8 @@ package com.learnit.learnit.mypage.controller;
 
 import com.learnit.learnit.mypage.dto.TodoDTO;
 import com.learnit.learnit.mypage.service.TodoService;
+import com.learnit.learnit.mypage.service.UserIdentityService;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.web.bind.annotation.*;
@@ -17,6 +19,7 @@ import java.util.Map;
 public class TodoController {
 
     private final TodoService todoService;
+    private final UserIdentityService userIdentityService;
 
     /**
      * 날짜별 할일 목록 조회 (AJAX용)
@@ -26,9 +29,10 @@ public class TodoController {
     public List<TodoDTO> getTodos(
             @RequestParam int year,
             @RequestParam int month,
-            @RequestParam int day) {
-        // TODO: 실제 사용자 ID를 세션에서 가져오도록 수정 필요
-        Long userId = 1L; // 임시 사용자 ID
+            @RequestParam int day,
+            HttpSession session) {
+        // 사용자 식별 서비스를 통해 현재 사용자 ID 조회
+        Long userId = userIdentityService.requireCurrentUserId(session);
         return todoService.getTodosByDate(userId, year, month, day);
     }
 
@@ -37,12 +41,12 @@ public class TodoController {
      */
     @PostMapping("/save")
     @ResponseBody
-    public Map<String, Object> saveTodo(@RequestBody TodoDTO todo) {
+    public Map<String, Object> saveTodo(@RequestBody TodoDTO todo, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         
         try {
-            // TODO: 실제 사용자 ID를 세션에서 가져오도록 수정 필요
-            Long userId = 1L; // 임시 사용자 ID
+            // 사용자 식별 서비스를 통해 현재 사용자 ID 조회
+            Long userId = userIdentityService.requireCurrentUserId(session);
             todo.setUserId(userId);
             
             // description이 null인 경우 빈 문자열로 설정
@@ -77,9 +81,10 @@ public class TodoController {
     @ResponseBody
     public Map<String, Object> completeTodo(
             @PathVariable Long todoId,
-            @RequestParam boolean completed) {
-        // TODO: 실제 사용자 ID를 세션에서 가져오도록 수정 필요
-        Long userId = 1L; // 임시 사용자 ID
+            @RequestParam boolean completed,
+            HttpSession session) {
+        // 사용자 식별 서비스를 통해 현재 사용자 ID 조회
+        Long userId = userIdentityService.requireCurrentUserId(session);
         
         TodoDTO todo = todoService.completeTodo(todoId, userId, completed);
         
@@ -94,9 +99,9 @@ public class TodoController {
      */
     @DeleteMapping("/{todoId}")
     @ResponseBody
-    public Map<String, Object> deleteTodo(@PathVariable Long todoId) {
-        // TODO: 실제 사용자 ID를 세션에서 가져오도록 수정 필요
-        Long userId = 1L; // 임시 사용자 ID
+    public Map<String, Object> deleteTodo(@PathVariable Long todoId, HttpSession session) {
+        // 사용자 식별 서비스를 통해 현재 사용자 ID 조회
+        Long userId = userIdentityService.requireCurrentUserId(session);
         
         todoService.deleteTodo(todoId, userId);
         
@@ -114,9 +119,10 @@ public class TodoController {
             @RequestParam int year,
             @RequestParam int month,
             @RequestParam int day,
-            @RequestBody List<TodoDTO> todos) {
-        // TODO: 실제 사용자 ID를 세션에서 가져오도록 수정 필요
-        Long userId = 1L; // 임시 사용자 ID
+            @RequestBody List<TodoDTO> todos,
+            HttpSession session) {
+        // 사용자 식별 서비스를 통해 현재 사용자 ID 조회
+        Long userId = userIdentityService.requireCurrentUserId(session);
         
         LocalDate targetDate = LocalDate.of(year, month, day);
         todoService.saveTodosBatch(userId, targetDate, todos);

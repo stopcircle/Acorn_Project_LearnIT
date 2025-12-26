@@ -3,6 +3,7 @@ package com.learnit.learnit.mypage.controller;
 import com.learnit.learnit.mypage.dto.ProfileDTO;
 import com.learnit.learnit.mypage.dto.ProfileUpdateDTO;
 import com.learnit.learnit.mypage.service.ProfileService;
+import com.learnit.learnit.mypage.service.UserIdentityService;
 import com.learnit.learnit.user.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -19,16 +20,15 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 public class ProfileController {
 
     private final ProfileService profileService;
+    private final UserIdentityService userIdentityService;
 
     /**
      * 프로필 조회 페이지 (/mypage/profile)
      */
     @GetMapping("/profile")
     public String profilePage(HttpSession session, Model model) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return "redirect:/login";
-        }
+        // 사용자 식별 서비스를 통해 현재 사용자 ID 조회
+        Long userId = userIdentityService.requireCurrentUserId(session);
 
         ProfileDTO profile = profileService.getProfile(userId);
         model.addAttribute("profile", profile);
@@ -45,10 +45,8 @@ public class ProfileController {
      */
     @GetMapping("/settings")
     public String settingsPage(HttpSession session, Model model) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return "redirect:/login";
-        }
+        // 사용자 식별 서비스를 통해 현재 사용자 ID 조회
+        Long userId = userIdentityService.requireCurrentUserId(session);
 
         UserDTO user = profileService.getUserForEdit(userId);
         model.addAttribute("user", user);
@@ -70,10 +68,8 @@ public class ProfileController {
      */
     @PostMapping("/settings/update")
     public String updateProfile(ProfileUpdateDTO updateDTO, HttpSession session, RedirectAttributes redirectAttributes) {
-        Long userId = (Long) session.getAttribute("userId");
-        if (userId == null) {
-            return "redirect:/login";
-        }
+        // 사용자 식별 서비스를 통해 현재 사용자 ID 조회
+        Long userId = userIdentityService.requireCurrentUserId(session);
 
         try {
             // 비밀번호 변경이 있는 경우
@@ -93,7 +89,7 @@ public class ProfileController {
 
             return "redirect:/mypage/settings";
             
-        } catch (IllegalArgumentException e) {
+        } catch (IllegalArgumentException | IllegalStateException e) {
             redirectAttributes.addFlashAttribute("error", e.getMessage());
             return "redirect:/mypage/settings";
         }
