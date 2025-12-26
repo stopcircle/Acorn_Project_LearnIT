@@ -91,4 +91,28 @@ public class ReviewApiController {
 
         reviewService.deleteReview(reviewId, userId);
     }
+
+    /* 로그인 + 수강 여부 체크 (리뷰 폼 노출용) */
+    @GetMapping("/check-enrollment")
+    public Map<String, Boolean> checkEnrollment(
+            @RequestParam Long courseId,
+            HttpSession session
+    ) {
+        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+
+        Map<String, Boolean> result = new HashMap<>();
+
+        if (userId == null) {
+            result.put("loggedIn", false);
+            result.put("enrolled", false);
+            return result;
+        }
+
+        boolean enrolled = reviewService.isEnrolledUser(courseId, userId); // ⭐ 서비스 통해 체크
+
+        result.put("loggedIn", true);
+        result.put("enrolled", enrolled);
+        return result;
+    }
+
 }

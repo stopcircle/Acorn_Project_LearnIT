@@ -302,9 +302,38 @@ async function deleteReview(reviewId) {
 }
 
 // ================================
+// 확인
+// ================================
+async function checkReviewFormVisible() {
+    const courseId = getCourseId();
+    if (!courseId) return;
+
+    try {
+        const res = await fetch(`/api/reviews/check-enrollment?courseId=${courseId}`);
+        if (!res.ok) {
+            console.error("check-enrollment 실패", res.status);
+            return;
+        }
+
+        const data = await res.json(); // { loggedIn, enrolled }
+
+        const formWrapper = document.getElementById("reviewFormWrapper");
+        if (!formWrapper) return;
+
+        if (data.loggedIn && data.enrolled) {
+            formWrapper.style.display = "block";  // 로그인 + 수강자 → 폼 보이기
+        } else {
+            formWrapper.style.display = "none";   // 나머지 → 폼 숨기기
+        }
+    } catch (e) {
+        console.error("checkReviewFormVisible 에러", e);
+    }
+}
+// ================================
 // 페이지 로딩 시
 // ================================
 document.addEventListener("DOMContentLoaded", async () => {
-    await fetchMe();     // 로그인 정보 먼저
-    await loadReviews(); // 리뷰 목록 로드 (로그인 여부와 상관없이 누구나 보기)
+    await fetchMe();           // 로그인 정보
+    await loadReviews();       // 리뷰 목록 (누구나 보기)
+    await checkReviewFormVisible(); // 폼 노출 여부
 });

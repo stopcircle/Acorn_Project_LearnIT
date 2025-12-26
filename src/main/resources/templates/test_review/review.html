@@ -14,28 +14,31 @@
     <!-- ✅ 이 hidden input에서 courseId를 가져와서 JS가 사용 -->
     <input type="hidden" id="courseId"
            th:value="${courseId}"/><!-- 필요하면 ${course.courseId} 로 변경 -->
+    <!-- 리뷰 등록 폼 (로그인 + 수강자만 보이도록 숨김 기본값) -->
+    <div id="reviewFormWrapper" style="display:none;">
 
-    <!-- 리뷰 등록 폼 -->
-    <form id="reviewForm" onsubmit="submitReview(event)">
-        <div>
-            <label>평점</label>
-            <select id="rating">
-                <option value="5">★★★★★</option>
-                <option value="4">★★★★</option>
-                <option value="3">★★★</option>
-                <option value="2">★★</option>
-                <option value="1">★</option>
-            </select>
-        </div>
+        <form id="reviewForm" onsubmit="submitReview(event)">
+            <div>
+                <label>평점</label>
+                <select id="rating">
+                    <option value="5">★★★★★</option>
+                    <option value="4">★★★★</option>
+                    <option value="3">★★★</option>
+                    <option value="2">★★</option>
+                    <option value="1">★</option>
+                </select>
+            </div>
 
-        <div>
-            <label>후기</label><br>
-            <textarea id="comment" rows="4" cols="50"></textarea>
-        </div>
+            <div>
+                <label>후기</label><br>
+                <textarea id="comment" rows="4" cols="50"></textarea>
+            </div>
 
-        <button type="submit">수강평 등록</button>
-        <p id="reviewMessage"></p>
-    </form>
+            <button type="submit">수강평 등록</button>
+            <p id="reviewMessage"></p>
+        </form>
+
+    </div>
 
     <!-- 리뷰 카드가 들어갈 영역 -->
     <div id="reviewList"></div>
