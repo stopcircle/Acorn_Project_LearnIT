@@ -8,7 +8,7 @@
             <div class="photo">
                 <img th:src="${user != null && user.profileImageUrl != null ? user.profileImageUrl : '/images/logo_icon.png'}" 
                      alt="프로필 이미지"
-                     onerror="this.src='/images/logo_icon.png'">
+                     data-fallback="/images/logo_icon.png">
             </div>
             <p class="nickname" th:text="${user != null && user.nickname != null ? user.nickname : '닉네임'}">닉네임</p>
             <p class="user-id" th:text="${user != null && user.email != null ? user.email : '아이디'}">아이디</p>
@@ -33,7 +33,7 @@
             <div class="mobile-photo">
                 <img th:src="${user != null && user.profileImageUrl != null ? user.profileImageUrl : '/images/logo_icon.png'}" 
                      alt="프로필 이미지"
-                     onerror="this.src='/images/logo_icon.png'">
+                     data-fallback="/images/logo_icon.png">
             </div>
             <div class="mobile-profile-info">
                 <p class="mobile-nickname" th:text="${user != null && user.nickname != null ? user.nickname : '닉네임'}">닉네임</p>

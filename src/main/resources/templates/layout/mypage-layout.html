@@ -29,7 +29,7 @@
         <div class="mobile-photo">
             <img th:src="${user != null && user.profileImageUrl != null ? user.profileImageUrl : '/images/logo_icon.png'}" 
                  alt="프로필 이미지"
-                 onerror="this.src='/images/logo_icon.png'">
+                 data-fallback="/images/logo_icon.png">
         </div>
         <div class="mobile-profile-info">
             <p class="mobile-nickname" th:text="${user != null && user.nickname != null ? user.nickname : '닉네임'}">닉네임</p>
@@ -56,7 +56,7 @@
             <div class="photo">
                 <img th:src="${user != null && user.profileImageUrl != null ? user.profileImageUrl : '/images/logo_icon.png'}" 
                      alt="프로필 이미지"
-                     onerror="this.src='/images/logo_icon.png'">
+                     data-fallback="/images/logo_icon.png">
             </div>
             <p class="nickname" th:text="${user != null && user.nickname != null ? user.nickname : '닉네임'}">닉네임</p>
             <p class="user-id" th:text="${user != null && user.email != null ? user.email : '아이디'}">아이디</p>
@@ -85,23 +85,8 @@
 <!--챗봇 공통 js-->
 <script th:src="@{/js/home/chatbot.js}"></script>
 
-<!-- 마이페이지 네비게이션 active 클래스 처리 -->
-<script>
-    document.addEventListener('DOMContentLoaded', function() {
-        const currentPath = window.location.pathname;
-        const navLinks = document.querySelectorAll('.mypage-mobile-nav .nav-link');
-        
-        navLinks.forEach(link => {
-            const linkPath = link.getAttribute('data-path');
-            // /mypage/dashboard 또는 /mypage로 접근 시 대시보드 활성화
-            if (linkPath === '/mypage' && (currentPath === '/mypage' || currentPath === '/mypage/')) {
-                link.classList.add('active');
-            } else if (linkPath !== '/mypage' && currentPath.startsWith(linkPath)) {
-                link.classList.add('active');
-            }
-        });
-    });
-</script>
+<!-- 마이페이지 레이아웃 공통 JavaScript -->
+<script th:src="@{/js/mypage/mypage-layout.js}"></script>
 
 <th:block th:replace="${script}"></th:block>
 

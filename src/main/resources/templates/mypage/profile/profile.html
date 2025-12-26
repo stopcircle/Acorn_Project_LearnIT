@@ -15,64 +15,7 @@
     <th:block th:fragment="css">
         <link rel="stylesheet" th:href="@{/css/mypage/mypage.css}">
         <link rel="stylesheet" th:href="@{/css/mypage/mypage-navbar.css}">
-        <style>
-            .profile-container {
-                padding: 2rem;
-            }
-            .profile-grid {
-                display: grid;
-                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
-                gap: 2rem;
-                margin-top: 2rem;
-            }
-            .profile-card {
-                background: white;
-                border-radius: 8px;
-                padding: 1.5rem;
-                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
-            }
-            .profile-card h3 {
-                margin-top: 0;
-                margin-bottom: 1rem;
-                font-size: 1.25rem;
-            }
-            .profile-detail {
-                display: flex;
-                align-items: center;
-                gap: 1rem;
-                margin-bottom: 1rem;
-            }
-            .profile-image {
-                width: 80px;
-                height: 80px;
-                border-radius: 50%;
-                object-fit: cover;
-            }
-            .profile-info {
-                flex: 1;
-            }
-            .profile-info .nickname {
-                font-weight: bold;
-                font-size: 1.1rem;
-                margin-bottom: 0.25rem;
-            }
-            .profile-info .username {
-                color: #666;
-                font-size: 0.9rem;
-            }
-            .detail-item {
-                margin-bottom: 0.75rem;
-            }
-            .detail-label {
-                font-weight: bold;
-                margin-right: 0.5rem;
-            }
-            .empty-placeholder {
-                text-align: center;
-                padding: 2rem;
-                color: #999;
-            }
-        </style>
+        <link rel="stylesheet" th:href="@{/css/mypage/profile.css}">
     </th:block>
 </head>
 
@@ -88,7 +31,7 @@
                     <img th:src="${profile.profileImageUrl != null ? profile.profileImageUrl : '/images/logo_icon.png'}" 
                          alt="프로필 이미지" 
                          class="profile-image"
-                         onerror="this.src='/images/logo_icon.png'">
+                         data-fallback="/images/logo_icon.png">
                     <div class="profile-info">
                         <div class="nickname" th:text="${profile.nickname}">닉네임</div>
                         <div class="username" th:text="'@' + ${profile.username}">@아이디</div>
