@@ -1,0 +1,157 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org"
+      th:replace="~{
+        layout/mypage-layout :: layout(
+          ~{::title},
+          ~{::content},
+          ~{::css},
+          ~{::script}
+        )
+      }">
+
+<head>
+    <title th:fragment="title">프로필</title>
+
+    <th:block th:fragment="css">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage.css}">
+        <link rel="stylesheet" th:href="@{/css/mypage/mypage-navbar.css}">
+        <style>
+            .profile-container {
+                padding: 2rem;
+            }
+            .profile-grid {
+                display: grid;
+                grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+                gap: 2rem;
+                margin-top: 2rem;
+            }
+            .profile-card {
+                background: white;
+                border-radius: 8px;
+                padding: 1.5rem;
+                box-shadow: 0 2px 4px rgba(0,0,0,0.1);
+            }
+            .profile-card h3 {
+                margin-top: 0;
+                margin-bottom: 1rem;
+                font-size: 1.25rem;
+            }
+            .profile-detail {
+                display: flex;
+                align-items: center;
+                gap: 1rem;
+                margin-bottom: 1rem;
+            }
+            .profile-image {
+                width: 80px;
+                height: 80px;
+                border-radius: 50%;
+                object-fit: cover;
+            }
+            .profile-info {
+                flex: 1;
+            }
+            .profile-info .nickname {
+                font-weight: bold;
+                font-size: 1.1rem;
+                margin-bottom: 0.25rem;
+            }
+            .profile-info .username {
+                color: #666;
+                font-size: 0.9rem;
+            }
+            .detail-item {
+                margin-bottom: 0.75rem;
+            }
+            .detail-label {
+                font-weight: bold;
+                margin-right: 0.5rem;
+            }
+            .empty-placeholder {
+                text-align: center;
+                padding: 2rem;
+                color: #999;
+            }
+        </style>
+    </th:block>
+</head>
+
+<body>
+    <div th:fragment="content" class="profile-container">
+        <h1>프로필</h1>
+
+        <div class="profile-grid">
+            <!-- 프로필 상세 카드 -->
+            <div class="profile-card">
+                <h3>프로필 상세</h3>
+                <div class="profile-detail">
+                    <img th:src="${profile.profileImageUrl != null ? profile.profileImageUrl : '/images/logo_icon.png'}" 
+                         alt="프로필 이미지" 
+                         class="profile-image"
+                         onerror="this.src='/images/logo_icon.png'">
+                    <div class="profile-info">
+                        <div class="nickname" th:text="${profile.nickname}">닉네임</div>
+                        <div class="username" th:text="'@' + ${profile.username}">@아이디</div>
+                    </div>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">이름:</span>
+                    <span th:text="${profile.name != null ? profile.name : '-'}">전희연</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">이메일:</span>
+                    <span th:text="${profile.email}">heeyeon@naver.com</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">지역:</span>
+                    <span th:text="${profile.region != null && profile.region != '' ? profile.region : '-'}">서울</span>
+                </div>
+                <div class="detail-item">
+                    <span class="detail-label">깃허브 링크:</span>
+                    <span th:if="${profile.githubUrl != null && profile.githubUrl != ''}">
+                        <a th:href="${profile.githubUrl}" target="_blank" th:text="${profile.githubUrl}">github.com/heeyeon</a>
+                    </span>
+                    <span th:unless="${profile.githubUrl != null && profile.githubUrl != ''}">-</span>
+                </div>
+            </div>
+
+            <!-- 배지 카드 -->
+            <div class="profile-card">
+                <h3>배지</h3>
+                <div class="empty-placeholder">
+                    배지가 없습니다.
+                </div>
+            </div>
+
+            <!-- GitHub 분석 결과 카드 -->
+            <div class="profile-card">
+                <h3>GitHub 분석 결과(A)</h3>
+                <div class="empty-placeholder">
+                    분석 결과가 없습니다.
+                </div>
+            </div>
+
+            <!-- 기술 육각형 스킬 차트 카드 -->
+            <div class="profile-card">
+                <h3>기술 육각형 스킬 차트</h3>
+                <div class="empty-placeholder">
+                    스킬 차트 데이터가 없습니다.
+                </div>
+            </div>
+
+            <!-- 참여 / 완료 스터디 카드 -->
+            <div class="profile-card">
+                <h3>참여 / 완료 스터디</h3>
+                <div class="empty-placeholder">
+                    스터디 정보가 없습니다.
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <th:block th:fragment="script">
+        <!-- 필요시 JavaScript 추가 -->
+    </th:block>
+</body>
+</html>
+

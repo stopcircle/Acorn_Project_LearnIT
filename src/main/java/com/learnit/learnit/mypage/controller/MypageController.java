@@ -1,5 +1,10 @@
-package com.learnit.learnit.mypage;
+package com.learnit.learnit.mypage.controller;
 
+import com.learnit.learnit.mypage.dto.DashboardDTO;
+import com.learnit.learnit.mypage.service.DashboardService;
+import com.learnit.learnit.user.dto.UserDTO;
+import com.learnit.learnit.user.mapper.UserMapper;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -19,9 +24,11 @@ public class MypageController {
     }
 
     @GetMapping("/mypage/dashboard")
-    public String dashboard(Model model) {
-        // TODO: 실제 사용자 ID를 세션에서 가져오도록 수정 필요
-        Long userId = 1L; // 임시로 1L 사용
+    public String dashboard(HttpSession session, Model model) {
+        Long userId = (Long) session.getAttribute("userId");
+        if (userId == null) {
+            return "redirect:/login";
+        }
         
         DashboardDTO dashboard = dashboardService.getDashboardData(userId);
         model.addAttribute("dashboard", dashboard);

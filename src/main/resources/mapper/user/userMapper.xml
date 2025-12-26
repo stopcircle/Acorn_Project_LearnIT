@@ -1,0 +1,153 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.user.mapper.UserMapper">
+
+    <!-- 회원가입 -->
+    <insert id="insertUser" parameterType="com.learnit.learnit.user.dto.UserDTO" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO users (
+            name, password, email, nickname, phone, region, github_url,
+            profile_img, status, provider, provider_id, 
+            email_verified, created_at, updated_at
+        ) VALUES (
+            #{name}, #{password}, #{email}, #{nickname}, #{phone}, #{region}, #{githubUrl},
+            #{profileImageUrl}, 'SIGNUP_PENDING', 'LOCAL', NULL,
+            'N', NOW(), NOW()
+        )
+    </insert>
+
+    <!-- 이메일로 사용자 조회 -->
+    <select id="selectUserByEmail" resultType="com.learnit.learnit.user.dto.UserDTO">
+        SELECT 
+            user_id AS userId,
+            name,
+            password,
+            email,
+            nickname,
+            phone,
+            region,
+            github_url AS githubUrl,
+            profile_img AS profileImageUrl,
+            status,
+            provider,
+            provider_id AS providerId,
+            email_verified AS emailVerified,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM users
+        WHERE email = #{email}
+    </select>
+
+    <!-- 사용자 ID로 조회 -->
+    <select id="selectUserById" resultType="com.learnit.learnit.user.dto.UserDTO">
+        SELECT 
+            user_id AS userId,
+            name,
+            password,
+            email,
+            nickname,
+            phone,
+            region,
+            github_url AS githubUrl,
+            profile_img AS profileImageUrl,
+            status,
+            provider,
+            provider_id AS providerId,
+            email_verified AS emailVerified,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 사용자명 중복 확인 (name 컬럼 사용) -->
+    <select id="existsByUsername" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM users
+        WHERE name = #{username}
+    </select>
+
+    <!-- 이메일 중복 확인 -->
+    <select id="existsByEmail" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM users
+        WHERE email = #{email}
+    </select>
+
+    <!-- OAuth 사용자 조회 -->
+    <select id="selectUserByProvider" resultType="com.learnit.learnit.user.dto.UserDTO">
+        SELECT 
+            user_id AS userId,
+            name,
+            password,
+            email,
+            nickname,
+            phone,
+            region,
+            github_url AS githubUrl,
+            profile_img AS profileImageUrl,
+            status,
+            provider,
+            provider_id AS providerId,
+            email_verified AS emailVerified,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM users
+        WHERE provider = #{provider} AND provider_id = #{providerId}
+    </select>
+
+    <!-- OAuth 사용자 생성 또는 업데이트 -->
+    <!-- 주의: 데이터베이스에 (provider, provider_id)에 대한 UNIQUE 제약조건이 필요합니다 -->
+    <insert id="insertOrUpdateOAuthUser" parameterType="com.learnit.learnit.user.dto.UserDTO" useGeneratedKeys="true" keyProperty="userId">
+        INSERT INTO users (
+            name, email, nickname, profile_img, status, provider, provider_id, 
+            email_verified, created_at, updated_at
+        ) VALUES (
+            #{name}, #{email}, #{nickname}, #{profileImageUrl}, 'PROFILE_REQUIRED', #{provider}, #{providerId},
+            'Y', NOW(), NOW()
+        )
+        ON DUPLICATE KEY UPDATE
+            nickname = VALUES(nickname),
+            profile_img = VALUES(profile_img),
+            updated_at = NOW()
+    </insert>
+
+    <!-- 이메일 인증 번호 저장 (email_verification 테이블이 있다고 가정) -->
+    <insert id="saveEmailVerificationCode">
+        INSERT INTO email_verification (email, code, created_at, expires_at)
+        VALUES (#{email}, #{code}, NOW(), DATE_ADD(NOW(), INTERVAL 10 MINUTE))
+        ON DUPLICATE KEY UPDATE
+            code = #{code},
+            created_at = NOW(),
+            expires_at = DATE_ADD(NOW(), INTERVAL 10 MINUTE)
+    </insert>
+
+    <!-- 이메일 인증 번호 검증 -->
+    <select id="verifyEmailCode" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM email_verification
+        WHERE email = #{email} 
+          AND code = #{code}
+          AND expires_at > NOW()
+    </select>
+
+    <!-- 사용자 상태 업데이트 -->
+    <update id="updateUserStatus">
+        UPDATE users
+        SET status = #{status},
+            updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 비밀번호 업데이트 -->
+    <update id="updatePassword">
+        UPDATE users
+        SET password = #{password},
+            updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>
+

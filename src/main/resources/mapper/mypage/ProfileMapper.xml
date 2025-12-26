@@ -1,0 +1,66 @@
+<?xml version="1.0" encoding="UTF-8" ?>
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.mypage.mapper.ProfileMapper">
+
+    <!-- 프로필 정보 조회 -->
+    <select id="selectProfileById" resultType="com.learnit.learnit.mypage.dto.ProfileDTO">
+        SELECT 
+            u.user_id AS userId,
+            u.nickname,
+            u.name AS username,
+            u.email,
+            COALESCE(u.region, '') AS region,
+            COALESCE(u.github_url, '') AS githubUrl,
+            u.name AS name,
+            u.phone AS phone,
+            CASE 
+                WHEN u.profile_img IS NULL OR u.profile_img = '' OR u.profile_img = 'profile-default.png' 
+                THEN NULL 
+                ELSE u.profile_img 
+            END AS profileImageUrl
+        FROM users u
+        WHERE u.user_id = #{userId}
+    </select>
+
+    <!-- 사용자 기본 정보 조회 (개인정보 수정용) -->
+    <select id="selectUserForEdit" resultType="com.learnit.learnit.user.dto.UserDTO">
+        SELECT 
+            user_id AS userId,
+            name,
+            email,
+            nickname,
+            phone,
+            region,
+            COALESCE(github_url, '') AS githubUrl,
+            profile_img AS profileImageUrl
+        FROM users
+        WHERE user_id = #{userId}
+    </select>
+
+    <!-- 개인정보 수정 -->
+    <update id="updateProfile">
+        UPDATE users
+        SET 
+            name = COALESCE(#{name}, name),
+            email = #{email},
+            phone = #{phone},
+            github_url = #{githubUrl},
+            region = #{region},
+            updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+    <!-- 비밀번호 변경 -->
+    <update id="updatePassword">
+        UPDATE users
+        SET 
+            password = #{password},
+            updated_at = NOW()
+        WHERE user_id = #{userId}
+    </update>
+
+</mapper>
+
