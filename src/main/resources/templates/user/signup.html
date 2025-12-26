@@ -41,7 +41,7 @@
               <label for="name">아이디</label>
               <div class="input-with-button">
                 <input type="text" id="name" name="name" placeholder="Value" required>
-                <button type="button" class="btn-check-duplicate" onclick="checkUsername()">중복확인</button>
+                <button type="button" class="btn-check-duplicate">중복확인</button>
               </div>
             </div>
             
@@ -86,7 +86,7 @@
             
             <div class="form-actions">
               <button type="submit" class="btn-signup">가입하기</button>
-              <button type="button" class="btn-cancel" onclick="location.href='/home'">취소</button>
+              <button type="button" class="btn-cancel">취소</button>
             </div>
           </form>
         </div>
@@ -95,29 +95,7 @@
   </div>
 
   <th:block th:fragment="script">
-    <script>
-      function checkUsername() {
-        const username = document.getElementById('name').value;
-        if (!username) {
-          alert('아이디를 입력해주세요.');
-          return;
-        }
-        
-        fetch('/api/check-username?username=' + username)
-          .then(response => response.json())
-          .then(data => {
-            if (data.exists) {
-              alert('이미 사용 중인 아이디입니다.');
-            } else {
-              alert('사용 가능한 아이디입니다.');
-            }
-          })
-          .catch(error => {
-            console.error('Error:', error);
-            alert('중복 확인 중 오류가 발생했습니다.');
-          });
-      }
-    </script>
+    <script th:src="@{/js/user/signup.js}"></script>
   </th:block>
 </body>
 </html>
