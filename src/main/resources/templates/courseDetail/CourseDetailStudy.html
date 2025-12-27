@@ -3,7 +3,7 @@
       th:replace="~{layout/layout :: layout(~{::title}, ~{::content}, ~{::css}, ~{::script})}">
 
 <head>
-    <title th:fragment="title">강의 상세</title>
+    <title th:fragment="title">강의 상세(수강중)</title>
 
     <th:block th:fragment="css">
         <link rel="stylesheet" th:href="@{/css/courseDetail/course-detail.css}">
@@ -13,7 +13,6 @@
 <body>
 <div th:fragment="content" class="cd-wrap container">
 
-    <!-- 상단 -->
     <div th:replace="courseDetail/fragments/detail-header :: detailHeader(${course}, ${activeTab}, ${isLoggedIn})"></div>
 
     <section class="cd-body">
@@ -25,11 +24,11 @@
             </th:block>
         </div>
 
-        <!-- ✅ 사이드바(3상태 분기) -->
+        <!-- ✅ 동일 프래그먼트(수강중이면 이어보기만 뜸) -->
         <div th:replace="courseDetail/fragments/detail-sidebar :: detailSidebar(${course}, ${isLoggedIn}, ${isEnrolled})"></div>
     </section>
 
-    <!-- ✅ [모달1] 장바구니 중복 -->
+    <!-- ✅ 모달들 -->
     <div class="modal-backdrop" id="modal-cart-dup" style="display:none;">
         <div class="modal">
             <p class="modal-text">이미 담겨져있는 강의입니다.<br>장바구니로 이동하시겠습니까?</p>
@@ -40,25 +39,11 @@
         </div>
     </div>
 
-    <!-- ✅ [모달2] 이어보기(미완성) -->
     <div class="modal-backdrop" id="modal-incomplete" style="display:none;">
         <div class="modal">
             <p class="modal-text">아직 미완성입니다.</p>
             <div class="modal-actions">
                 <button type="button" class="btn modal-btn" id="btn-incomplete-ok">확인</button>
-            </div>
-        </div>
-    </div>
-    <!-- ✅ [모달3] 장바구니 신규 담김 -->
-    <div class="modal-backdrop" id="modal-cart-added" style="display:none;">
-        <div class="modal">
-            <p class="modal-text">
-                장바구니에 담았습니다.<br>
-                장바구니 페이지로 이동하시겠습니까?
-            </p>
-            <div class="modal-actions">
-                <button type="button" class="btn modal-btn secondary" id="btn-cart-added-no">아니오</button>
-                <button type="button" class="btn modal-btn" id="btn-cart-added-yes">예</button>
             </div>
         </div>
     </div>

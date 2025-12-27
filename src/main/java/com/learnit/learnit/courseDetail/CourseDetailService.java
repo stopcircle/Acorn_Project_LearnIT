@@ -1,6 +1,7 @@
 package com.learnit.learnit.courseDetail;
 
 import com.learnit.learnit.course.CourseDTO;
+import com.learnit.learnit.enroll.EnrollmentMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 
@@ -12,12 +13,17 @@ import java.util.Map;
 public class CourseDetailService {
 
     private final CourseDetailMapper courseDetailMapper;
+    private final EnrollmentMapper enrollmentMapper; // ✅ 수강여부 확인
 
     public CourseDTO getCourse(int courseId) {
         return courseDetailMapper.selectCourseDetail(courseId);
     }
 
-    // ✅ DB에 chapter 데이터 있으면 DB로, 없으면 더미로
+    // ✅ 수강중 여부
+    public boolean isEnrolled(Long userId, int courseId) {
+        return enrollmentMapper.countEnrollment(userId, courseId) > 0;
+    }
+
     public List<ChapterDTO> getChaptersOrDummy(int courseId) {
         List<ChapterDTO> list = courseDetailMapper.selectChaptersByCourseId(courseId);
         if (list == null || list.isEmpty()) {
@@ -26,7 +32,6 @@ public class CourseDetailService {
         return list;
     }
 
-    // ✅ 더미 챕터
     public List<ChapterDTO> getDummyChapters(int courseId) {
         ChapterDTO c1 = new ChapterDTO();
         c1.setCourseId(courseId);
@@ -46,7 +51,6 @@ public class CourseDetailService {
         return List.of(c1, c2, c3);
     }
 
-    // ✅ 수강평 더미
     public List<Map<String, Object>> getDummyReviews() {
         return List.of(
                 Map.of("name", "dmax", "rating", 5.0, "comment", "많은 도움이 되었습니다. 고맙습니다!"),
