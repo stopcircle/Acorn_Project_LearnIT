@@ -21,14 +21,15 @@ public class SecurityConfig {
         http
             .csrf(csrf -> csrf.disable())
             .authorizeHttpRequests(auth -> auth
-                .requestMatchers("/", "/home", "/login", "/signup", "/user/additional-info", 
-                    "/css/**", "/js/**", "/images/**", "/files/**", "/CourseList", "/search", "/error/**").permitAll()
+                .requestMatchers("/", "/home", "/login", "/signup", "/user/additional-info", "/user/find-password",
+                    "/css/**", "/js/**", "/images/**", "/files/**", "/CourseList", "/search", "/error/**",
+                    "/api/user/check-email", "/mypage/**",
+                    "/oauth2/authorization/**", "/login/oauth2/code/**").permitAll()
                 .anyRequest().authenticated()
             )
             .oauth2Login(oauth2 -> oauth2
                 .loginPage("/login")
-                .successHandler(oAuth2LoginSuccessHandler) // 커스텀 핸들러 사용
-                .defaultSuccessUrl("/home", true)
+                .successHandler(oAuth2LoginSuccessHandler) // 커스텀 핸들러 사용 (SIGNUP_PENDING 체크 및 리다이렉트 처리)
                 .failureUrl("/login?error=true")
                 .userInfoEndpoint(userInfo -> userInfo
                     .userService(oAuthService)

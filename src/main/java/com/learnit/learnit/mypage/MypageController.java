@@ -1,7 +1,7 @@
 package com.learnit.learnit.mypage;
 
 import com.learnit.learnit.user.dto.UserDTO;
-import com.learnit.learnit.user.mapper.UserMapper;
+import com.learnit.learnit.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -13,7 +13,7 @@ import org.springframework.web.bind.annotation.GetMapping;
 public class MypageController {
 
     private final DashboardService dashboardService;
-    private final UserMapper userMapper;
+    private final UserService userService;
 
     @GetMapping("/mypage")
     public String myPage() {
@@ -35,7 +35,7 @@ public class MypageController {
         model.addAttribute("dashboard", dashboard);
         
         // 사용자 정보 조회 및 추가
-        UserDTO user = userMapper.selectUserById(userId);
+        UserDTO user = userService.getUserDTOById(userId);
         model.addAttribute("user", user);
         
         return "mypage/dashboard/dashboard";

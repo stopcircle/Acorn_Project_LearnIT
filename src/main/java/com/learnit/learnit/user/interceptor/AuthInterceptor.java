@@ -1,7 +1,7 @@
 package com.learnit.learnit.user.interceptor;
 
 import com.learnit.learnit.user.entity.User;
-import com.learnit.learnit.user.mapper.UserMapper;
+import com.learnit.learnit.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import jakarta.servlet.http.HttpSession;
@@ -17,7 +17,7 @@ import org.springframework.web.servlet.HandlerInterceptor;
 @RequiredArgsConstructor
 public class AuthInterceptor implements HandlerInterceptor {
 
-    private final UserMapper userMapper;
+    private final UserRepository userRepository;
 
     @Override
     public boolean preHandle(HttpServletRequest request, HttpServletResponse response, Object handler) throws Exception {
@@ -29,7 +29,7 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
         
         Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
-        User user = userMapper.selectUserEntityById(userId);
+        User user = userRepository.findById(userId).orElse(null);
         
         if (user == null) {
             return true;
@@ -56,16 +56,27 @@ public class AuthInterceptor implements HandlerInterceptor {
             }
         }
         
-        // 마이페이지는 ACTIVE 상태만 접근 가능
+        // 마이페이지 접근 제어
         if (requestURI.startsWith("/mypage")) {
-            if (!User.STATUS_ACTIVE.equals(user.getStatus())) {
-                if (User.STATUS_SIGNUP_PENDING.equals(user.getStatus())) {
-                    response.sendRedirect("/user/additional-info");
-                } else {
-                    response.sendRedirect("/login");
+            // 일반 로그인 사용자(provider가 null 또는 "local")는 마이페이지 접근 허용
+            // 소셜 로그인 사용자(google, kakao)만 status 체크
+            String provider = user.getProvider();
+            boolean isSocialLogin = provider != null && 
+                                   !provider.equals("local") && 
+                                   (provider.equals("google") || provider.equals("kakao"));
+            
+            if (isSocialLogin) {
+                // 소셜 로그인 사용자는 ACTIVE 상태만 접근 가능
+                if (!User.STATUS_ACTIVE.equals(user.getStatus())) {
+                    if (User.STATUS_SIGNUP_PENDING.equals(user.getStatus())) {
+                        response.sendRedirect("/user/additional-info");
+                    } else {
+                        response.sendRedirect("/login");
+                    }
+                    return false;
                 }
-                return false;
             }
+            // 일반 로그인 사용자(provider가 null 또는 "local")는 status와 관계없이 접근 허용
         }
         
         return true;

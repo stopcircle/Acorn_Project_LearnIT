@@ -25,41 +25,41 @@
     <form th:action="@{/signup}" method="post" class="login-form">
       <div class="form-group">
         <label for="nickname">닉네임</label>
-        <input type="text" id="nickname" name="nickname" placeholder="닉네임을 입력하세요">
+        <input type="text" id="nickname" name="nickname" placeholder="닉네임을 입력하세요" autocomplete="nickname">
       </div>
 
       <div class="form-group form-group-with-button">
         <label for="email">이메일</label>
         <div class="input-with-button">
-          <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" required>
+          <input type="email" id="email" name="email" placeholder="이메일을 입력하세요" autocomplete="email" required>
           <button type="button" class="btn-verify">인증하기</button>
         </div>
       </div>
 
       <div class="form-group">
         <label for="password">비밀번호</label>
-        <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요 (최소 6자)" required minlength="6">
+        <input type="password" id="password" name="password" placeholder="비밀번호를 입력하세요 (최소 6자)" autocomplete="new-password" required minlength="6">
       </div>
 
       <div class="form-group">
         <label for="passwordConfirm">비밀번호 확인</label>
-        <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" required>
+        <input type="password" id="passwordConfirm" name="passwordConfirm" placeholder="비밀번호를 다시 입력하세요" autocomplete="new-password" required>
       </div>
 
       <div class="form-group">
         <label for="name">이름</label>
-        <input type="text" id="name" name="name" placeholder="이름을 입력하세요" required>
+        <input type="text" id="name" name="name" placeholder="이름을 입력하세요" autocomplete="name" required>
       </div>
 
       <div class="form-group">
         <label for="phone">전화번호</label>
-        <input type="tel" id="phone" name="phone" placeholder="010-1234-5678">
+        <input type="tel" id="phone" name="phone" placeholder="010-1234-5678" autocomplete="tel">
       </div>
 
       <div class="form-group">
         <label for="region">주 활동 지역</label>
         <div class="select-wrapper">
-          <select id="region" name="region" class="form-select">
+          <select id="region" name="region" class="form-select" autocomplete="address-level1">
             <option value="">활동 지역 선택(선택사항)</option>
             <option value="서울">서울</option>
             <option value="경기">경기</option>
@@ -116,6 +116,72 @@ document.addEventListener('DOMContentLoaded', function() {
     const passwordConfirmInput = document.getElementById('passwordConfirm');
     const emailInput = document.getElementById('email');
     const nameInput = document.getElementById('name');
+    const verifyButton = document.querySelector('.btn-verify');
+    let isEmailVerified = false;
+    
+    // 이메일 인증하기 버튼 클릭 이벤트
+    if (verifyButton) {
+        verifyButton.addEventListener('click', function() {
+        const email = emailInput.value.trim();
+        
+        // 이메일 형식 검증
+        const emailPattern = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!email) {
+            alert('이메일을 입력해주세요.');
+            emailInput.focus();
+            return;
+        }
+        
+        if (!emailPattern.test(email)) {
+            alert('올바른 이메일 형식을 입력해주세요.');
+            emailInput.focus();
+            return;
+        }
+        
+        // 버튼 비활성화 및 로딩 표시
+        verifyButton.disabled = true;
+        verifyButton.textContent = '확인 중...';
+        
+        // AJAX로 이메일 중복 체크
+        fetch('/api/user/check-email?email=' + encodeURIComponent(email))
+            .then(response => response.json())
+            .then(data => {
+                if (data.available) {
+                    alert(data.message);
+                    isEmailVerified = true;
+                    emailInput.style.borderColor = '#10b981';
+                    verifyButton.textContent = '인증 완료';
+                    verifyButton.style.backgroundColor = '#10b981';
+                    verifyButton.style.color = '#fff';
+                    verifyButton.disabled = true;
+                } else {
+                    alert(data.message);
+                    isEmailVerified = false;
+                    emailInput.style.borderColor = '#ef4444';
+                    verifyButton.disabled = false;
+                    verifyButton.textContent = '인증하기';
+                }
+            })
+            .catch(error => {
+                console.error('Error:', error);
+                alert('이메일 확인 중 오류가 발생했습니다. 다시 시도해주세요.');
+                verifyButton.disabled = false;
+                verifyButton.textContent = '인증하기';
+            });
+        });
+        
+        // 이메일 입력 시 인증 상태 초기화
+        emailInput.addEventListener('input', function() {
+            if (isEmailVerified) {
+                isEmailVerified = false;
+                emailInput.style.borderColor = '';
+                verifyButton.textContent = '인증하기';
+                verifyButton.style.backgroundColor = '';
+                verifyButton.style.color = '';
+                verifyButton.disabled = false;
+            }
+        });
+    }
     
     // 실시간 비밀번호 일치 확인
     passwordConfirmInput.addEventListener('input', function() {
@@ -159,6 +225,14 @@ document.addEventListener('DOMContentLoaded', function() {
         const passwordConfirm = passwordConfirmInput.value;
         const email = emailInput.value;
         const name = nameInput.value.trim();
+        
+        // 이메일 인증 확인
+        if (verifyButton && !isEmailVerified) {
+            e.preventDefault();
+            alert('이메일 인증을 완료해주세요.');
+            verifyButton.focus();
+            return false;
+        }
         
         // 비밀번호 일치 검증
         if (!passwordConfirm || password !== passwordConfirm) {
