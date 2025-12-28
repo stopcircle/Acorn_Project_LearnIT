@@ -5,41 +5,40 @@
 
     <resultMap id="QuizResultMap" type="com.learnit.learnit.quiz.dto.Quiz">
         <id property="quizId" column="quiz_id"/>
+        <result property="title" column="title"/>
+        <result property="sectionTitle" column="section_title"/>
         <collection property="questions" ofType="com.learnit.learnit.quiz.dto.Question">
             <id property="questionId" column="question_id"/>
             <result property="content" column="question_content"/>
-
             <collection property="options" ofType="com.learnit.learnit.quiz.dto.QuizOption">
                 <id property="optionId" column="option_id"/>
                 <result property="content" column="option_content"/>
+                <result property="isCorrect" column="is_correct"/>
             </collection>
         </collection>
     </resultMap>
 
-    <select id="selectQuizByChapterId" resultMap="QuizResultMap">
+    <select id="selectQuizListByCourseId" resultType="com.learnit.learnit.quiz.dto.Quiz">
+        SELECT quiz_id AS quizId, title, section_title AS sectionTitle
+        FROM quiz
+        WHERE course_id = #{courseId}
+    </select>
+
+    <select id="selectQuizByQuizId" resultMap="QuizResultMap">
         SELECT
             q.quiz_id,
+            q.title,
+            q.section_title,
             qu.question_id,
             qu.content AS question_content,
             qo.option_id,
-            qo.content AS option_content
+            qo.content AS option_content,
+            qo.is_correct
         FROM quiz q
-                 JOIN question qu ON q.quiz_id = qu.quiz_id
-                 JOIN quiz_option qo ON qu.question_id = qo.question_id
-        WHERE q.chapter_id = #{chapterId}
+                 LEFT JOIN question qu ON q.quiz_id = qu.quiz_id
+                 LEFT JOIN quiz_option qo ON qu.question_id = qo.question_id
+        WHERE q.quiz_id = #{quizId}
         ORDER BY qu.question_id ASC, qo.option_id ASC
-    </select>
-
-    <select id="countUnfinishedVideosInSection" resultType="int">
-        SELECT COUNT(*)
-        FROM chapter c
-                 LEFT JOIN study_log sl
-                           ON c.chapter_id = sl.chapter_id
-                               AND sl.user_id = #{userId}
-        WHERE c.section_title = (SELECT section_title FROM chapter WHERE chapter_id = #{quizChapterId})
-          AND c.video_url != 'QUIZ'  AND (
-              sl.log_id IS NULL  OR
-              (sl.studied_sec / c.duration_sec) &lt; 0.95 )
     </select>
 
 </mapper>

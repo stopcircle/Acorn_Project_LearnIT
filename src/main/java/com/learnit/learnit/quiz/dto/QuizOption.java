@@ -5,4 +5,5 @@ import lombok.Data;
 public class QuizOption {
     private Long optionId;
     private String content;
+    private String isCorrect;
 }

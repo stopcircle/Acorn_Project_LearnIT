@@ -13,12 +13,12 @@ body {
     height: 100vh;
     display: flex;
     flex-direction: column;
-    overflow: hidden; /* 스크롤바 숨김 (App-like layout) */
+    overflow: hidden; /* 전체 레이아웃 스크롤 방지 */
     font-family: 'Noto Sans KR', sans-serif;
 }
 
 /* =========================================
-   2. Top Header (Title & Navigation)
+   2. Top Header
    ========================================= */
 .top-header {
     height: 60px;
@@ -26,16 +26,15 @@ body {
     border-bottom: 1px solid #ddd;
     display: flex;
     align-items: center;
-    justify-content: space-between; /* 좌우 배분 */
+    justify-content: space-between;
     padding: 0 20px;
-    z-index: 101; /* 사이드바보다 위에 위치 */
+    z-index: 101;
     flex-shrink: 0;
 }
 
-/* [Left] 강의 제목 영역 */
 .header-left {
     flex: 1;
-    min-width: 0; /* 텍스트 말줄임 처리를 위해 필수 */
+    min-width: 0;
     margin-right: 20px;
 }
 
@@ -46,22 +45,20 @@ body {
     display: block;
     white-space: nowrap;
     overflow: hidden;
-    text-overflow: ellipsis; /* 긴 제목은 ... 처리 */
+    text-overflow: ellipsis;
 }
 
-/* [Right] 네비게이션 버튼 그룹 */
 .header-right {
     display: flex;
     align-items: center;
-    gap: 8px; /* 버튼 사이 간격 */
+    gap: 8px;
     flex-shrink: 0;
 }
 
-/* 공통 버튼 스타일 (수정됨: 글자 포함형) */
 .header-nav-btn {
-    width: auto; /* 글자 길이에 맞춰 늘어남 */
+    width: auto;
     height: 36px;
-    padding: 0 12px; /* 좌우 여백 */
+    padding: 0 12px;
     border: 1px solid #e5e5e5;
     background-color: #ffffff;
     border-radius: 8px;
@@ -69,119 +66,85 @@ body {
     display: flex;
     align-items: center;
     justify-content: center;
-    gap: 6px; /* 아이콘과 글자 사이 간격 */
+    gap: 6px;
     transition: all 0.2s ease;
 }
 
-/* 버튼 내부 텍스트 */
 .header-nav-btn span {
     font-size: 13px;
     font-weight: 500;
     color: #555;
     line-height: 1;
-    padding-bottom: 1px; /* 시각적 중앙 보정 */
+    padding-bottom: 1px;
 }
 
-.header-nav-btn:hover {
-    background-color: #f8f9fa;
-    border-color: #ccc;
-}
+.header-nav-btn:hover { background-color: #f8f9fa; border-color: #ccc; }
+.header-nav-btn:hover span { color: #333; }
+.header-nav-btn:active { transform: translateY(0); }
 
-.header-nav-btn:hover span {
-    color: #333;
-}
-
-.header-nav-btn:active {
-    transform: translateY(0);
-}
-
-/* 비활성화 버튼 (Disabled) */
 .header-nav-btn.disabled {
-    opacity: 0.5;
-    cursor: default;
-    background-color: #f9f9f9;
-    border-color: #eee;
+    opacity: 0.5; cursor: default; background-color: #f9f9f9; border-color: #eee;
 }
+.header-nav-btn.disabled:hover { transform: none; background-color: #f9f9f9; }
 
-.header-nav-btn.disabled:hover {
-    transform: none;
-    background-color: #f9f9f9;
-}
-
-/* 아이콘 이미지 */
-.header-nav-btn img {
-    width: 12px;
-    height: 12px;
-    opacity: 0.6;
-    object-fit: contain;
-}
-
-/* 다음 버튼 아이콘 회전 */
-.rotate-180 {
-    transform: rotate(180deg);
-}
-
-/* 구분선 */
-.nav-divider {
-    width: 1px;
-    height: 16px;
-    background-color: #eee;
-    margin: 0 4px;
-}
+.header-nav-btn img { width: 12px; height: 12px; opacity: 0.6; object-fit: contain; }
+.rotate-180 { transform: rotate(180deg); }
+.nav-divider { width: 1px; height: 16px; background-color: #eee; margin: 0 4px; }
 
 /* =========================================
    3. Main Container & Video Section
    ========================================= */
 .main-container {
     display: flex;
-    flex: 1; /* 남은 높이 모두 차지 */
+    flex: 1;
     position: relative;
+    height: 100%;
+    overflow: hidden;
 }
 
 .video-section {
-    flex: 1; /* 가변 너비 */
+    flex: 1;
     display: flex;
     flex-direction: column;
-    justify-content: center;
+    justify-content: center; /* 퀴즈가 길어지면 위아래 중앙 유지 */
     align-items: center;
-    padding: 10px;
+    padding: 20px; /* 여백을 조금 더 주어 여유 확보 */
     background-color: #f5f5f5;
-    transition: flex 0.3s ease-in-out;
+    overflow-y: auto; /* 퀴즈가 브라우저 높이보다 길어질 경우 대비 */
 }
 
-/* 영상 래퍼 (16:9 비율 유지) */
+/* 영상 래퍼 */
 .video-wrapper {
     width: 100%;
-    height: auto;
-    max-width: 1500px;
-    aspect-ratio: 16 / 9;
-    background-color: #000;
+    max-width: 1200px; /* 너무 퍼지지 않게 적정 가로폭 제한 */
+    background-color: #fff;
     border-radius: 8px;
-    box-shadow: 0 4px 20px rgba(0,0,0,0.15);
-    overflow: hidden;
-    margin: 0 auto;
+    position: relative;
+    transition: all 0.3s ease; /* 영역 확장 시 부모 애니메이션 */
 }
 
-@media (min-aspect-ratio: 16/9) {
-    .video-wrapper {
-        width: auto;      /* 가로는 비율에 맞춰 자동 조절 */
-        height: 100%;     /* 높이를 화면에 딱 맞춤 */
-        max-height: 100%; /* 부모(video-section) 높이를 넘지 않음 */
-    }
+.video-wrapper:not(.quiz-active) {
+    aspect-ratio: 16 / 9;
+}
+
+.video-wrapper.quiz-active {
+    aspect-ratio: auto; /* 비율 해제 */
+    min-height: 700px;  /* PC에서 퀴즈가 보여줄 최소 세로 높이 */
+    box-shadow: 0 10px 30px rgba(0,0,0,0.1);
 }
 
 .video-wrapper iframe {
     width: 100%;
     height: 100%;
     border: none;
-    border-radius: 4px;
 }
 
 /* =========================================
-   4. Side Panel (Expandable Content)
+   4. Side Panel
    ========================================= */
 .side-panel-wrapper {
-    width: 0; /* 기본 상태: 숨김 */
+    width: 0;
+    height: 100%;
     overflow: hidden;
     background-color: #ffffff;
     border-left: 1px solid #ddd;
@@ -190,508 +153,406 @@ body {
     flex-shrink: 0;
     transition: width 0.3s ease-in-out;
 }
+.side-panel-wrapper.open { width: 320px; }
 
-/* 패널 열림 상태 */
-.side-panel-wrapper.open {
-    width: 320px;
-}
-
-/* 내부 콘텐츠 박스 */
 .panel-content-box {
-    width: 320px;
-    height: 100%;
-    display: flex;
-    flex-direction: column;
+    width: 320px; height: 100%; display: flex; flex-direction: column;
 }
-
 .panel-header {
-    height: 50px;
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 20px;
-    border-bottom: 1px solid #eee;
-    font-weight: bold;
-    color: #333;
+    height: 50px; display: flex; align-items: center; justify-content: space-between;
+    padding: 0 20px; border-bottom: 1px solid #eee; font-weight: bold; color: #333; flex-shrink: 0;
 }
-
 .close-btn {
-    background: none;
-    border: none;
-    font-size: 24px;
-    cursor: pointer;
-    color: #999;
+    background: none; border: none; font-size: 24px; cursor: pointer; color: #999;
 }
-
+.panel-inner {
+    display: flex; flex-direction: column; height: 100%; width: 100%; overflow: hidden;
+}
 .panel-body {
-    flex: 1;
-    overflow-y: auto;
-    counter-reset: lecture-counter;
+    flex: 1; overflow-y: auto; min-height: 0;
+    padding-bottom: 100px; counter-reset: lecture-counter;
 }
 
 /* =========================================
-   5. Right Sidebar (Menu Tabs)
+   5. Right Sidebar
    ========================================= */
 .right-sidebar {
-    width: 70px;
-    background-color: #ffffff;
-    border-left: 1px solid #ddd;
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    padding-top: 20px;
-    gap: 30px;
-    z-index: 100;
+    width: 70px; background-color: #ffffff; border-left: 1px solid #ddd;
+    display: flex; flex-direction: column; align-items: center;
+    padding-top: 20px; gap: 30px; z-index: 100;
 }
-
 .menu-item {
-    display: flex;
-    flex-direction: column;
-    align-items: center;
-    text-decoration: none;
-    color: #555;
-    cursor: pointer;
-    transition: opacity 0.2s;
+    display: flex; flex-direction: column; align-items: center;
+    text-decoration: none; color: #555; cursor: pointer; transition: opacity 0.2s;
 }
-
-.menu-item:hover {
-    color: #000;
-}
-
+.menu-item:hover { color: #000; }
 .icon-wrap {
-    width: 36px;
-    height: 36px;
-    border-radius: 8px;
-    margin-bottom: 6px;
-    display: flex;
-    justify-content: center;
-    align-items: center;
+    width: 36px; height: 36px; border-radius: 8px; margin-bottom: 6px;
+    display: flex; justify-content: center; align-items: center;
 }
-
-.menu-icon {
-    width: 20px;
-    height: 20px;
-    object-fit: contain;
-}
-
-.menu-label {
-    font-size: 11px;
-    font-weight: 600;
-}
+.menu-icon { width: 20px; height: 20px; object-fit: contain; }
+.menu-label { font-size: 11px; font-weight: 600; }
 
 /* ============================== */
-/* [추가] 커리큘럼 진도율 바 스타일 */
+/* Curriculum Style */
 /* ============================== */
-
 .progress-area {
-    padding: 20px 20px 10px 20px; /* 상우하좌 여백 */
-    background-color: #fff;
-    border-bottom: 1px solid #f5f5f5; /* 리스트와 구분선 */
+    padding: 20px 20px 10px 20px; background-color: #fff;
+    border-bottom: 1px solid #f5f5f5; flex-shrink: 0;
 }
-
 .progress-info {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 8px;
-    font-size: 13px;
-    font-weight: 600;
-    color: #444;
+    display: flex; justify-content: space-between; align-items: center;
+    margin-bottom: 8px; font-size: 13px; font-weight: 600; color: #444;
 }
-
-.progress-info .percent {
-    color: #00c471; /* 인프런/네이버 스타일 초록색 포인트 */
-    font-weight: 700;
-}
-
+.progress-info .percent { color: #00c471; font-weight: 700; }
 .progress-bg {
-    width: 100%;
-    height: 8px; /* 바 두께 */
-    background-color: #eee;
-    border-radius: 4px; /* 둥글게 */
-    overflow: hidden; /* 넘치는 부분 자르기 */
+    width: 100%; height: 8px; background-color: #eee;
+    border-radius: 4px; overflow: hidden;
 }
-
 .progress-fill {
-    height: 100%;
-    background-color: #00c471; /* 채워지는 색상 */
-    border-radius: 4px;
-    transition: width 0.5s ease-in-out; /* 부드럽게 차오르는 애니메이션 */
+    height: 100%; background-color: #00c471;
+    border-radius: 4px; transition: width 0.5s ease-in-out;
 }
 
-/* ============================== */
-/* [추가] 계층형 커리큘럼 스타일 */
-/* ============================== */
-
-/* 섹션 헤더 */
 .section-header {
-    background-color: #f8f9fa;
-    padding: 12px 20px;
-    font-size: 14px;
-    font-weight: 700;
-    color: #333;
-    border-bottom: 1px solid #eee;
-    cursor: pointer;
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
+    background-color: #f8f9fa; padding: 12px 20px;
+    font-size: 14px; font-weight: 700; color: #333;
+    border-bottom: 1px solid #eee; cursor: pointer;
+    display: flex; justify-content: space-between; align-items: center;
     transition: background 0.2s;
 }
 .section-header:hover { background-color: #e9ecef; }
-
-/* 1. 기본 상태 (펼쳐짐 = Open) */
 .toggle-icon {
-    width: 14px;
-    height: 14px;
-    object-fit: contain;
-    opacity: 0.5;
-    transition: transform 0.3s ease; /* 부드러운 회전 */
-
-    /* 원본 이미지가 '▼ (아래)' 입니다.
-       펼쳐져 있을 때는 '접기'를 의미하는 '▲ (위)'가 되어야 하므로
-       180도 뒤집어서 시작합니다.
-    */
-    transform: rotate(180deg);
+    width: 14px; height: 14px; object-fit: contain; opacity: 0.5;
+    transition: transform 0.3s ease; transform: rotate(180deg);
 }
+.section-header:hover .toggle-icon { opacity: 1; }
+.section-header.collapsed .toggle-icon { transform: rotate(0deg); }
+.section-header.collapsed + .chapter-list { display: none; }
 
-/* 2. 섹션 헤더에 마우스 올렸을 때 */
-.section-header:hover .toggle-icon {
-    opacity: 1; /* 진하게 */
-}
-
-/* 3. 접힌 상태 (Collapsed = Closed) */
-/* -> 팀장님이 질문하신 코드 부분입니다 (유지!) */
-.section-header.collapsed .toggle-icon {
-    /* 접혀 있을 때는 '펼치기'를 의미하는 '▼ (아래)'가 되어야 하므로
-       회전을 0도로 되돌립니다 (원본 이미지 모양).
-    */
-    transform: rotate(0deg);
-}
-
-/* 4. 접혔을 때 리스트 숨기기 (유지!) */
-.section-header.collapsed + .chapter-list {
-    display: none;
-}
-
-/* 챕터 리스트 */
 .chapter-list { list-style: none; padding: 0; margin: 0; display: block; }
 .chapter-list li a {
     display: flex; justify-content: space-between; align-items: center;
-    padding: 12px 20px 12px 30px; /* 들여쓰기 */
-    text-decoration: none; color: #555; font-size: 13px;
-    border-bottom: 1px solid #f9f9f9;
+    padding: 12px 20px 12px 30px; text-decoration: none; color: #555;
+    font-size: 13px; border-bottom: 1px solid #f9f9f9;
 }
 .chapter-list li:hover a { background-color: #f8f9fa; color: #333; }
-
-/* 현재 재생 중인 강의 강조 */
 .chapter-list li.active a {
     background-color: #e6f7ff; color: #007bff; font-weight: 600;
     border-left: 3px solid #007bff; padding-left: 27px;
 }
-
-/* 2. 퀴즈가 아닌 리스트 아이템만 카운터 증가 */
-.chapter-list li:not(.quiz-item) {
-    counter-increment: lecture-counter;
-}
-
-/* 3. 증가된 번호를 화면에 표시 (예: "1강.") */
+.chapter-list li:not(.quiz-item) { counter-increment: lecture-counter; }
 .chapter-idx::before {
-    content: counter(lecture-counter) "강.";
-    font-weight: bold;
-    color: #00c471; /* 초록색 포인트 */
+    content: counter(lecture-counter) ".";
+    font-weight: bold; color: #00c471; margin-right: 4px;
 }
+
 /* =========================================
-   [추가/수정] 실습 에디터 헤더 스타일 (CSS 분리)
+   Interpreter Styles
+   ========================================= */
+.interpreter-header {
+    display: flex; align-items: center; justify-content: space-between;
+    padding: 0 10px; gap: 5px; height: 50px;
+    border-bottom: 1px solid #eee; background-color: #fff; flex-shrink: 0;
+}
+.interpreter-header h3 { margin: 0; font-size: 15px; font-weight: 700; white-space: nowrap; flex-shrink: 0; }
+.header-controls { display: flex; align-items: center; gap: 5px; margin-left: auto; }
+.lang-select { height: 28px; font-size: 12px; padding: 0 2px 0 6px; width: 105px; }
+.run-btn {
+    background-color: #00c471; color: white; border: none; height: 28px;
+    padding: 0 10px; font-size: 12px; display: flex; align-items: center; gap: 4px; white-space: nowrap;
+}
+.run-btn:hover { background-color: #00b368; }
+.run-btn span { color: white; font-weight: 600; }
+
+.interpreter-container {
+    width: 100%; height: 100%; display: flex; flex-direction: column; overflow: hidden;
+}
+.editor-area {
+    flex: 2; width: 100%; border-bottom: 1px solid #ddd;
+    min-height: 200px; flex-shrink: 1;
+}
+.console-area {
+    flex: 1; width: 100%; background-color: #1e1e1e; color: #fff;
+    padding: 10px; margin-bottom: 10px; overflow: auto;
+    border-radius: 5px; font-family: monospace;
+    min-height: 100px; flex-shrink: 0;
+}
+.console-label {
+    font-size: 12px; color: #aaa; margin-bottom: 5px;
+    position: sticky; top: 0; background-color: #1e1e1e;
+}
+#output-console { margin: 0; white-space: pre-wrap; }
+.monaco-editor .line-numbers { text-align: center !important; }
+
+/* =========================================
+   [6] QUIZ STYLES (뭉개짐 방지 완벽 대응)
    ========================================= */
 
-/* 1. 패널 헤더 기본 (PC - 좁은 사이드바용 컴팩트 스타일) */
-.interpreter-header {
-    display: flex;
-    align-items: center;
-    justify-content: space-between;
-    padding: 0 10px;    /* 좁은 여백 */
-    gap: 5px;           /* 요소 간 간격 최소화 */
-    height: 50px;
-    border-bottom: 1px solid #eee;
+/* 1. 퀴즈 래퍼: 여기서 스크롤을 관리합니다 */
+#quiz-wrapper {
+    position: absolute;
+    top: 0; left: 0;
+    width: 100%;
+    height: 100%; /* 확장된 .video-wrapper 높이를 그대로 따라감 */
     background-color: #fff;
+    z-index: 20;
+    display: none;
+    overflow: hidden;
+    border-radius: 8px;
 }
 
-/* 제목 (절대 줄바꿈 금지 & 크기 고정) */
-.interpreter-header h3 {
-    margin: 0;
-    font-size: 15px;       /* 살짝 작게 */
-    font-weight: 700;
-    white-space: nowrap;   /* 줄바꿈 방지 */
-    flex-shrink: 0;        /* 공간 부족해도 찌그러지지 않음 (중요!) */
-}
-
-/* 오른쪽 컨트롤 그룹 (셀렉트박스 + 버튼들) */
-.header-controls {
-    display: flex;
-    align-items: center;
-    gap: 5px;
-    margin-left: auto;     /* 오른쪽 끝으로 밀기 */
-}
-
-/* 언어 선택 박스 */
-.lang-select {
-    height: 28px;
-    font-size: 12px;
-    padding: 0 2px 0 6px;
-    width: 105px;          /* PC에서는 너비 강제 고정 (넘치지 않게) */
-}
-
-/* 실행 버튼 */
-.run-btn {
-    background-color: #00c471;
-    color: white;
-    border: none;
-    height: 28px;
-    padding: 0 10px;
-    font-size: 12px;
-    display: flex;
-    align-items: center;
-    gap: 4px;
-    white-space: nowrap;
-}
-.run-btn:hover {
-    background-color: #00b368;
-}
-.run-btn span {
-    color: white;
-    font-weight: 600;
-}
-
-/* 전체 컨테이너: 세로 방향 Flex */
-.interpreter-container {
+.quiz-container {
     width: 100%;
     height: 100%;
     display: flex;
     flex-direction: column;
-    overflow: hidden;
+    background: #fff;
 }
 
-/* 1. 에디터 영역 (Flex 2) */
-.editor-area {
-    flex: 2;            /* 화면의 2/3 차지 */
+.quiz-body {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0; /* 자식 요소가 부모를 뚫지 못하게 함 */
+}
+
+/* 2. 단계별 박스: 여백을 vh(화면높이비율)로 설정 */
+.quiz-step {
+    flex: 1;
     width: 100%;
-    border-bottom: 1px solid #ddd;
-
-    /* [핵심] 화면이 줄어들 때 얘도 같이 줄어들게 강제함 */
-    min-height: 0;
-    flex-shrink: 1;
+    padding: 50px 5%; /* PC에서 위아래 여백을 더 넓게 */
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    gap: 4vh;
 }
 
-/* 2. 콘솔 영역 (Flex 1) */
-.console-area {
-    flex: 1;            /* 화면의 1/3 차지 */
-    width: 100%;
-    background-color: #1e1e1e;
-    color: #fff;
-    padding: 10px;
-    margin-bottom: 10px;
-    overflow: auto;     /* 내용 많으면 스크롤 */
-    border-radius: 5px;
-    font-family: monospace;
-
-    /* [핵심] 최소한 이만큼은 보여라 (사라짐 방지) */
-    min-height: 100px;
-    flex-shrink: 0;     /* 얘는 웬만하면 줄어들지 마라 */
-}
-
-/* 콘솔 내부 텍스트 스타일 */
-.console-label {
-    font-size: 12px;
-    color: #aaa;
-    margin-bottom: 5px;
-    position: sticky;   /* 스크롤 내려도 제목은 위에 붙어있게 (선택사항) */
-    top: 0;
-    background-color: #1e1e1e;
-}
-
-#output-console {
+/* [1] 시작 & 결과 화면 */
+.quiz-title-text, .result-msg-text {
+    font-size: clamp(20px, 4vh, 28px);
+    font-weight: bold;
+    text-align: center;
     margin: 0;
-    white-space: pre-wrap; /* 줄바꿈 유지 */
 }
 
-.monaco-editor .line-numbers {
-    text-align: center !important; /* 강제 가운데 정렬 */
+.quiz-desc-text {
+    font-size: clamp(14px, 2vh, 18px);
+    color: #666;
+    text-align: center;
 }
 
-/* --- 퀴즈 컨테이너 --- */
-.quiz-container { height: 100%; display: flex; flex-direction: column; background: #fff; }
-.quiz-body { flex: 1; position: relative; overflow: hidden; }
-
-#quiz-wrapper {
-    width: 100%;
-    height: 100%;
-    background-color: #fff;
-    position: absolute; /* 비디오 위에 겹치기 */
-    top: 0;
-    left: 0;
-    z-index: 10; /* 비디오보다 위에 */
-    display: none; /* 기본은 숨김 */
-}
-
-/* [1] 시작 화면: 정중앙 정렬 */
-.centering-box {
-    display: flex; align-items: center; justify-content: center; height: 100%;
-}
+/* 🔥 직사각형 시작 버튼: 모바일에서 안 잘리게 함 */
 .btn-start-circle {
-    width: 120px; height: 120px; border-radius: 50%;
-    background: #00c471; color: white; border: none;
-    font-size: 18px; font-weight: bold; cursor: pointer;
-    box-shadow: 0 4px 15px rgba(0,196,113,0.3);
-    transition: transform 0.2s;
+    width: 100%;
+    max-width: 240px;
+    height: 54px; /* 높이를 고정하여 직사각형 유지 */
+    background: #00c471;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 18px;
+    font-weight: bold;
+    cursor: pointer;
+    flex-shrink: 0; /* 찌그러짐 방지 */
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
-.btn-start-circle:hover { transform: scale(1.05); background: #00b368; }
 
-/* [2] 문제 화면 레이아웃 */
+/* 점수 박스 */
+.score-circle {
+    width: 160px;
+    height: 80px;
+    border: 3px solid #00c471;
+    border-radius: 12px;
+    background: #f9fffb;
+    color: #00c471;
+    font-size: 32px;
+    font-weight: 800;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    flex-shrink: 0;
+}
+.score-circle .unit { font-size: 14px; font-weight: normal; color: #666; }
+
+/* [2] 문제 화면 (모바일 짤림 방지 핵심) */
+.question-step {
+    justify-content: flex-start;
+    padding: 0;
+}
+
 .question-area {
-    padding: 20px; border-bottom: 1px solid #f0f0f0;
+    width: 100%;
+    padding: 3vh 20px;
+    border-bottom: 1px solid #f0f0f0;
+    flex-shrink: 0;
 }
-.q-badge { font-size: 12px; color: #00c471; font-weight: 800; }
-.q-text { font-size: 16px; margin-top: 5px; line-height: 1.4; color: #333; }
 
-.options-area {
-    padding: 20px; overflow-y: auto;
-    height: calc(100% - 180px); /* 상단, 하단 제외한 높이 */
+.q-text {
+    font-size: 24px; /* 좀 더 크게 */
+    line-height: 1.5;
 }
+
+.q-badge {
+    font-weight: bold;
+    color: #00c471;
+}
+
+/* 보기 영역: 여기가 가장 많이 차지하도록 함 */
+.options-area {
+    width: 100%;
+    flex: 1;
+    padding: 2vh 5vw;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    overflow-y: auto;       /* 기능은 유지 */
+
+    -ms-overflow-style: none;  /* IE, Edge */
+    scrollbar-width: none;     /* Firefox */
+}
+
+.options-area::-webkit-scrollbar {
+    display: none;
+}
+
 .option-item {
     width: 100%;
-    padding: 15px;
+    padding: 12px 15px;
     margin-bottom: 10px;
     background: #fff;
     border: 1px solid #ddd;
     border-radius: 8px;
-    text-align: left;
-    cursor: pointer;
-    transition: all 0.2s;
+    font-size: 14px;
+}
+.option-item.selected { border-color: #00c471; background-color: #e3faf0; font-weight: bold; }
+
+/* 정답/오답 시각 효과 */
+
+/* 1. 내가 선택한 오답 (빨간 테두리 + 배경) */
+.option-item.correct {
+    border: 2px solid #00c471 !important;
+    background-color: #e3faf0 !important;
+    color: #008a4f !important;
+}
+.option-item.wrong {
+    border: 2px solid #ff6b6b !important;
+    background-color: #fff5f5 !important;
+    color: #e03131 !important;
 }
 
-.option-item:hover {
-    background: #f9f9f9;
+/* 채점 완료 후 다른 선택지를 클릭하지 못하도록 방지 */
+.options-area.graded {
+    pointer-events: none; /* 클릭 차단 */
 }
 
-/* 선택되었을 때 스타일 (초록색 테두리 & 배경) */
-.option-item.selected {
-    border-color: #00c471;
-    background-color: #e3faf0;
-    color: #008a4f;
-    font-weight: bold;
-}
-
-/* 하단 고정 버튼 영역 */
+/* 하단 버튼 영역 */
 .bottom-action-area {
-    position: absolute; bottom: 0; left: 0; width: 100%;
-    padding: 20px; background: #fff; border-top: 1px solid #eee;
-}
-.btn-submit-full {
-    width: 100%; padding: 14px; background: #333; color: white;
-    border: none; border-radius: 8px; font-size: 15px; font-weight: 700; cursor: pointer;
-}
-.btn-submit-full:disabled { background: #ccc; cursor: not-allowed; }
+    width: 100%;
+    padding: 15px 20px;
+    border-top: 1px solid #eee;
+    flex-shrink: 0;
 
-/* [3] 결과 화면 */
-.score-circle {
-    display: inline-flex; flex-direction: column; justify-content: center;
-    width: 100px; height: 100px; border: 4px solid #00c471; border-radius: 50%;
-    color: #00c471; font-weight: 800; font-size: 28px;
+    /* 🔥 [추가] Flexbox를 활용한 중앙 정렬 */
+    display: flex;
+    justify-content: center; /* 가로 중앙 정렬 */
+    align-items: center;     /* 세로 중앙 정렬 */
+    background: #fff;        /* 배경색 명시 */
 }
-.score-circle .unit { font-size: 14px; font-weight: normal; }
+
+.btn-submit-full {
+    width: 100%;
+    max-width: 700px; /* 이 너비 안에서 가운데 정렬됨 */
+    padding: 14px;
+    background: #333;
+    color: white;
+    border: none;
+    border-radius: 8px;
+    font-size: 16px;
+    font-weight: 700;
+    cursor: pointer; /* 마우스 커서 추가 */
+    transition: background 0.2s;
+}
+
+.btn-submit-full:hover:not(:disabled) {
+    background: #444; /* 호버 시 약간 밝게 */
+}
 
 .btn-next-lecture {
-    padding: 12px 24px; background: #007bff; color: white;
-    border: none; border-radius: 25px; font-size: 15px; font-weight: 600; cursor: pointer;
+    padding: 10px 30px;
+    background: #007bff;
+    color: white;
+    border: none;
+    border-radius: 20px;
+    margin-top: 10px;
 }
 .btn-next-lecture:hover { background: #0056b3; }
 
 /* =========================================
-   6. Responsive (Mobile <= 768px)
+   7. Responsive (Mobile <= 768px)
    ========================================= */
 @media (max-width: 768px) {
+    .main-container { flex-direction: column; padding-bottom: 70px; }
+    .header-right { gap: 2px; }
 
-    .main-container {
-        flex-direction: column;
-        padding-bottom: 70px; /* 하단 네비바 높이 확보 */
-    }
-
-    .header-right {
-        gap: 2px; /* 버튼 사이 간격 */
-    }
-
-    /* 패널: 하단에서 위로 슬라이드 & 영상 밀어내기 */
     .side-panel-wrapper {
-        position: relative;
-        width: 100% !important;
-        height: 0;
-        border-left: none;
-        border-top: 1px solid #ddd;
-        border-radius: 20px 20px 0 0;
-        transition: height 0.3s ease-in-out;
-        order: 2; /* 영상 아래 배치 */
-        z-index: 200;
+        position: relative; width: 100% !important; height: 0;
+        border-left: none; border-top: 1px solid #ddd;
+        border-radius: 20px 20px 0 0; transition: height 0.3s ease-in-out;
+        order: 2; z-index: 200;
     }
+    .side-panel-wrapper.open { height: 45vh; }
+    .panel-content-box { width: 100%; }
 
-    .side-panel-wrapper.open {
-        height: 45vh; /* 화면 높이의 45% 차지 */
-    }
-
-    .panel-content-box {
-        width: 100%;
-    }
-
-    /* 사이드바: 하단 고정 네비게이션 */
     .right-sidebar {
-        position: fixed;
-        bottom: 0;
-        left: 0;
-        width: 100%;
-        height: 70px;
-        flex-direction: row;
-        justify-content: space-between;
-        padding: 0 30px;
-        border-left: none;
-        border-top: 1px solid #ddd;
-        z-index: 300;
+        position: fixed; bottom: 0; left: 0; width: 100%; height: 70px;
+        flex-direction: row; justify-content: space-between;
+        padding: 0 30px; border-left: none; border-top: 1px solid #ddd; z-index: 300;
+    }
+    .right-sidebar .menu-item { flex: 1; justify-content: center; }
+    .icon-wrap { background-color: transparent; }
+
+    .interpreter-header { padding: 0 20px; gap: 10px; }
+    .interpreter-header h3 { font-size: 16px; }
+    .lang-select { width: auto; height: 32px; font-size: 13px; }
+    .run-btn { height: 32px; padding: 0 14px; }
+    .editor-area { flex: 3; }
+    .console-area { flex: 1; min-height: 120px; }
+
+    .video-section {
+        padding: 10px;
+        justify-content: flex-start; /* 모바일은 위에서부터 배치 */
     }
 
-    .right-sidebar .menu-item {
-        flex: 1;
-        justify-content: center;
+    .video-wrapper.quiz-active {
+        min-height: 370px; /* 모바일 폰 높이에 맞춘 최소 세로폭 */
     }
 
-    .icon-wrap {
-        background-color: transparent; /* 모바일은 배경 제거 */
+    /* 🔥 [모바일 퀴즈 수정] 모바일 전용 최소 크기 설정 */
+    .quiz-container {
+        min-width: 0 !important;
+        min-height: 0 !important;
     }
 
-    /* 모바일에서는 패널이 넓으므로 여백을 넉넉하게 복구 */
-    .interpreter-header {
-        padding: 0 20px; /* 원래 여백 */
-        gap: 10px;
+    /* 모바일에서는 버튼 크기를 살짝 줄임 (하지만 고정) */
+    .btn-start-circle {
+        width: 90%;         /* 아주 작은 폰에서는 더 넓게 */
+        height: 50px;       /* 높이 살짝 조절 */
+        font-size: 16px;
+    }
+    .score-circle {
+        width: 150px;
+        height: 80px;
+        font-size: 28px;
     }
 
-    .interpreter-header h3 {
-        font-size: 16px; /* 원래 폰트 크기 */
+    /* 여백 조정 */
+    .question-area, .options-area, .bottom-action-area {
+        padding: 20px; /* PC보다 좁은 여백 */
     }
-
-    .lang-select {
-        width: auto;     /* 너비 제한 해제 (글자 길이에 맞춤) */
-        height: 32px;    /* 터치하기 편하게 조금 키움 */
-        font-size: 13px;
-    }
-
-    .run-btn {
-        height: 32px;    /* 버튼도 키움 */
-        padding: 0 14px;
-    }
-
-    /* 모바일에서는 콘솔창 비율을 조금 줄여서 에디터를 더 넓게 */
-    .editor-area {
-        flex: 3;
-    }
-    .console-area {
-        flex: 1;
-        min-height: 120px; /* 모바일은 화면 작으니까 최소 높이 조금 줄임 */
-    }
+    .q-text { font-size: 18px; }
 }

@@ -30,20 +30,41 @@
 
             <ul class="chapter-list">
                 <li th:each="item : ${section.chapters}"
-                    th:classappend="${(item.chapterId == chapter.chapterId ? 'active ' : '') + (item.videoUrl == 'QUIZ' ? 'quiz-item' : '')}">
+                    th:classappend="${item.chapterId == chapter.chapterId ? 'active ' : ''}">
 
                     <a href="javascript:void(0)"
-                       th:onclick="playContent([[${item.chapterId}]], [[${item.videoUrl}]])"
+                       th:data-id="${item.chapterId}"
+                       th:data-url="${item.videoUrl}"
+                       onclick="playContent(this.getAttribute('data-id'), this.getAttribute('data-url'))"
                        style="cursor: pointer;">
 
                         <div class="chapter-info" style="display: flex; align-items: center; gap: 8px;">
-
-                            <span class="chapter-idx" th:unless="${item.videoUrl == 'QUIZ'}"></span>
-
+                            <span class="chapter-idx"></span>
                             <span class="chapter-title" th:text="${item.title}">강의 제목</span>
                         </div>
                     </a>
                 </li>
+
+                <th:block th:with="sectionQuiz=${quizMap.get(section.sectionTitle)}">
+
+                    <li th:if="${sectionQuiz != null}"
+                        class="quiz-item"
+                        th:classappend="${#strings.toString(chapter.chapterId) == #strings.toString(sectionQuiz.quizId) ? 'active' : ''}">
+
+                        <a href="javascript:void(0)"
+                           th:data-id="${sectionQuiz.quizId}"
+                           data-url="QUIZ"
+                           onclick="playContent(this.getAttribute('data-id'), this.getAttribute('data-url'))"
+                           style="cursor: pointer;">
+
+                            <div class="chapter-info" style="display: flex; align-items: center; gap: 8px;">
+                                <span class="quiz-badge" style="font-weight:900; color:#ff6b6b;">Q.</span>
+                                <span class="chapter-title" th:text="${sectionQuiz.title}">퀴즈 제목</span>
+                            </div>
+                        </a>
+                    </li>
+                </th:block>
+
             </ul>
         </div>
     </div>

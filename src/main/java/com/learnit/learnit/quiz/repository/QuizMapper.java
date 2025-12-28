@@ -7,7 +7,7 @@ import java.util.List;
 
 @Mapper
 public interface QuizMapper {
-    Quiz selectQuizByChapterId(Long chapterId);
+    List<Quiz> selectQuizListByCourseId(Long courseId);
 
-    int countUnfinishedVideosInSection(Long userId, Long quizChapterId);
+    Quiz selectQuizByQuizId(Long quizId);
 }

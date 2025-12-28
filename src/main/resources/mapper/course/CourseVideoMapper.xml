@@ -3,15 +3,15 @@
         "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
 
 <mapper namespace="com.learnit.learnit.course.repository.CourseVideoMapper">
-    <select id="findById" resultType="CourseVideo">
+    <select id="findById" resultType="com.learnit.learnit.course.dto.CourseVideo">
         SELECT
             chapter_id,
             course_id,
             title,
             order_index,
             video_url,
-            duration_sec
-        FROM chapter
+            duration_sec,
+            section_title  FROM chapter
         WHERE chapter_id = #{chapterId}
     </select>
 
@@ -71,14 +71,17 @@
 
     <select id="selectChapterList" resultType="com.learnit.learnit.course.dto.CourseVideo">
         SELECT
-            chapter_id,
-            course_id,
-            title,
-            order_index,
-            video_url,
-            duration_sec,
-            section_title  FROM chapter
-        WHERE course_id = #{courseId}
-        ORDER BY order_index ASC
+            c.chapter_id AS chapterId,
+            c.course_id AS courseId,
+            c.title,
+            c.order_index AS orderIndex,
+            c.video_url AS videoUrl,
+            c.duration_sec AS durationSec,
+            c.section_title AS sectionTitle,
+
+        FROM chapter c
+        WHERE c.course_id = #{courseId}
+        ORDER BY c.order_index ASC
     </select>
+
 </mapper>

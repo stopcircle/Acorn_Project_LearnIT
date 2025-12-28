@@ -3,6 +3,8 @@ package com.learnit.learnit.course.controller;
 import com.learnit.learnit.course.dto.CourseVideo;
 import com.learnit.learnit.course.dto.CurriculumSection;
 import com.learnit.learnit.course.service.CourseVideoService;
+import com.learnit.learnit.quiz.dto.Quiz;
+import com.learnit.learnit.quiz.service.QuizService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
@@ -10,33 +12,59 @@ import org.springframework.web.bind.annotation.*;
 
 import java.util.List;
 import java.util.Map;
+import java.util.stream.Collectors;
 
 @Controller
 @RequiredArgsConstructor
 public class CourseVideoController {
     private final CourseVideoService courseVideoService;
+    private final QuizService quizService; // 퀴즈 서비스 추가
 
-    // 강의 재생 화면
     @GetMapping("/course/play")
     public String playCourseVideo(@RequestParam("courseId") Long courseId,
                                   @RequestParam("chapterId") Long chapterId,
-                                  Model model){
+                                  Model model) {
 
-        // 현재 챕터 정보 가져오기
+        // 현재 챕터 정보
         CourseVideo chapter = courseVideoService.getChapterDetail(chapterId);
 
-        // 유효성 검사 (잘못된 접근 차단)
-        if (chapter == null || !chapter.getCourseId().equals(courseId)) {
-            return "redirect:/error/404";
-        }
+        // 퀴즈 정보 로딩 (섹션 제목을 키값으로 Map 생성)
+        List<Quiz> quizList = quizService.getQuizList(courseId);
+        Map<String, Quiz> quizMap = quizList.stream()
+                .collect(Collectors.toMap(Quiz::getSectionTitle, q -> q, (a, b) -> a));
 
-        // 이전/다음 챕터 구하기
+        // 이전/다음 챕터 계산
         Long prevChapterId = courseVideoService.getPrevChapterId(courseId, chapter.getOrderIndex());
         Long nextChapterId = courseVideoService.getNextChapterId(courseId, chapter.getOrderIndex());
+
+        // 다음 버튼이 퀴즈로 가야 하는지 판단
+        boolean nextIsQuiz = false;
+        Long nextQuizId = null;
+
+        // 현재 섹션에 해당하는 퀴즈가 있는지 확인
+        if (quizMap.containsKey(chapter.getSectionTitle())) {
+            // 조건 1: 다음 영상이 아예 없거나 (코스 끝)
+            // 조건 2: 다음 영상의 섹션이 현재와 다르다면 (섹션 끝)
+            if (nextChapterId == null) {
+                nextIsQuiz = true;
+            } else {
+                CourseVideo nextChapter = courseVideoService.getChapterDetail(nextChapterId);
+                if (nextChapter != null && !nextChapter.getSectionTitle().equals(chapter.getSectionTitle())) {
+                    nextIsQuiz = true;
+                }
+            }
+
+            // 퀴즈로 가야 한다면 퀴즈 ID 설정
+            if (nextIsQuiz) {
+                nextQuizId = quizMap.get(chapter.getSectionTitle()).getQuizId();
+            }
+        }
+
+        // 나머지 데이터
         int progressPercent = courseVideoService.getProgressPercent(1L, courseId);
         List<CurriculumSection> curriculum = courseVideoService.getCurriculumGrouped(courseId);
 
-        // 모델에 담기
+        // 모델 담기
         model.addAttribute("chapter", chapter);
         model.addAttribute("courseId", courseId);
         model.addAttribute("prevChapterId", prevChapterId);
@@ -44,35 +72,28 @@ public class CourseVideoController {
         model.addAttribute("progressPercent", progressPercent);
         model.addAttribute("curriculum", curriculum);
 
+        // 퀴즈 관련 데이터
+        model.addAttribute("quizMap", quizMap);
+        model.addAttribute("nextIsQuiz", nextIsQuiz);
+        model.addAttribute("nextQuizId", nextQuizId);
+
         return "course/courseVideo";
     }
 
-    // 진도율 DB 저장 (Ajax 요청)
+    // 진도율 저장 로그
     @PostMapping("/course/log")
     @ResponseBody
     public String saveProgress(@RequestParam("courseId") Long courseId,
                                @RequestParam("chapterId") Long chapterId,
                                @RequestBody Map<String, Object> payload) {
-
-        // Map에서 시간 꺼내기 (JSON -> Java)
         Integer playTime = (Integer) payload.get("playTime");
-
-        // 로그인 기능 전이므로 '1번 유저'로 고정
-        Long userId = 1L;
-
-        // 로그 확인
-        System.out.println(" DB 저장 요청: 유저" + userId + " / 챕터" + chapterId + " / 시간" + playTime + "초");
-
-        // 서비스 호출 -> DB 저장
-        courseVideoService.saveStudyLog(userId, courseId, chapterId, playTime);
-
+        courseVideoService.saveStudyLog(1L, courseId, chapterId, playTime);
         return "ok";
     }
 
     @PostMapping("/course/log/duration")
     @ResponseBody
     public void updateDuration(@RequestParam Long chapterId, @RequestParam int duration) {
-        System.out.println("영상 전체 길이 업데이트: " + duration + "초 (ChapterId: " + chapterId + ")");
         courseVideoService.updateChapterDuration(chapterId, duration);
     }
 }
