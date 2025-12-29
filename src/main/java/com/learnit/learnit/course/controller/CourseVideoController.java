@@ -27,6 +27,8 @@ public class CourseVideoController {
                                   HttpSession session,
                                   Model model) {
 
+        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+
         // 현재 챕터 정보
         CourseVideo chapter = courseVideoService.getChapterDetail(chapterId);
 
@@ -63,7 +65,7 @@ public class CourseVideoController {
         }
 
         // 나머지 데이터
-        int progressPercent = courseVideoService.getProgressPercent(1L, courseId);
+        int progressPercent = courseVideoService.getProgressPercent(userId, courseId);
         List<CurriculumSection> curriculum = courseVideoService.getCurriculumGrouped(courseId);
 
         // 모델 담기
@@ -87,9 +89,13 @@ public class CourseVideoController {
     @ResponseBody
     public String saveProgress(@RequestParam("courseId") Long courseId,
                                @RequestParam("chapterId") Long chapterId,
-                               @RequestBody Map<String, Object> payload) {
+                               @RequestBody Map<String, Object> payload,
+                               HttpSession session) {
+
+        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+
         Integer playTime = (Integer) payload.get("playTime");
-        courseVideoService.saveStudyLog(1L, courseId, chapterId, playTime);
+        courseVideoService.saveStudyLog(userId, courseId, chapterId, playTime);
         return "ok";
     }
 
