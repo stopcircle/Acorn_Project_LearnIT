@@ -38,7 +38,10 @@ public class CartController {
     // ✅ X 버튼 삭제
     @PostMapping("/cart/delete")
     public String deleteItem(@RequestParam("cartId") Long cartId, HttpSession session) {
+
         Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        if(userId == null) throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
+
         cartService.removeItem(userId, cartId);
         return "redirect:/cart";
     }
@@ -46,7 +49,10 @@ public class CartController {
     // ✅ 전체삭제 추가
     @PostMapping("/cart/clear")
     public String clearCart(HttpSession session) {
+
         Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        if(userId == null) throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
+
         cartService.clearCart(userId);
         return "redirect:/cart";
     }

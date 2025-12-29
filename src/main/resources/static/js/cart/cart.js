@@ -1,5 +1,4 @@
 document.addEventListener("DOMContentLoaded", () => {
-    console.log("cart.js loaded");
 
     const checkAll = document.getElementById("checkAll");
     const itemChecks = () => Array.from(document.querySelectorAll(".itemCheck"));
