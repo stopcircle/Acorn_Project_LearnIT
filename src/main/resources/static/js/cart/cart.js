@@ -1,4 +1,6 @@
 document.addEventListener("DOMContentLoaded", () => {
+    console.log("cart.js loaded");
+
     const checkAll = document.getElementById("checkAll");
     const itemChecks = () => Array.from(document.querySelectorAll(".itemCheck"));
 
@@ -21,24 +23,40 @@ document.addEventListener("DOMContentLoaded", () => {
         const discount = 0;
         const final = total - discount;
 
-        if (totalText) totalText.textContent = formatWon(total);
-        if (discountText) discountText.textContent = "-" + formatWon(discount);
-        if (finalText) finalText.textContent = formatWon(final);
+        totalText.textContent = formatWon(total);
+        discountText.textContent = "-" + formatWon(discount);
+        finalText.textContent = formatWon(final);
 
-        const all = itemChecks();
-        if (checkAll && all.length > 0) {
-            checkAll.checked = all.every(chk => chk.checked);
-        }
+        checkAll.checked = itemChecks().every(chk => chk.checked);
     }
 
-    if (checkAll) {
-        checkAll.addEventListener("change", () => {
-            itemChecks().forEach(chk => (chk.checked = checkAll.checked));
-            renderPrice();
-        });
-    }
+    checkAll.addEventListener("change", () => {
+        itemChecks().forEach(chk => chk.checked = checkAll.checked);
+        renderPrice();
+    });
 
-    itemChecks().forEach(chk => chk.addEventListener("change", renderPrice));
+    itemChecks().forEach(chk =>
+        chk.addEventListener("change", renderPrice)
+    );
 
     renderPrice();
+
+    // 결제 버튼
+    document.querySelector(".summary-btn").addEventListener("click", () => {
+
+        const selected = itemChecks().filter(chk => chk.checked);
+
+        if (selected.length === 0) {
+            alert("결제할 강의를 선택하세요.");
+            return;
+        }
+
+        const courseIds = selected.map(chk =>
+            chk.closest(".cart-item")
+                .querySelector("input[name='courseId']").value
+        );
+
+        //결제 페이지로 이동
+        location.href = "/payment?courseIds=" + courseIds.join(",");
+    });
 });

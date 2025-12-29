@@ -31,4 +31,18 @@
         WHERE user_id = #{userId}
     </delete>
 
+    <!--결제된 강의만 삭제-->
+    <delete id="deleteByUserIdAndCourseIds">
+        DELETE FROM cart
+        WHERE user_id = #{userId}
+        AND course_id IN
+        <foreach collection="courseIds"
+                 item="courseId"
+                 open="("
+                 close=")"
+                 separator=",">
+            #{courseId}
+        </foreach>
+    </delete>
+
 </mapper>

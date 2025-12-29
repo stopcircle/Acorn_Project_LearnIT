@@ -34,4 +34,11 @@ public interface CourseMapper {
     // ✅ 총 개수(페이지 계산용)
     long countCourses(@Param("categoryId") Integer categoryId,
                       @Param("tab") String tab);
+
+
+    //강의 가격 조회(결제 시 사용)
+    Integer findCoursePrice(Long courseId);
+
+    //상세 강의 조회(결제 시 사용)
+    List<CourseDTO> findCoursesByIds(@Param("courseIds") List<Long> courseIds);
 }
