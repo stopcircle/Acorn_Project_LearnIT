@@ -1,7 +1,6 @@
 package com.learnit.learnit.user.controller;
 
 import com.learnit.learnit.user.dto.LoginRequestDTO;
-import com.learnit.learnit.user.dto.SignupRequestDTO;
 import com.learnit.learnit.user.entity.User;
 import com.learnit.learnit.user.service.EmailService;
 import com.learnit.learnit.user.service.SessionService;
@@ -113,20 +112,12 @@ public class UserController {
             @RequestParam(required = false) String nickname,
             @RequestParam(required = false) String phone,
             @RequestParam(required = false) String region,
+            @RequestParam(required = false) String githubUrl,
             Model model
     ) {
-        SignupRequestDTO request = new SignupRequestDTO();
-        request.setEmail(email);
-        request.setPassword(password);
-        request.setPasswordConfirm(passwordConfirm);
-        request.setName(name);
-        request.setNickname(nickname);
-        request.setPhone(phone);
-        request.setRegion(region);
-
         // 비즈니스 로직은 Service에서 처리
         try {
-            userService.signup(request);
+            userService.signup(email, password, passwordConfirm, name, nickname, phone, region, githubUrl);
             return "redirect:/login?success=true";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
@@ -159,7 +150,8 @@ public class UserController {
     public String submitAdditionalInfo(
             @RequestParam String nickname,
             @RequestParam String phone,
-            @RequestParam String region,
+            @RequestParam(required = false) String region,
+            @RequestParam(required = false) String githubUrl,
             HttpSession session,
             Model model
     ) {
@@ -171,7 +163,7 @@ public class UserController {
         // 비즈니스 로직은 Service에서 처리
         try {
             // 추가 정보 업데이트 및 상태를 ACTIVE로 변경
-            userService.updateAdditionalInfo(userId, nickname, phone, region);
+            userService.updateAdditionalInfo(userId, nickname, phone, region, githubUrl);
             
             // 업데이트된 사용자 정보 조회
             User updatedUser = userService.getUserById(userId);

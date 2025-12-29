@@ -3,7 +3,6 @@ package com.learnit.learnit.user.service;
 import com.learnit.learnit.user.entity.User;
 import com.learnit.learnit.user.repository.UserRepository;
 import com.learnit.learnit.user.dto.LoginRequestDTO;
-import com.learnit.learnit.user.dto.SignupRequestDTO;
 import com.learnit.learnit.user.dto.UserDTO;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -64,35 +63,48 @@ public class UserService {
      * 회원가입 처리
      */
     @Transactional
-    public User signup(SignupRequestDTO request) {
+    public User signup(String email, String password, String passwordConfirm, 
+                      String name, String nickname, String phone, 
+                      String region, String githubUrl) {
         // 비밀번호 확인 검증
-        if (request.getPasswordConfirm() == null || 
-            !request.getPassword().equals(request.getPasswordConfirm())) {
+        if (passwordConfirm == null || !password.equals(passwordConfirm)) {
             throw new IllegalArgumentException("비밀번호가 일치하지 않습니다.");
         }
         
         // 이메일 중복 체크
-        if (userRepository.existsByEmail(request.getEmail())) {
+        if (userRepository.existsByEmail(email)) {
             throw new IllegalArgumentException("이미 사용 중인 이메일입니다.");
         }
 
         // 새 사용자 생성
         User newUser = new User();
-        newUser.setEmail(request.getEmail());
-        newUser.setPassword(passwordEncoder.encode(request.getPassword()));
-        newUser.setName(request.getName());
-        newUser.setNickname(request.getNickname() != null && !request.getNickname().isEmpty() 
-                ? request.getNickname() : request.getName());
-        newUser.setPhone(request.getPhone());
-        newUser.setRegion(request.getRegion());
-        newUser.setRole("USER");
+        newUser.setEmail(email);
+        newUser.setPassword(passwordEncoder.encode(password));
+        newUser.setName(name);
+        newUser.setNickname(nickname != null && !nickname.isEmpty() 
+                ? nickname : name);
+        newUser.setPhone(phone);
+        newUser.setRegion(region);
         
-        // 추가 정보가 완료되었으면 ACTIVE, 아니면 SIGNUP_PENDING
-        if (newUser.isAdditionalInfoCompleted()) {
-            newUser.setStatus(User.STATUS_ACTIVE);
-        } else {
-            newUser.setStatus(User.STATUS_SIGNUP_PENDING);
+        // GitHub URL 처리 (사용자명만 입력받아서 URL로 변환)
+        if (githubUrl != null && !githubUrl.trim().isEmpty()) {
+            String githubUrlFormatted = githubUrl.trim();
+            // 이미 URL 형식이 아니면 사용자명으로 간주하고 URL 생성
+            if (!githubUrlFormatted.startsWith("http://") && !githubUrlFormatted.startsWith("https://")) {
+                if (!githubUrlFormatted.startsWith("github.com/")) {
+                    githubUrlFormatted = "https://github.com/" + githubUrlFormatted;
+                } else {
+                    githubUrlFormatted = "https://" + githubUrlFormatted;
+                }
+            }
+            newUser.setGithubUrl(githubUrlFormatted);
         }
+        
+        newUser.setRole("USER");
+        newUser.setProvider("local"); // 일반 회원가입은 local로 설정
+        
+        // 일반 회원가입은 항상 ACTIVE 상태로 저장
+        newUser.setStatus(User.STATUS_ACTIVE);
         
         newUser.setCreatedAt(LocalDateTime.now());
         newUser.setUpdatedAt(LocalDateTime.now());
@@ -134,7 +146,7 @@ public class UserService {
      * 추가 정보 업데이트 및 상태 변경
      */
     @Transactional
-    public void updateAdditionalInfo(Long userId, String nickname, String phone, String region) {
+    public void updateAdditionalInfo(Long userId, String nickname, String phone, String region, String githubUrl) {
         if (userId == null) {
             throw new IllegalArgumentException("사용자 ID가 없습니다.");
         }
@@ -151,14 +163,28 @@ public class UserService {
             throw new IllegalArgumentException("전화번호를 입력해주세요.");
         }
         
-        if (region == null || region.trim().isEmpty()) {
-            throw new IllegalArgumentException("활동 지역을 선택해주세요.");
-        }
-        
         // 추가 정보 업데이트 및 상태 변경
         user.setNickname(nickname.trim());
         user.setPhone(phone.trim());
-        user.setRegion(region.trim());
+        // 지역 정보는 선택사항
+        user.setRegion(region != null ? region.trim() : null);
+        
+        // GitHub URL 처리 (사용자명만 입력받아서 URL로 변환)
+        if (githubUrl != null && !githubUrl.trim().isEmpty()) {
+            String githubUrlFormatted = githubUrl.trim();
+            // 이미 URL 형식이 아니면 사용자명으로 간주하고 URL 생성
+            if (!githubUrlFormatted.startsWith("http://") && !githubUrlFormatted.startsWith("https://")) {
+                if (!githubUrlFormatted.startsWith("github.com/")) {
+                    githubUrlFormatted = "https://github.com/" + githubUrlFormatted;
+                } else {
+                    githubUrlFormatted = "https://" + githubUrlFormatted;
+                }
+            }
+            user.setGithubUrl(githubUrlFormatted);
+        } else {
+            user.setGithubUrl(null);
+        }
+        
         user.setStatus(User.STATUS_ACTIVE); // 추가 정보 입력 완료 → ACTIVE
         user.setUpdatedAt(LocalDateTime.now());
         userRepository.save(user);
