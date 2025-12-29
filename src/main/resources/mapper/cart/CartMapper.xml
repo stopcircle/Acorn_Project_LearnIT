@@ -46,6 +46,12 @@
         AND user_id = #{userId}
     </delete>
 
+    <!-- ✅ 전체삭제 -->
+    <delete id="deleteAllByUserId">
+        DELETE FROM cart
+        WHERE user_id = #{userId}
+    </delete>
+
     <!-- ✅✅ 결제된 강의만 삭제 (userId + courseIds) -->
     <delete id="deleteByUserIdAndCourseIds">
         DELETE FROM cart
