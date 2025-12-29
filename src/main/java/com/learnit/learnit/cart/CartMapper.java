@@ -12,4 +12,7 @@ public interface CartMapper {
 
     // ✅ 전체삭제
     int deleteAllByUserId(@Param("userId") Long userId);
+
+    //결제한 강의 장바구니 삭제
+    int deleteByUserIdAndCourseIds(@Param("userId") Long userId, @Param("courseIds") List<Long> courseIds);
 }

@@ -6,7 +6,7 @@
 <head>
     <title th:fragment="title">장바구니</title>
     <th:block th:fragment="css">
-        <link rel="stylesheet" th:href="@{/css/common/cart.css}">
+        <link rel="stylesheet" th:href="@{/css/cart/cart.css}">
     </th:block>
 </head>
 
@@ -44,9 +44,10 @@
                 </div>
 
                 <article class="cart-item" th:each="i : ${items}">
+                    <input type="hidden" name="courseId" th:value="${i.courseId}">
                     <label class="cart-check">
                         <input class="itemCheck" type="checkbox" checked
-                               th:attr="data-price=${i.price}">
+                               th:attr="data-price=${i.price}, data-course-id=${i.courseId}">
                     </label>
 
                     <div class="cart-thumb" aria-hidden="true">
@@ -76,8 +77,10 @@
                     </form>
                 </article>
 
-                <div th:if="${#lists.isEmpty(items)}" style="padding: 2rem; color:#666;">
-                    장바구니가 비어있습니다.
+
+                <div class="cart-empty" th:if="${#lists.isEmpty(items)}">
+                    <p class="cart-empty-text">장바구니에 담긴 강의가 없습니다.</p>
+                    <a th:href="@{/CourseList}" class="cart-empty-link">인기 강의 보러가기</a>
                 </div>
 
             </div>
@@ -104,7 +107,10 @@
                         </div>
                     </dl>
 
-                    <button class="summary-btn" type="button">주문하기</button>
+                    <button class="summary-btn" type="button">
+                        결제하기
+                    </button>
+
                 </div>
             </aside>
 
