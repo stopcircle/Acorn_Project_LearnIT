@@ -1,43 +1,45 @@
-<html xmlns:th="http://www.thymeleaf.org">
-<th:block th:fragment="detailHeader(course, activeTab, isLoggedIn)">
+<th:block xmlns:th="http://www.thymeleaf.org"
+          th:fragment="detailHeader(course, activeTab, isLoggedIn)">
 
-    <section class="cd-hero">
-        <div class="cd-hero__inner">
-            <div class="cd-hero__left">
+    <div class="cd-top">
+
+        <div class="cd-hero">
+            <!-- 왼쪽: 텍스트 -->
+            <div class="cd-hero-left">
                 <h1 class="cd-title" th:text="${course.title}">강의 제목</h1>
                 <p class="cd-sub" th:text="${course.description}">강의 설명</p>
 
-                <div class="cd-tags">
-                    <span class="tag" th:text="${course.categoryName}">프론트엔드</span>
-                </div>
-
+                <span class="cd-badge"
+                      th:text="${course.categoryName != null ? course.categoryName : '카테고리'}">
+                    카테고리
+                </span>
             </div>
 
-            <div class="cd-hero__right">
-                <img class="cd-hero__img"
-                     th:src="${course.thumbnailUrl != null ? course.thumbnailUrl : '/images/no-image.png'}"
-                     alt="">
+            <!-- 오른쪽: 배너 이미지 = thumbnailUrl -->
+            <div class="cd-hero-right">
+                <img class="cd-hero-img"
+                     th:src="${course.thumbnailUrl != null and !#strings.isEmpty(course.thumbnailUrl)}
+                            ? ${course.thumbnailUrl}
+                            : @{/images/sample/course_thumbnail.png}"
+                     alt="강의 썸네일">
             </div>
+
         </div>
-    </section>
 
-    <!-- ✅ 로그인 여부에 따라 URL 유지 -->
-    <nav class="cd-tabs">
-        <a th:href="${isLoggedIn}
-                    ? @{/CourseDetailLogin(courseId=${course.courseId}, tab='intro')}
-                    : @{/CourseDetail(courseId=${course.courseId}, tab='intro')}"
-           th:classappend="${activeTab == 'intro'} ? ' is-active' : ''">강의 소개</a>
+        <!-- 탭 -->
+        <div class="cd-tabs">
+            <a class="cd-tab"
+               th:href="@{/CourseDetail(courseId=${course.courseId}, tab='intro')}"
+               th:classappend="${activeTab == 'intro'} ? ' active' : ''">강의 소개</a>
 
-        <a th:href="${isLoggedIn}
-                    ? @{/CourseDetailLogin(courseId=${course.courseId}, tab='curriculum')}
-                    : @{/CourseDetail(courseId=${course.courseId}, tab='curriculum')}"
-           th:classappend="${activeTab == 'curriculum'} ? ' is-active' : ''">커리큘럼</a>
+            <a class="cd-tab"
+               th:href="@{/CourseDetail(courseId=${course.courseId}, tab='curriculum')}"
+               th:classappend="${activeTab == 'curriculum'} ? ' active' : ''">커리큘럼</a>
 
-        <a th:href="${isLoggedIn}
-                    ? @{/CourseDetailLogin(courseId=${course.courseId}, tab='reviews')}
-                    : @{/CourseDetail(courseId=${course.courseId}, tab='reviews')}"
-           th:classappend="${activeTab == 'reviews'} ? ' is-active' : ''">수강평</a>
-    </nav>
+            <a class="cd-tab"
+               th:href="@{/CourseDetail(courseId=${course.courseId}, tab='reviews')}"
+               th:classappend="${activeTab == 'reviews'} ? ' active' : ''">수강평</a>
+        </div>
 
+    </div>
 </th:block>
-</html>

@@ -33,15 +33,15 @@
         VALUES (#{userId}, #{courseId})
     </insert>
 
-    <delete id="deleteByCartId">
-        DELETE FROM cart
-        WHERE cart_id = #{cartId}
-        AND user_id = #{userId}
-    </delete>
 
     <delete id="deleteAllByUserId">
         DELETE FROM cart
         WHERE user_id = #{userId}
+    </delete>
+    <delete id="deleteByUserIdAndCartId">
+        DELETE FROM cart
+        WHERE cart_id = #{cartId}
+        AND user_id = #{userId}
     </delete>
 
 </mapper>

@@ -17,5 +17,8 @@ public interface CartMapper {
 
     // ✅ 추가: 장바구니 담기
     int insertCart(@Param("userId") Long userId, @Param("courseId") Long courseId);
+    int deleteByUserIdAndCartId(@Param("userId") Long userId,
+                                @Param("cartId") Long cartId);
+
 }
 
