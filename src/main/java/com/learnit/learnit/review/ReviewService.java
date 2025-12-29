@@ -5,7 +5,9 @@ import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.util.HashMap;
 import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 
 @Service
@@ -20,9 +22,32 @@ public class ReviewService {
 
         // comment_status가 null 이거나 'REJECTED'가 아닌 것만 노출
         return list.stream()
-                .filter(r -> !"REJECTED".equals(r.getCommentStatus()))
+                .filter(r -> r.getCommentStatus() == null || !"REJECTED".equals(r.getCommentStatus()))
                 .toList();
     }
+
+    public Map<String, Object> getReviewSummary(Long courseId) {
+
+        List<ReviewDTO> list = reviewRepository.findByCourseIdAndDeleteFlg(courseId, 0);
+
+        List<ReviewDTO> filtered = list.stream()
+                .filter(r -> r.getCommentStatus() == null || !"REJECTED".equals(r.getCommentStatus()))
+                .toList();
+
+        double average = filtered.isEmpty()
+                ? 0.0
+                : filtered.stream()
+                .mapToInt(ReviewDTO::getRating)
+                .average()
+                .orElse(0.0);
+
+        Map<String, Object> result = new HashMap<>();
+        result.put("average", average);
+        result.put("count", filtered.size());
+
+        return result;
+    }
+
 
     @Transactional
     public ReviewDTO createReview(Long courseId, Long userId, ReviewDTO input) {

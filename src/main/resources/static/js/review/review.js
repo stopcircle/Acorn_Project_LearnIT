@@ -67,6 +67,10 @@ function renderReviews(reviews) {
                     <b>${r.nickname ?? "익명"}</b>
                     <span>★ ${r.rating}</span>
                 </div>
+                
+                <!-- ⭐ 날짜 -->
+                <p class="review-date"></p>
+                
                 <p>${r.content}</p>
 
                 ${isMine ? `
@@ -80,11 +84,11 @@ function renderReviews(reviews) {
                 <div>
                     <label>별점</label>
                     <select class="edit-rating">
-                        <option value="5">5</option>
-                        <option value="4">4</option>
-                        <option value="3">3</option>
-                        <option value="2">2</option>
-                        <option value="1">1</option>
+                       <option value="5">★★★★★</option>
+                        <option value="4">★★★★</option>
+                        <option value="3">★★★</option>
+                        <option value="2">★★</option>
+                        <option value="1">★</option>
                     </select>
                 </div>
 
@@ -95,6 +99,18 @@ function renderReviews(reviews) {
             </div>
         `;
 
+        // 날짜 계산 & 넣기
+        const created = new Date(r.createdAt);
+        const updated = r.updatedAt ? new Date(r.updatedAt) : null;
+
+        let dateLabel = created.toLocaleDateString();
+        if (updated && updated > created) {
+            dateLabel = `수정됨 · ${updated.toLocaleDateString()}`;
+        }
+
+        card.querySelector(".review-date").innerText = dateLabel;
+
+        // 마지막에 DOM에 추가
         container.appendChild(card);
     });
 }
@@ -107,13 +123,23 @@ async function loadReviews() {
     if (!courseId) return;
 
     try {
+        // 1️⃣ 리뷰 목록
         const res = await fetch(`/api/reviews?courseId=${courseId}`);
-        if (!res.ok) {
-            throw new Error("리뷰 조회 실패: " + res.status);
-        }
-
         const reviews = await res.json();
         renderReviews(reviews);
+
+        // 2️⃣ 평점 요약 (average + count)
+        const summaryRes = await fetch(`/api/reviews/summary?courseId=${courseId}`);
+        if (summaryRes.ok) {
+            const summary = await summaryRes.json();
+
+            const avg = summary.average ?? 0;
+            const count = summary.count ?? 0;
+
+            document.getElementById("avgRating").innerText = avg.toFixed(1);
+            document.getElementById("reviewCount").innerText = `${count}개의 수강평`;
+        }
+
     } catch (e) {
         console.error(e);
         const container = document.getElementById("reviewList");
@@ -121,26 +147,6 @@ async function loadReviews() {
     }
 }
 
-// ================================
-// 내 리뷰 위치로 스크롤 (중복 등록 시)
-// ================================
-function scrollToMyReview() {
-    const loginUserId = window.LOGIN_USER_ID
-        ? Number(window.LOGIN_USER_ID)
-        : null;
-
-    if (!loginUserId) return;
-
-    const myCard = document.querySelector(
-        `.review-card[data-user-id="${loginUserId}"]`
-    );
-
-    if (myCard) {
-        myCard.scrollIntoView({ behavior: "smooth", block: "center" });
-        myCard.classList.add("highlight-review");
-        setTimeout(() => myCard.classList.remove("highlight-review"), 2000);
-    }
-}
 
 // ================================
 // 리뷰 등록 (POST /api/reviews?courseId=...)

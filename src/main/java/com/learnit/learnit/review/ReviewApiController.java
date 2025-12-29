@@ -22,7 +22,6 @@ public class ReviewApiController {
     public List<Map<String, Object>> getReviews(@RequestParam("courseId") Long courseId) {
 
         List<ReviewDTO> reviews = reviewService.getReviewsByCourseId(courseId);
-
         if (reviews.isEmpty()) return List.of();
 
         Set<Long> userIds = reviews.stream()
@@ -52,6 +51,13 @@ public class ReviewApiController {
                     return map;
                 })
                 .collect(Collectors.toList());
+    }
+
+    // ⭐ 평균 평점 API (쿼리파라미터)
+    // ⭐ 평점 요약 (평균 + 개수)
+    @GetMapping("/summary")
+    public Map<String, Object> getReviewSummary(@RequestParam Long courseId) {
+        return reviewService.getReviewSummary(courseId);
     }
 
     // 등록
@@ -92,7 +98,7 @@ public class ReviewApiController {
         reviewService.deleteReview(reviewId, userId);
     }
 
-    /* 로그인 + 수강 여부 체크 (리뷰 폼 노출용) */
+    // 리뷰 가능 여부 체크
     @GetMapping("/check-enrollment")
     public Map<String, Boolean> checkEnrollment(
             @RequestParam Long courseId,
@@ -108,11 +114,10 @@ public class ReviewApiController {
             return result;
         }
 
-        boolean enrolled = reviewService.isEnrolledUser(courseId, userId); // ⭐ 서비스 통해 체크
+        boolean enrolled = reviewService.isEnrolledUser(courseId, userId);
 
         result.put("loggedIn", true);
         result.put("enrolled", enrolled);
         return result;
     }
-
 }
