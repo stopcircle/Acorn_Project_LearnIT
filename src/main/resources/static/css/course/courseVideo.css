@@ -365,19 +365,15 @@ body {
 .score-circle {
     width: 160px;
     height: 80px;
-    border: 3px solid #00c471;
-    border-radius: 12px;
     background: #f9fffb;
-    color: #00c471;
-    font-size: 32px;
+    font-size: 50px;
     font-weight: 800;
     display: flex;
-    flex-direction: column;
     justify-content: center;
     align-items: center;
     flex-shrink: 0;
 }
-.score-circle .unit { font-size: 14px; font-weight: normal; color: #666; }
+.score-circle .unit { font-size: 50px; font-weight: 800; margin-left:5px;}
 
 /* [2] 문제 화면 (모바일 짤림 방지 핵심) */
 .question-step {
