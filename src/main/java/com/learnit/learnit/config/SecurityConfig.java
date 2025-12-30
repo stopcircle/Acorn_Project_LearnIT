@@ -27,10 +27,7 @@ public class SecurityConfig {
                                 "/css/**", "/js/**", "/images/**", "/files/**",
                                 "/CourseList", "/CourseDetail", "/course/**", "/search", "/error/**",
                                 "/api/user/check-email", "/api/courses", "/api/search/**", "/mypage/**",
-                                "/oauth2/authorization/**", "/login/oauth2/code/**",
-
-                                // ✅ 추가: 세션 기반으로 컨트롤러에서 체크할 거라면 열어야 함
-                                "/cart/**"
+                                "/oauth2/authorization/**", "/login/oauth2/code/**"
                         ).permitAll()
                         .anyRequest().authenticated()
                 )
