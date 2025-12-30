@@ -22,58 +22,37 @@ public class CourseDetailService {
         return enrollmentMapper.countEnrollment(userId, courseId) > 0;
     }
 
-    public List<ChapterDTO> getChaptersOrDummy(int courseId) {
+    /**
+     * ✅ 더미 제거: DB에서만 조회
+     * - 없으면 빈 리스트 반환
+     */
+    public List<ChapterDTO> getChapters(int courseId) {
         List<ChapterDTO> list = courseDetailMapper.selectChaptersByCourseId(courseId);
-        if (list == null || list.isEmpty()) return getDummyChapters(courseId);
-        return list;
+        return (list == null) ? Collections.emptyList() : list;
     }
 
-    // ✅ ✅ 3번 방식 핵심: 섹션별 그룹핑 Map
+    /**
+     * ✅ 섹션별 그룹핑 Map (DB 데이터 기반)
+     * - section_title 없으면 "섹션 1. 커리큘럼"으로 묶음
+     * - 챕터가 없으면 빈 Map 반환
+     */
     public Map<String, List<ChapterDTO>> getCurriculumSectionMap(int courseId) {
-        List<ChapterDTO> chapters = getChaptersOrDummy(courseId);
+        List<ChapterDTO> chapters = getChapters(courseId);
+
+        if (chapters.isEmpty()) {
+            return Collections.emptyMap();
+        }
 
         Map<String, List<ChapterDTO>> sectionMap = new LinkedHashMap<>();
         for (ChapterDTO ch : chapters) {
             String key = ch.getSectionTitle();
             if (key == null || key.isBlank()) key = "섹션 1. 커리큘럼";
-
             sectionMap.computeIfAbsent(key, k -> new ArrayList<>()).add(ch);
         }
         return sectionMap;
     }
 
-    // ✅ 전체 개수도 Controller에 주면 Thymeleaf가 더 안전함
     public int getCurriculumTotalCount(int courseId) {
-        return getChaptersOrDummy(courseId).size();
-    }
-
-    public List<ChapterDTO> getDummyChapters(int courseId) {
-        ChapterDTO c1 = new ChapterDTO();
-        c1.setCourseId(courseId);
-        c1.setOrderIndex(1);
-        c1.setTitle("강의소개");
-        c1.setSectionTitle("섹션 1. 커리큘럼");
-
-        ChapterDTO c2 = new ChapterDTO();
-        c2.setCourseId(courseId);
-        c2.setOrderIndex(2);
-        c2.setTitle("기본 개념");
-        c2.setSectionTitle("섹션 1. 커리큘럼");
-
-        ChapterDTO c3 = new ChapterDTO();
-        c3.setCourseId(courseId);
-        c3.setOrderIndex(3);
-        c3.setTitle("실습");
-        c3.setSectionTitle("섹션 2. 실습");
-
-        return List.of(c1, c2, c3);
-    }
-
-    public List<Map<String, Object>> getDummyReviews() {
-        return List.of(
-                Map.of("name", "dmax", "rating", 5.0, "comment", "많은 도움이 되었습니다. 고맙습니다!"),
-                Map.of("name", "Jang Jaehoon", "rating", 5.0, "comment", "좋은 강의 감사합니다!"),
-                Map.of("name", "masiljangajji", "rating", 5.0, "comment", "Good")
-        );
+        return getChapters(courseId).size();
     }
 }

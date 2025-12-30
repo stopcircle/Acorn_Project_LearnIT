@@ -31,7 +31,7 @@ public class CartController {
         return "cart/cart";
     }
 
-    // ✅ 담기 (CourseDetail에서 쓰기 좋음)
+    // ✅ 담기
     @PostMapping("/cart/add")
     @ResponseBody
     public String addToCart(@RequestParam("courseId") Long courseId) {
@@ -41,7 +41,6 @@ public class CartController {
         boolean inserted = cartService.addToCart(userId, courseId);
         return inserted ? "OK" : "DUPLICATE";
     }
-
 
     // ✅ X 버튼 삭제
     @PostMapping("/cart/delete")
@@ -61,5 +60,17 @@ public class CartController {
 
         cartService.clearCart(userId);
         return "redirect:/cart";
+    }
+
+    // ✅✅ 결제된 강의만 삭제 (결제 성공 콜백/완료 페이지에서 호출)
+    // 예: courseIds=1&courseIds=3&courseIds=5 형태로 넘어오면 List로 받음
+    @PostMapping("/cart/delete-paid")
+    @ResponseBody
+    public String deletePaid(@RequestParam("courseIds") List<Long> courseIds) {
+        Long userId = AuthUtil.requireLoginUserId();
+        if (userId == null) return "LOGIN_REQUIRED";
+
+        int deleted = cartService.deletePaidCourses(userId, courseIds);
+        return (deleted > 0) ? "OK" : "NOOP";
     }
 }
