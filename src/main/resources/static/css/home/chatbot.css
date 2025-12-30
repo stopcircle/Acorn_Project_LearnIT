@@ -139,6 +139,11 @@
     border-color:#c7d2fe;
 }
 
+#chatbot-input.disabled {
+    background: #f3f3f3;
+    cursor: not-allowed;
+}
+
 /* 반응형 버전 */
 @media (max-width: 768px) {
 

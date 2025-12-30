@@ -38,7 +38,7 @@
 
 
 <!--챗봇 공통 js-->
-<script th:src="@{/js/home/chatbot.js}"></script>
+<script th:src="@{/js/home/chatbot.js(v=${#dates.createNow().time})}"></script>
 <!-- ✅ 헤더 전용 JS -->
 <script th:src="@{/js/fragments/header.js}" defer></script>
 <!--페이지별 js-->

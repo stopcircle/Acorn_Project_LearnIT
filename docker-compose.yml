@@ -1,0 +1,41 @@
+services:
+  mysql:
+    image: mysql:8.4
+    environment:
+      MYSQL_ROOT_PASSWORD: root
+      MYSQL_DATABASE: learnit
+      MYSQL_USER: learnit
+      MYSQL_PASSWORD: learnit
+    ports:
+      - "3307:3306"
+    healthcheck:
+      test: ["CMD", "mysqladmin", "ping", "-h", "localhost", "-proot"]
+      interval: 5s
+      timeout: 3s
+      retries: 30
+
+  spring:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    ports:
+      - "8081:8080"
+    depends_on:
+      mysql:
+        condition: service_healthy
+    environment:
+      SPRING_DATASOURCE_URL: jdbc:mysql://mysql:3306/learnit?useSSL=false&allowPublicKeyRetrieval=true&serverTimezone=Asia/Seoul
+      SPRING_DATASOURCE_USERNAME: learnit
+      SPRING_DATASOURCE_PASSWORD: learnit
+      CHAT_AGENT_BASE_URL: http://chat-agent:8000
+
+  chat-agent:
+    build:
+      context: C:/Users/user/Desktop/from-scratch/04-chat-agent/chat-agent
+      dockerfile: Dockerfile
+    env_file:
+      - C:/Users/user/Desktop/from-scratch/04-chat-agent/chat-agent/.env
+    environment:
+      - COURSE_API_BASE_URL=http://spring:8080
+    ports:
+      - "8000:8000"

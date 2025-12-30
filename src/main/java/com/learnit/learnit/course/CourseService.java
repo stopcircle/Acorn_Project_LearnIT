@@ -43,4 +43,8 @@ public class CourseService {
                 last
         );
     }
+    // ✅ 강의 단건 조회
+    public CourseDTO getCourseById(long courseId) {
+        return courseMapper.selectCourseById(courseId);
+    }
 }

@@ -1,72 +1,47 @@
-const chatbotToggle = document.getElementById('chatbot-toggle');
-const chatbotWindow = document.getElementById('chatbot-window');
-const chatbotClose = document.getElementById('chatbot-close');
-const chatbotBody = document.getElementById('chatbot-body');
-const chatbotInput = document.getElementById('chatbot-input');
-const chatbotSend = document.getElementById('chatbot-send');
+// =====================================================
+// ✅ LearnIT Chatbot (FULL FILE) - FIXED
+// 변경사항 요약
+// 1) removeExistingMenu(): quick-menu "하나"만 삭제 → "전부" 삭제로 수정
+// 2) NOTICE: 메뉴를 2개 쌓는 구조를 안정화(기존 메뉴 정리 후 keep로만 추가)
+// 3) showMainMenu(): 시작 시 메뉴 정리 추가(잔여 메뉴 방지)
+// =====================================================
 
-// 로그인 여부(없으면 false로)
-window.IS_LOGGED_IN = typeof window.IS_LOGGED_IN === 'boolean' ? window.IS_LOGGED_IN : false;
-// 내 수강 목록(없으면 빈 배열)
-window.MY_COURSES = Array.isArray(window.MY_COURSES) ? window.MY_COURSES : [];
-// CSRF(없으면 빈값)
+// ===============================
+// ✅ DOM
+// ===============================
+const chatbotToggle = document.getElementById("chatbot-toggle");
+const chatbotWindow = document.getElementById("chatbot-window");
+const chatbotClose = document.getElementById("chatbot-close");
+const chatbotBody = document.getElementById("chatbot-body");
+const chatbotInput = document.getElementById("chatbot-input");
+const chatbotSend = document.getElementById("chatbot-send");
+
+// ===============================
+// ✅ 전역값(서버 주입) 방어
+// ===============================
+window.IS_LOGGED_IN = typeof window.IS_LOGGED_IN === "boolean" ? window.IS_LOGGED_IN : false;
 window.CSRF_HEADER = window.CSRF_HEADER || "X-CSRF-TOKEN";
 window.CSRF_TOKEN = window.CSRF_TOKEN || "";
+window.DEFAULT_QNA_COURSE_ID = Number(window.DEFAULT_QNA_COURSE_ID || 1);
 
 // ===============================
-// ✅ 상태 (강의 문의 흐름용)
+// ✅ 상태
 // ===============================
 const state = {
-    mode: "IDLE", // IDLE | QNA_COURSE_WAIT_CONTENT
-    selectedCourseId: null,
-    selectedCourseTitle: null,
+    mode: "IDLE",
+    chatSessionId: null,
 };
 
 // ===============================
-// ✅ 메뉴 데이터
+// ✅ 메뉴
 // ===============================
 const MAIN_MENU = [
     { key: "COURSE_FIND", label: "📚 강의 찾기" },
     { key: "MY_LEARNING", label: "▶️ 내 학습 현황" },
-    { key: "QNA", label: "❓ 강의/학습 문의" },
-    { key: "PAYMENT", label: "💳 결제관리" },
+    { key: "PAYMENT", label: "💳 결제내역확인" },
     { key: "NOTICE", label: "📢 공지 & 이벤트" },
     { key: "HUMAN", label: "🧑‍💼 상담원 연결" },
 ];
-
-const SUB_MENU = {
-    COURSE_FIND: [
-        { key: "COURSE_POP", label: "🔥 인기 강의" },
-        { key: "COURSE_NEW", label: "🆕 신규 강의" },
-        { key: "COURSE_CAT", label: "🗂️ 카테고리" },
-        { key: "HOME", label: "🏠 메인 메뉴" },
-    ],
-    MY_LEARNING: [
-        { key: "MY_PROGRESS", label: "📈 진도율 확인" },
-        { key: "MY_CERT", label: "🏅 수료증/완료 강의" },
-        { key: "HOME", label: "🏠 메인 메뉴" },
-    ],
-    QNA: [
-        { key: "QNA_COURSE", label: "📘 강의 내용 질문" },
-        { key: "HOME", label: "🏠 메인 메뉴" },
-    ],
-    PAYMENT: [
-        { key: "PAY_ERR", label: "💳 결제 오류" },
-        { key: "REFUND", label: "↩️ 환불 안내" },
-        { key: "COUPON", label: "🏷️ 쿠폰/할인" },
-        { key: "RECEIPT", label: "🧾 영수증" },
-        { key: "HOME", label: "🏠 메인 메뉴" },
-    ],
-    NOTICE: [
-        { key: "NOTICE_LATEST", label: "📢 최신 공지" },
-        { key: "HOME", label: "🏠 메인 메뉴" },
-    ],
-    HUMAN: [
-        { key: "HUMAN_CONNECT", label: "🧑‍💼 상담원 연결" },
-        { key: "HUMAN_HOURS", label: "⏰ 운영시간" },
-        { key: "HOME", label: "🏠 메인 메뉴" },
-    ],
-};
 
 // ===============================
 // ✅ UI 유틸
@@ -87,13 +62,12 @@ function addUserMessage(text) {
     chatbotBody.scrollTop = chatbotBody.scrollHeight;
 }
 
-// ✅ 기존 메뉴 제거(한 번에 하나만 유지)
+// ✅ quick-menu(버튼 영역) "전부" 제거 (중요!)
 function removeExistingMenu() {
-    const existing = chatbotBody.querySelector(".quick-menu");
-    if (existing) existing.remove();
+    chatbotBody.querySelectorAll(".quick-menu").forEach((m) => m.remove());
 }
 
-// ✅ 메뉴 버튼을 "채팅 흐름처럼" 아래에 새로 붙임
+// 메뉴 버튼을 아래에 붙임 (dataset.action 사용) - 기존 메뉴 제거 후 1개만 유지
 function appendMenuButtons(buttons) {
     removeExistingMenu();
 
@@ -113,42 +87,73 @@ function appendMenuButtons(buttons) {
     chatbotBody.scrollTop = chatbotBody.scrollHeight;
 }
 
-function showMainMenu() {
-    // 흐름 리셋
+// ✅ 메뉴를 "추가로" 붙이는 버전 (기존 메뉴를 삭제하지 않음)
+function appendMenuButtonsKeep(buttons) {
+    const quickMenu = document.createElement("div");
+    quickMenu.className = "quick-menu";
+
+    buttons.forEach((b) => {
+        const el = document.createElement("button");
+        el.type = "button";
+        el.className = "quick-btn";
+        el.dataset.action = b.key;
+        el.textContent = b.label;
+        quickMenu.appendChild(el);
+    });
+
+    chatbotBody.appendChild(quickMenu);
+    chatbotBody.scrollTop = chatbotBody.scrollHeight;
+}
+
+// 채팅 입력 잠금/해제
+function setChatInputEnabled(enabled) {
+    chatbotInput.disabled = !enabled;
+    chatbotSend.disabled = !enabled;
+
+    if (enabled) {
+        chatbotInput.placeholder = "메시지를 입력하세요...";
+        chatbotInput.classList.remove("disabled");
+    } else {
+        chatbotInput.placeholder = "메뉴에서 선택해 주세요.";
+        chatbotInput.classList.add("disabled");
+    }
+}
+
+// "다른 문의?" + (추가 버튼) + MAIN_MENU 를 한 번에 표시
+function showFollowUpMenu(extraButtons = []) {
+    addBotMessage("다음엔 다른 문의가 필요하신가요? 😊");
+    appendMenuButtons([...extraButtons, ...MAIN_MENU]);
+}
+
+// ===============================
+// ✅ 로그인 필요 UI (메뉴별 문구 지원)
+// ===============================
+function showLoginRequired(message, returnUrl) {
     state.mode = "IDLE";
-    state.selectedCourseId = null;
-    state.selectedCourseTitle = null;
+    setChatInputEnabled(false);
 
-    addBotMessage("원하시는 항목을 선택해 주세요 😊");
-    appendMenuButtons(MAIN_MENU);
-}
+    addBotMessage(message || "이 기능은 로그인이 필요해요. 로그인 해주세요.");
 
-function showSubMenu(mainKey) {
-    const list = SUB_MENU[mainKey] || [{ key: "HOME", label: "🏠 메인 메뉴" }];
-    addBotMessage("원하시는 항목을 선택해 주세요 😊");
-    appendMenuButtons(list);
-}
-
-// ===============================
-// ✅ 로그인 버튼
-// ===============================
-function showLoginButtons() {
     removeExistingMenu();
-
     const quickMenu = document.createElement("div");
     quickMenu.className = "quick-menu";
 
     const loginBtn = document.createElement("button");
+    loginBtn.type = "button";
     loginBtn.className = "quick-btn";
-    loginBtn.textContent = "🔐 로그인하기";
+    loginBtn.textContent = "🔐 로그인";
     loginBtn.onclick = () => {
-        window.location.href = "/login"; // 로그인 경로 맞춰서 수정
+        const url = returnUrl
+            ? `/login?returnUrl=${encodeURIComponent(returnUrl)}`
+            : "/login";
+        window.location.href = url;
     };
 
     const homeBtn = document.createElement("button");
+    homeBtn.type = "button";
     homeBtn.className = "quick-btn";
     homeBtn.dataset.action = "HOME";
-    homeBtn.textContent = "🏠 메인 메뉴";
+    homeBtn.textContent = "🏠 처음으로";
 
     quickMenu.appendChild(loginBtn);
     quickMenu.appendChild(homeBtn);
@@ -158,54 +163,35 @@ function showLoginButtons() {
 }
 
 // ===============================
-// ✅ QNA: 수강 목록 보여주기
+// ✅ 로그인 필요한 페이지 이동
 // ===============================
-function showMyCourseListForQna() {
-    // 비로그인 → 로그인 유도
-    if (!window.IS_LOGGED_IN) {
-        addBotMessage("강의 내용 문의는 로그인 후 이용 가능해요. 로그인 하시겠어요?");
-        showLoginButtons();
+function goWithLogin(targetUrl, loginMessage) {
+    if (window.IS_LOGGED_IN) {
+        window.location.href = targetUrl;
         return;
     }
-
-    const courses = window.MY_COURSES;
-
-    if (!courses || courses.length === 0) {
-        addBotMessage("현재 수강 중인 강의가 없어요. 강의를 수강 신청한 뒤 이용해 주세요.");
-        appendMenuButtons([{ key: "HOME", label: "🏠 메인 메뉴" }]);
-        return;
-    }
-
-    addBotMessage("어떤 강의에 대해 문의하시나요? 아래에서 선택해 주세요.");
-
-    removeExistingMenu();
-    const quickMenu = document.createElement("div");
-    quickMenu.className = "quick-menu";
-
-    courses.forEach((c) => {
-        const b = document.createElement("button");
-        b.type = "button";
-        b.className = "quick-btn";
-        b.dataset.action = "SELECT_COURSE_FOR_QNA";
-        b.dataset.courseId = String(c.id);
-        b.dataset.courseTitle = c.title;
-        b.textContent = `🎓 ${c.title}`;
-        quickMenu.appendChild(b);
-    });
-
-    const home = document.createElement("button");
-    home.type = "button";
-    home.className = "quick-btn";
-    home.dataset.action = "HOME";
-    home.textContent = "🏠 메인 메뉴";
-    quickMenu.appendChild(home);
-
-    chatbotBody.appendChild(quickMenu);
-    chatbotBody.scrollTop = chatbotBody.scrollHeight;
+    showLoginRequired(
+        loginMessage || "이 기능은 로그인이 필요해요. 로그인 해주세요.",
+        targetUrl
+    );
 }
 
 // ===============================
-// ✅ 메뉴 동작
+// ✅ 메인 메뉴 표시(처음으로)
+// ===============================
+function showMainMenu() {
+    state.mode = "IDLE";
+    setChatInputEnabled(false);
+
+    // ✅ 잔여 메뉴 방지
+    removeExistingMenu();
+
+    addBotMessage("원하시는 항목을 선택해 주세요 😊");
+    appendMenuButtons(MAIN_MENU);
+}
+
+// ===============================
+// ✅ 메뉴 처리
 // ===============================
 function handleAction(actionKey) {
     if (actionKey === "HOME") {
@@ -213,51 +199,131 @@ function handleAction(actionKey) {
         return;
     }
 
-    // 메인 메뉴 선택 → 하위 메뉴
-    if (SUB_MENU[actionKey]) {
-        showSubMenu(actionKey);
-        return;
-    }
-
-    // ✅ 강의 내용 질문 진입
-    if (actionKey === "QNA_COURSE") {
-        showMyCourseListForQna();
-        return;
-    }
-
-    // ✅ 내 학습 현황 하위(로그인 필요)
-    if ((actionKey === "MY_PROGRESS" || actionKey === "MY_CERT") && !window.IS_LOGGED_IN) {
-        addBotMessage("해당 기능은 로그인 후 이용 가능해요. 로그인 하시겠어요?");
-        showLoginButtons();
-        return;
-    }
-
-    // 기타 데모 응답
     switch (actionKey) {
-        case "COURSE_POP":
-            addBotMessage("인기 강의를 보여드릴게요! 관심 분야가 있나요? (예: 개발/디자인/마케팅)");
+        // ---------------------------------
+        // 📚 강의 찾기: 채팅 가능 + 챗봇 추천 대화
+        // ---------------------------------
+        case "COURSE_FIND":
+            state.mode = "COURSE_RECOMMEND";
+            state.chatSessionId = null;
+            setChatInputEnabled(true);
+            addBotMessage(
+                "원하시는 강의/목표를 채팅으로 적어주세요 😊 예) 자바 입문, 스프링 프로젝트, SQL 기초"
+            );
+            appendMenuButtons([{ key: "HOME", label: "🏠 처음으로" }]);
             break;
-        case "COURSE_NEW":
-            addBotMessage("신규 강의를 안내할게요! 관심 분야가 있나요?");
+
+        // ---------------------------------
+        // ▶️ 내 학습 현황: 로그인 필수
+        // ---------------------------------
+        case "MY_LEARNING": {
+            setChatInputEnabled(false);
+
+            if (!window.IS_LOGGED_IN) {
+                showLoginRequired(
+                    "내학습 현황은 로그인이 필요해요. 로그인 해주세요.",
+                    "http://localhost:8081/mypage/courses"
+                );
+                return;
+            }
+
+            addBotMessage("학습 현황은 아래에서 확인 할수 있습니다.");
+            showFollowUpMenu([{ key: "NAV_MY_COURSES", label: "📈 학습현황 확인" }]);
             break;
-        case "PAY_ERR":
-            addBotMessage("결제 오류 유형을 알려주세요. (카드/간편결제/결제완료 후 미반영 등)");
+        }
+
+        case "NAV_MY_COURSES":
+            goWithLogin(
+                "http://localhost:8081/mypage/courses",
+                "내학습 현황은 로그인이 필요해요. 로그인 해주세요."
+            );
             break;
-        case "HUMAN_CONNECT":
-            addBotMessage("상담원 연결을 진행할게요. 운영시간은 평일 09:00~18:00 입니다.");
+
+        // ---------------------------------
+        // 💳 결제내역확인: 로그인 필수
+        // ---------------------------------
+        case "PAYMENT": {
+            setChatInputEnabled(false);
+
+            if (!window.IS_LOGGED_IN) {
+                showLoginRequired(
+                    "결제내역 확인은 로그인이 필요해요. 로그인 해주세요.",
+                    "http://localhost:8081/mypage/purchase"
+                );
+                return;
+            }
+
+            addBotMessage("결제내역확인은 아래에서 확인 할수 있습니다.");
+            showFollowUpMenu([{ key: "NAV_PURCHASE", label: "💳 결제내역확인" }]);
             break;
-        case "HUMAN_HOURS":
-            addBotMessage("운영시간은 평일 09:00~18:00 입니다.");
+        }
+
+        case "NAV_PURCHASE":
+            goWithLogin(
+                "http://localhost:8081/mypage/purchase",
+                "결제내역 확인은 로그인이 필요해요. 로그인 해주세요."
+            );
             break;
+
+        // ---------------------------------
+        // 📢 공지 & 이벤트: 채팅 불가 + 버튼 이동 + followup
+        // ---------------------------------
+        case "NOTICE":
+            state.mode = "IDLE";
+            setChatInputEnabled(false);
+
+            // ✅ 기존 메뉴 전부 제거 (중요)
+            removeExistingMenu();
+
+            // ✅ 1) 안내
+            addBotMessage("공지 & 이벤트는 아래에서 확인 할수 있습니다.");
+
+            // ✅ 2) 공지 이동 버튼
+            appendMenuButtonsKeep([{ key: "NAV_NOTICE", label: "📢 공지 & 이벤트" }]);
+
+            // ✅ 3) 다음 안내
+            addBotMessage("다음엔 다른 문의가 필요하신가요? 😊");
+
+            // ✅ 4) 메인 메뉴
+            appendMenuButtonsKeep(MAIN_MENU);
+            break;
+
+        case "NAV_NOTICE":
+            window.location.href = "http://localhost:8081/notice";
+            break;
+
+        // ---------------------------------
+        // 🧑‍💼 상담원 연결: 로그인 필수
+        // ---------------------------------
+        case "HUMAN":
+            if (!window.IS_LOGGED_IN) {
+                showLoginRequired("상담원 문의는 로그인이 필요해요. 로그인 해주세요.");
+                return;
+            }
+
+            state.mode = "HUMAN_WAIT_CONTENT";
+            setChatInputEnabled(true);
+            addBotMessage("문의 내용을 챗봇에 작성해 주세요. 확인 후 연락 드리겠습니다 😊");
+            appendMenuButtons([{ key: "HOME", label: "🏠 처음으로" }]);
+            break;
+
         default:
-            addBotMessage("선택하신 항목을 처리할게요. 조금만 더 자세히 알려주세요 😊");
+            addBotMessage("원하시는 항목을 선택해 주세요 😊");
+            appendMenuButtons(MAIN_MENU);
     }
+}
+
+function getConversationId() {
+    let id = sessionStorage.getItem("chat_conversation_id");
+    if (!id) {
+        id = "c_" + Date.now() + "_" + Math.random().toString(16).slice(2);
+        sessionStorage.setItem("chat_conversation_id", id);
+    }
+    return id;
 }
 
 // ===============================
 // ✅ 입력 전송
-// - 평소: 안내 메시지
-// - 강의 문의 작성 모드: Spring API로 저장 후 접수 메시지
 // ===============================
 async function sendMessage() {
     const msg = chatbotInput.value.trim();
@@ -265,45 +331,79 @@ async function sendMessage() {
 
     addUserMessage(msg);
     chatbotInput.value = "";
+    chatbotInput.focus();
 
-    // ✅ 강의 문의 내용 작성 중이면 DB 저장
-    if (state.mode === "QNA_COURSE_WAIT_CONTENT") {
+    // ---------------------------------
+    // 📚 강의 찾기: 챗봇(chat-agent) 추천 대화
+    // ---------------------------------
+    if (state.mode === "COURSE_RECOMMEND") {
         try {
-            const payload = {
-                courseId: Number(state.selectedCourseId),
-                content: msg,
-            };
-
             const headers = { "Content-Type": "application/json" };
             if (window.CSRF_TOKEN) headers[window.CSRF_HEADER] = window.CSRF_TOKEN;
 
-            const res = await fetch("/api/chatbot/inquiries", {
+            const res = await fetch("/api/chatbot/chat", {
+                method: "POST",
+                headers,
+                body: JSON.stringify({
+                    message: msg,
+                    sessionId: state.chatSessionId, // ✅ 유지 전송
+                }),
+            });
+
+            if (!res.ok) throw new Error("chat failed");
+            const data = await res.json();
+
+            // ✅ 응답에 sessionId가 오면 저장 (처음 응답에서만 생성되는 경우 대응)
+            if (data.sessionId) {
+                state.chatSessionId = data.sessionId;
+            }
+
+            addBotMessage(data.reply || "추천 결과를 가져왔어요!");
+            return;
+        } catch (e) {
+            addBotMessage("추천을 불러오는 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.");
+            return;
+        }
+    }
+
+    // ---------------------------------
+    // 🧑‍💼 상담원 문의: DB 저장
+    // ---------------------------------
+    if (state.mode === "HUMAN_WAIT_CONTENT") {
+        try {
+            const headers = { "Content-Type": "application/json" };
+            if (window.CSRF_TOKEN) headers[window.CSRF_HEADER] = window.CSRF_TOKEN;
+
+            const payload = {
+                courseId: Number(window.DEFAULT_QNA_COURSE_ID || 1),
+                title: "상담원 문의",
+                content: msg,
+            };
+
+            const res = await fetch("/api/chatbot/qna", {
                 method: "POST",
                 headers,
                 body: JSON.stringify(payload),
             });
 
-            if (!res.ok) throw new Error("failed");
+            if (!res.ok) throw new Error("qna failed");
 
-            addBotMessage("접수했습니다. 마이페이지의 답변을 기다려주세요.");
+            addBotMessage("접수되었습니다. 확인 후 연락 드리겠습니다 😊");
 
-            // 상태 초기화
             state.mode = "IDLE";
-            state.selectedCourseId = null;
-            state.selectedCourseTitle = null;
-
-            // 원하면 메인 메뉴 재노출
-            // showMainMenu();
+            setChatInputEnabled(false);
+            showFollowUpMenu();
             return;
-
         } catch (e) {
             addBotMessage("죄송해요. 접수 중 오류가 발생했어요. 잠시 후 다시 시도해 주세요.");
             return;
         }
     }
 
-    // ✅ 일반 자유 입력 응답
-    addBotMessage("문의 내용을 확인했어요. 조금만 더 자세히 알려주세요 😊");
+    // ---------------------------------
+    // 기본 모드(원칙상 채팅 비활성)
+    // ---------------------------------
+    addBotMessage("메뉴에서 항목을 선택해 주세요 😊");
 }
 
 // ===============================
@@ -311,50 +411,41 @@ async function sendMessage() {
 // ===============================
 
 // 열기
-chatbotToggle.addEventListener('click', () => {
-    chatbotWindow.style.display = 'flex';
-    chatbotWindow.style.flexDirection = 'column';
-    chatbotToggle.style.opacity = '0';
-    chatbotToggle.style.pointerEvents = 'none';
+chatbotToggle.addEventListener("click", () => {
+    chatbotWindow.style.display = "flex";
+    chatbotWindow.style.flexDirection = "column";
+    chatbotToggle.style.opacity = "0";
+    chatbotToggle.style.pointerEvents = "none";
 
+    setChatInputEnabled(false);
     showMainMenu();
 });
 
 // 닫기
-chatbotClose.addEventListener('click', () => {
-    chatbotWindow.style.display = 'none';
-    chatbotToggle.style.opacity = '1';
-    chatbotToggle.style.pointerEvents = 'auto';
+chatbotClose.addEventListener("click", () => {
+    chatbotWindow.style.display = "none";
+    chatbotToggle.style.opacity = "1";
+    chatbotToggle.style.pointerEvents = "auto";
 });
 
 // 전송
-chatbotSend.addEventListener('click', () => sendMessage());
-chatbotInput.addEventListener('keydown', (e) => {
-    if (e.key === 'Enter') sendMessage();
+chatbotSend.addEventListener("click", () => sendMessage());
+chatbotInput.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") sendMessage();
 });
 
-// 버튼 클릭(메인/하위/수강강의 공용)
+// quick 버튼 클릭
 document.addEventListener("click", (e) => {
     const btn = e.target.closest(".quick-btn");
     if (!btn) return;
 
     const actionKey = btn.dataset.action;
 
-    // ✅ 클릭 즉시 메뉴 제거(선택한 순간 기존 버튼 사라짐)
+    // ✅ 클릭 즉시 기존 메뉴 전부 제거
     removeExistingMenu();
 
     // 사용자 메시지 표시
     addUserMessage(btn.textContent);
-
-    // ✅ 수강 강의 선택 → 문의 내용 입력 모드 전환
-    if (actionKey === "SELECT_COURSE_FOR_QNA") {
-        state.mode = "QNA_COURSE_WAIT_CONTENT";
-        state.selectedCourseId = btn.dataset.courseId;
-        state.selectedCourseTitle = btn.dataset.courseTitle;
-
-        addBotMessage(`"${state.selectedCourseTitle}" 문의 내용을 아래 입력창에 작성 후 전송해 주세요 😊`);
-        return;
-    }
 
     handleAction(actionKey);
 });
