@@ -33,7 +33,7 @@ public class CourseVideoController {
         if (userId == null) return "redirect:/login";
 
         boolean isEnrolled = courseVideoService.isUserEnrolled(userId, courseId);
-        if (!isEnrolled) return "redirect:/course/detail?courseId=" + courseId;
+        if (!isEnrolled) return "redirect:/CourseDetail?courseId=" + courseId + "&tab=intro";
 
         // 현재 챕터 정보 로딩
         CourseVideo chapter = courseVideoService.getChapterDetail(chapterId);
