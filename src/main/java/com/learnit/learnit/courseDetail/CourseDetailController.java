@@ -80,6 +80,7 @@ public class CourseDetailController {
         model.addAttribute("curriculumTotal", chapters.size());
 
         // 리뷰(추후)
-        model.addAttribute("reviews", Collections.emptyList());
+        //model.addAttribute("reviews", Collections.emptyList());
+        model.addAttribute("courseId", courseId);
     }
 }

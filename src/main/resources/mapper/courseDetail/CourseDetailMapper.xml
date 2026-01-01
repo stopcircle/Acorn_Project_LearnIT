@@ -71,4 +71,15 @@
         WHERE category_id = #{categoryId}
     </select>
 
+    <!-- ✅ 내 활성 리뷰 존재 여부 (delete_flg = 0) -->
+    <select id="countActiveReviewByCourseAndUser"
+            parameterType="map"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM review
+        WHERE course_id = #{courseId}
+        AND user_id = #{userId}
+        AND delete_flg = 0
+    </select>
+
 </mapper>

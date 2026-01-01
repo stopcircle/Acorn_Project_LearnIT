@@ -19,4 +19,10 @@ public interface CourseDetailMapper {
     String selectPeriodTextByCourseId(@Param("courseId") int courseId);
 
     String selectCategoryNameByCategoryId(@Param("categoryId") int categoryId);
+
+    // 내 활성 리뷰 존재 여부 확인 (delete_flg = 0)
+    int countActiveReviewByCourseAndUser(
+            @Param("courseId") Long courseId,
+            @Param("userId") Long userId
+    );
 }

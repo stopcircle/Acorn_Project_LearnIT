@@ -1,13 +1,72 @@
-<th:block xmlns:th="http://www.thymeleaf.org" th:fragment="reviewsFragment(reviews)">
+<th:block data-th-fragment="reviewsFragment(reviews)">
 
-    <h2 class="cd-h2">수강평</h2>
+    <!-- ✅ CSRF (JS에서 PUT/DELETE 시 사용됨)
+         ※ 원래는 layout.html <head>에 두는 게 정석이지만
+         지금은 fragment에 직접 넣어도 정상 동작함 -->
+    <!-- CSRF 메타: _csrf가 없을 수도 있으니 안전 처리 -->
+    <meta name="_csrf" th:content="${_csrf != null ? _csrf.token : ''}">
+    <meta name="_csrf_header" th:content="${_csrf != null ? _csrf.headerName : ''}">
 
-    <div class="review-card" th:each="r : ${reviews}">
-        <div class="review-top">
-            <b th:text="${r.name}">dmax</b>
-            <span>★ <span th:text="${r.rating}">5.0</span></span>
+    <!-- =========================
+     수강평(Reviews) 탭
+     ========================= -->
+
+    <input type="hidden" id="courseId" th:value="${course.courseId}" />
+
+    <section class="review-section">
+
+        <!-- 수강평 헤더 + 전체 평점 -->
+        <div class="review-wrap">
+
+            <div class="review-header">
+                <h3 class="review-title">수강평</h3>
+
+                <div class="review-summary">
+                    <div class="rating-badge">
+                        <span class="rating-num" id="avgRating">0.0</span>
+                        <span class="rating-max">/ 5</span>
+                    </div>
+
+                    <div class="rating-meta">
+                        <div class="stars" id="avgStars"></div>
+                        <div class="count" id="reviewCount">0개의 수강평</div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- 리뷰 등록 폼 -->
+            <div id="reviewFormWrapper" style="display:none;">
+                <form class="review-form" onsubmit="submitReview(event)">
+                    <div class="row">
+                        <label>평점</label>
+                        <select id="rating">
+                            <option value="5">★★★★★</option>
+                            <option value="4">★★★★</option>
+                            <option value="3">★★★</option>
+                            <option value="2">★★</option>
+                            <option value="1">★</option>
+                        </select>
+                    </div>
+
+                    <div>
+                        <label>후기</label>
+                        <textarea id="comment" rows="4" placeholder="강의 후기를 남겨주세요."></textarea>
+                    </div>
+
+                    <button type="submit" class="btn-primary">수강평 등록</button>
+                </form>
+
+                <div id="reviewMessage"></div>
+            </div>
+
+            <!-- 리뷰 리스트 -->
+            <div id="reviewList"></div>
+
         </div>
-        <p th:text="${r.comment}">후기</p>
-    </div>
+    </section>
+    <!-- main content js -->
+    <th:block th:fragment="script">
+        <script th:src="@{/js/courseDetail/course-detail-review.js}"></script>
+    </th:block>
 
 </th:block>
