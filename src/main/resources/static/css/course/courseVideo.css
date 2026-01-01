@@ -173,7 +173,7 @@ body {
 }
 .panel-body {
     flex: 1; overflow-y: auto; min-height: 0;
-    padding-bottom: 100px; counter-reset: lecture-counter;
+    padding-bottom: 40px; counter-reset: lecture-counter;
 }
 
 /* =========================================
@@ -366,7 +366,7 @@ body {
     text-align: center;
 }
 
-/* 🔥 직사각형 시작 버튼: 모바일에서 안 잘리게 함 */
+/* 직사각형 시작 버튼: 모바일에서 안 잘리게 함 */
 .btn-start-circle {
     width: 100%;
     max-width: 240px;
@@ -476,7 +476,7 @@ body {
     border-top: 1px solid #eee;
     flex-shrink: 0;
 
-    /* 🔥 [추가] Flexbox를 활용한 중앙 정렬 */
+    /* Flexbox를 활용한 중앙 정렬 */
     display: flex;
     justify-content: center; /* 가로 중앙 정렬 */
     align-items: center;     /* 세로 중앙 정렬 */
@@ -654,7 +654,7 @@ body {
         min-height: 370px; /* 모바일 폰 높이에 맞춘 최소 세로폭 */
     }
 
-    /* 🔥 [모바일 퀴즈 수정] 모바일 전용 최소 크기 설정 */
+    /* [모바일 퀴즈 수정] 모바일 전용 최소 크기 설정 */
     .quiz-container {
         min-width: 0 !important;
         min-height: 0 !important;

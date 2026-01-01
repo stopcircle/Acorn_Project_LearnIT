@@ -33,15 +33,25 @@ function initApp() {
     if (state.videoUrl === 'QUIZ') {
         playContent(state.chapterId, 'QUIZ');
     }
+
+    // Restore side panel state
+    const savedTab = localStorage.getItem('lastActivePanel');
+    if (savedTab) {
+        openPanel(savedTab);
+    }
 }
 
 function goBackOrHome() {
-    if (document.referrer && document.referrer.indexOf(window.location.host) !== -1) {
+    const courseId = document.getElementById('course-id')?.value;
+    
+    // Check if referrer exists, matches our host, AND is NOT from another course video page
+    if (document.referrer && 
+        document.referrer.indexOf(window.location.host) !== -1 &&
+        document.referrer.indexOf('/course/play') === -1) {
         history.back();
     } else {
-        const courseId = document.getElementById('course-id')?.value;
         if (courseId) {
-            location.href = '/course/detail?courseId=' + courseId;
+            location.href = `/CourseDetail?courseId=${courseId}&tab=intro`;
         } else {
             location.href = '/'; // Fallback to home if courseId is missing
         }
@@ -175,11 +185,13 @@ function openPanel(tabName) {
     if (tabName === 'reference') loadResources();
 
     state.currentActiveTab = tabName;
+    localStorage.setItem('lastActivePanel', tabName);
 }
 
 function closePanel() {
     document.getElementById('side-panel-wrapper').classList.remove('open');
     state.currentActiveTab = null;
+    localStorage.removeItem('lastActivePanel');
 }
 
 function toggleSection(headerElement) {
@@ -200,12 +212,33 @@ function playContent(chapterId, videoUrl) {
 
         state.chapterId = chapterId;
         loadQuiz(chapterId);
+        updateSidebarActive(chapterId, true);
     } else {
         videoWrapper?.classList.remove('quiz-active');
         if (quizWrapper) quizWrapper.style.display = 'none';
         if (playerDiv) playerDiv.style.display = 'block';
 
         window.location.href = `/course/play?courseId=${state.courseId}&chapterId=${chapterId}`;
+    }
+}
+
+function updateSidebarActive(id, isQuiz) {
+    document.querySelectorAll('.chapter-list li').forEach(li => li.classList.remove('active'));
+
+    const links = document.querySelectorAll(`.chapter-list a[data-id="${id}"]`);
+    let targetLink = null;
+
+    links.forEach(link => {
+        const url = link.getAttribute('data-url');
+        if (isQuiz && url === 'QUIZ') {
+            targetLink = link;
+        } else if (!isQuiz && url !== 'QUIZ') {
+            targetLink = link;
+        }
+    });
+
+    if (targetLink && targetLink.parentElement) {
+        targetLink.parentElement.classList.add('active');
     }
 }
 
@@ -290,7 +323,8 @@ function renderQuestion() {
     state.isGraded = false;
     const question = state.quizData.questions[state.currentQIndex];
 
-    document.getElementById('curr-q-idx').innerText = state.currentQIndex + 1;
+    document.getElementById('total-q-count').innerText = state.quizData.questions.length;
+    document.getElementById('current-q-num').innerText = state.currentQIndex + 1;
     document.getElementById('question-content').innerText = question.content;
 
     const expText = question.explanation ? question.explanation : "별도의 해설이 없습니다.";

@@ -48,8 +48,7 @@
                 <th:block th:with="sectionQuiz=${quizMap.get(section.sectionTitle)}">
 
                     <li th:if="${sectionQuiz != null}"
-                        class="quiz-item"
-                        th:classappend="${#strings.toString(chapter.chapterId) == #strings.toString(sectionQuiz.quizId) ? 'active' : ''}">
+                        class="quiz-item">
 
                         <a href="javascript:void(0)"
                            th:data-id="${sectionQuiz.quizId}"
