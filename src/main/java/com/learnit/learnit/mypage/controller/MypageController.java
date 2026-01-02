@@ -1,5 +1,6 @@
 package com.learnit.learnit.mypage.controller;
 
+import com.learnit.learnit.mypage.dto.CertificateDTO;
 import com.learnit.learnit.mypage.dto.DashboardDTO;
 import com.learnit.learnit.mypage.dto.PaymentHistoryDTO;
 import com.learnit.learnit.mypage.dto.PaymentReceiptDTO;
@@ -13,6 +14,7 @@ import com.learnit.learnit.payment.common.LoginRequiredException;
 import com.learnit.learnit.payment.common.dto.UserCouponDTO;
 import com.learnit.learnit.mypage.service.GitHubAnalysisService;
 import com.learnit.learnit.mypage.service.ProfileService;
+import com.learnit.learnit.user.util.SessionUtils;
 import com.learnit.learnit.user.dto.UserDTO;
 import com.learnit.learnit.user.service.UserService;
 import jakarta.servlet.http.HttpSession;
@@ -46,7 +48,7 @@ public class MypageController {
     @GetMapping("/mypage/dashboard")
     public String dashboard(Model model, HttpSession session) {
         // 세션에서 사용자 ID 가져오기
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
         
         if (userId == null) {
             // 로그인하지 않은 경우 로그인 페이지로 리다이렉트
@@ -68,7 +70,7 @@ public class MypageController {
      */
     @GetMapping("/mypage/profile")
     public String profile(Model model, HttpSession session) {
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
         
         if (userId == null) {
             return "redirect:/login";
@@ -81,7 +83,11 @@ public class MypageController {
         // 프로필 정보 조회
         ProfileDTO profile = profileService.getProfile(userId);
         model.addAttribute("profile", profile);
-
+        
+        // 수료증 목록 조회
+        java.util.List<CertificateDTO> certificates = profileService.getCertificates(userId);
+        model.addAttribute("certificates", certificates);
+        
         // 저장된 GitHub 분석 결과 조회
         GitHubAnalysisDTO savedAnalysis = githubAnalysisService.getSavedGitHubAnalysis(userId);
 
@@ -98,7 +104,7 @@ public class MypageController {
     @GetMapping("/mypage/purchase")
     public String paymentHistory(HttpSession session, Model model){
 
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
 
         if (userId == null) return "redirect:/login";
 
@@ -118,7 +124,7 @@ public class MypageController {
     public PaymentReceiptDTO paymentReceipt(@PathVariable long paymentId,
                                             HttpSession session){
 
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
         if (userId == null) throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
 
         return paymentService.getReceipt(paymentId, userId);
@@ -128,7 +134,7 @@ public class MypageController {
     @GetMapping("/mypage/coupons")
     public String coupons(HttpSession session, Model model){
 
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
         if (userId == null) return "redirect:/login";
 
         UserDTO user = userService.getUserDTOById(userId);
