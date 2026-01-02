@@ -73,7 +73,7 @@ public class CourseVideoController {
         model.addAttribute("finalQuizId", finalQuizId);
         model.addAttribute("isFinalSubmitted", isFinalSubmitted);
 
-        return "course/courseVideo";
+        return "courseVideo/courseVideo";
     }
 
     // 진도율 저장 로그
