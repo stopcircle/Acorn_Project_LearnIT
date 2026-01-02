@@ -37,7 +37,7 @@
                         <div class="course-info">
                             <p class="title" th:text="${course.title}">강의명</p>
                             <p class="price"
-                               th:text="${#numbers.formatInteger(course.price, 3, 'COMMA')} + '원'">
+                               th:text="${course.price == 0 ? '무료' : #numbers.formatInteger(course.price, 0, 'COMMA') + '원'}">
                                 0원
                             </p>
                         </div>
