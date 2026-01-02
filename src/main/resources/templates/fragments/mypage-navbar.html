@@ -1,6 +1,6 @@
 <!-- 마이페이지 네비게이션 Fragment -->
-<div th:fragment="mypage-navbar">
-    <!-- 모바일 헤더 네비게이션 -->
+<!-- 모바일 헤더 네비게이션 -->
+<div th:fragment="mypage-mobile-navbar">
     <div class="mobile-header-nav">
         <!-- 프로필 섹션 -->
         <div class="mobile-profile-section">
@@ -29,8 +29,10 @@
             </ul>
         </nav>
     </div>
+</div>
 
-    <!-- 데스크탑 사이드바 -->
+<!-- 데스크탑 사이드바 -->
+<div th:fragment="mypage-sidebar">
     <aside class="mypage-sidebar">
         <div class="profile-box">
             <div class="photo">
