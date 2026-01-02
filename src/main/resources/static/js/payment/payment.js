@@ -1,7 +1,6 @@
 document.addEventListener("DOMContentLoaded", function () {
     // 1. HTML의 data 속성에서 데이터 가져오기
     const container = document.getElementById("paymentContainer");
-    const userId = container.dataset.userId;
 
     const courseIds = JSON.parse(container.dataset.courseIds);
     const basePrice = Number(container.dataset.basePrice);
@@ -119,9 +118,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         fetch("/payments/kakao/ready", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
             body: JSON.stringify({
-                userId: userId,
                 courseIds: courseIds,
                 totalPrice: basePrice - discountAmount,
                 couponId: selectedCouponId
@@ -141,9 +143,12 @@ document.addEventListener("DOMContentLoaded", function () {
 
         fetch("/payments/card/ready", {
             method: "POST",
-            headers: { "Content-Type": "application/json" },
+            credentials: "include",
+            headers: {
+                "Content-Type": "application/json",
+                "Accept": "application/json"
+            },
             body: JSON.stringify({
-                userId: userId,
                 courseIds: courseIds,
                 couponId: selectedCouponId
             })
@@ -169,7 +174,11 @@ document.addEventListener("DOMContentLoaded", function () {
                     // 서버에 결제 완료 통지
                     fetch("/payments/card/complete", {
                         method: "POST",
-                        headers: { "Content-Type": "application/json" },
+                        credentials: "include",
+                        headers: {
+                            "Content-Type": "application/json",
+                            "Accept": "application/json"
+                        },
                         body: JSON.stringify({
                             impUid: rsp.imp_uid,
                             merchantUid: rsp.merchant_uid

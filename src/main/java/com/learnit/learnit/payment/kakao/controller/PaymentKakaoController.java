@@ -5,6 +5,7 @@ import com.learnit.learnit.payment.common.PaymentException;
 import com.learnit.learnit.payment.common.dto.PaymentRequestDTO;
 import com.learnit.learnit.payment.kakao.dto.KakaoReadyResponse;
 import com.learnit.learnit.payment.kakao.service.PaymentKakaoService;
+import com.learnit.learnit.user.util.SessionUtils;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -23,9 +24,10 @@ public class PaymentKakaoController {
     //결제 준비 Ready (API)
     @PostMapping("/payments/kakao/ready")
     @ResponseBody
-    public KakaoReadyResponse kakaoPayReady(@RequestBody PaymentRequestDTO request, HttpSession session){
+    public KakaoReadyResponse kakaoPayReady(@RequestBody PaymentRequestDTO request,
+                                            HttpSession session){
 
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
 
         if(userId == null) throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
 

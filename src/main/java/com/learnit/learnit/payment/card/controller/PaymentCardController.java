@@ -5,6 +5,7 @@ import com.learnit.learnit.payment.common.LoginRequiredException;
 import com.learnit.learnit.payment.common.dto.PaymentRequestDTO;
 import com.learnit.learnit.payment.common.entity.PaymentPrepare;
 import com.learnit.learnit.payment.common.service.PaymentService;
+import com.learnit.learnit.user.util.SessionUtils;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -27,11 +28,12 @@ public class PaymentCardController {
     //카드 결제 준비
     @PostMapping("/payments/card/ready")
     @ResponseBody
-    public ResponseEntity<?> ready(@RequestBody PaymentRequestDTO request, HttpSession session) {
+    public ResponseEntity<?> ready(@RequestBody PaymentRequestDTO request,
+                                   HttpSession session) {
 
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
 
-        if (userId == null) throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
+        if(userId == null) throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
 
         List<Long> courseIds = request.getCourseIds();
         Long couponId = request.getCouponId();

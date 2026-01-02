@@ -9,6 +9,7 @@ import com.learnit.learnit.payment.common.dto.OrderDTO;
 import com.learnit.learnit.payment.common.dto.PaymentDTO;
 import com.learnit.learnit.payment.common.repository.CouponMapper;
 import com.learnit.learnit.payment.common.repository.PaymentMapper;
+import com.learnit.learnit.user.util.SessionUtils;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -34,7 +35,7 @@ public class PaymentController {
             HttpSession session,
             Model model
     ) {
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
 
         if(userId == null) throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
 
@@ -72,7 +73,7 @@ public class PaymentController {
                          HttpSession session,
                          Model model) {
 
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
 
         if(userId == null) throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
 
