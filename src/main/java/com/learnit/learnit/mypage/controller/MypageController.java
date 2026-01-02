@@ -1,5 +1,6 @@
 package com.learnit.learnit.mypage.controller;
 
+import com.learnit.learnit.mypage.dto.CertificateDTO;
 import com.learnit.learnit.mypage.dto.DashboardDTO;
 import com.learnit.learnit.mypage.dto.PaymentHistoryDTO;
 import com.learnit.learnit.mypage.dto.PaymentReceiptDTO;
@@ -82,9 +83,13 @@ public class MypageController {
         ProfileDTO profile = profileService.getProfile(userId);
         model.addAttribute("profile", profile);
 
+        // 수료증 목록 조회
+        java.util.List<CertificateDTO> certificates = profileService.getCertificates(userId);
+        model.addAttribute("certificates", certificates);
+
         // 저장된 GitHub 분석 결과 조회
         GitHubAnalysisDTO savedAnalysis = githubAnalysisService.getSavedGitHubAnalysis(userId);
-
+        
         if (savedAnalysis != null) {
             SkillChartDTO skillChart = githubAnalysisService.generateSkillChart(savedAnalysis);
             model.addAttribute("githubAnalysis", savedAnalysis);

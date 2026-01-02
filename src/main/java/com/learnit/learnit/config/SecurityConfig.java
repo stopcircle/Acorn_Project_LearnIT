@@ -28,25 +28,26 @@ public class SecurityConfig {
                                 "/api/user/check-email", "/api/courses", "/api/search/**",
                                 "/api/mypage/github/**", "/mypage/**",
                                 "/oauth2/authorization/**", "/login/oauth2/code/**",
-                                "/cart/**", "/payment/**", "/payments/**").permitAll()
+                                "/cart/**",
+                                "/payment/**", "/payments/**",
+                                "/admin/**").permitAll()
                         .anyRequest().authenticated()
                 )
             .oauth2Login(oauth2 -> oauth2
-                .loginPage("/login")
-                .successHandler(oAuth2LoginSuccessHandler) // 커스텀 핸들러 사용 (SIGNUP_PENDING 체크 및 리다이렉트 처리)
-                .failureUrl("/login?error=true")
-                .userInfoEndpoint(userInfo -> userInfo
-                    .userService(oAuthService)
-                )
+                    .loginPage("/login")
+                    .successHandler(oAuth2LoginSuccessHandler) // 커스텀 핸들러 사용 (SIGNUP_PENDING 체크 및 리다이렉트 처리)
+                    .failureUrl("/login?error=true")
+                    .userInfoEndpoint(userInfo -> userInfo
+                            .userService(oAuthService)
+                    )
             )
             .logout(logout -> logout
-                .logoutUrl("/logout")
-                .logoutSuccessUrl("/home")
-                .invalidateHttpSession(true)
-                .deleteCookies("JSESSIONID")
+                    .logoutUrl("/logout")
+                    .logoutSuccessUrl("/home")
+                    .invalidateHttpSession(true)
+                    .deleteCookies("JSESSIONID")
             );
 
         return http.build();
     }
 }
-
