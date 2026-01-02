@@ -1,5 +1,6 @@
 package com.learnit.learnit.config;
 
+import com.learnit.learnit.user.util.SessionUtils;
 import jakarta.servlet.http.HttpSession;
 import org.springframework.web.bind.annotation.ControllerAdvice;
 import org.springframework.web.bind.annotation.ModelAttribute;
@@ -22,7 +23,7 @@ public class LoginInfoAdvice {
     // 모든 뷰에서 ${loginUserId} 로 사용 가능
     @ModelAttribute("loginUserId")
     public Long loginUserId(HttpSession session) {
-        return (Long) session.getAttribute("LOGIN_USER_ID");
+        return SessionUtils.getUserId(session);
     }
 
     // 모든 뷰에서 ${loginUserName} 로 사용 가능

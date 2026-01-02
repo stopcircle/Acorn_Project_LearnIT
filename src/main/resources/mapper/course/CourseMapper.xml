@@ -145,4 +145,37 @@
         ORDER BY order_index ASC
     </select>
 
+    <!--강의 가격 조회(결제 시 사용)-->
+    <select id="findCoursePrice" resultType="int">
+        SELECT price
+        FROM course
+        WHERE course_id = #{courseId}
+    </select>
+
+
+    <!--결제 페이지 강의 상세-->
+    <select id="findCoursesByIds" parameterType="list" resultType="com.learnit.learnit.course.CourseDTO">
+        SELECT
+        c.course_id      AS courseId,
+        c.category_id    AS categoryId,
+        c.user_id        AS userId,
+        c.title          AS title,
+        c.description    AS description,
+        c.price          AS price,
+        c.thumbnail_url  AS thumbnailUrl,
+        c.detail_img_url AS detailImgUrl,
+        c.open_type      AS openType,
+        c.open_start     AS openStart,
+        c.open_end       AS openEnd,
+        c.status         AS status,
+        c.created_at     AS createdAt,
+        c.updated_at     AS updatedAt,
+        c.delete_flg     AS deleteFlg
+        FROM course c
+        WHERE c.course_id IN
+        <foreach collection="courseIds" item="id" open="(" separator="," close=")">
+            #{id}
+        </foreach>
+    </select>
+
 </mapper>

@@ -6,6 +6,7 @@ import com.learnit.learnit.user.entity.User;
 import com.learnit.learnit.user.service.EmailService;
 import com.learnit.learnit.user.service.SessionService;
 import com.learnit.learnit.user.service.UserService;
+import com.learnit.learnit.user.util.SessionUtils;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -144,8 +145,7 @@ public class UserController {
 
     @GetMapping("/user/additional-info")
     public String showAdditionalInfoForm(HttpSession session, Model model) {
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
-        
+        Long userId = SessionUtils.getUserId(session);
         if (userId == null) {
             return "redirect:/login";
         }
@@ -177,7 +177,7 @@ public class UserController {
             HttpSession session,
             Model model
     ) {
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
         if (userId == null) {
             return "redirect:/login";
         }

@@ -5,6 +5,7 @@ import com.learnit.learnit.mypage.dto.ProfileDTO;
 import com.learnit.learnit.mypage.dto.SkillChartDTO;
 import com.learnit.learnit.mypage.service.GitHubAnalysisService;
 import com.learnit.learnit.mypage.service.ProfileService;
+import com.learnit.learnit.user.util.SessionUtils;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -30,7 +31,7 @@ public class GitHubAnalysisController {
      */
     @GetMapping("/analysis")
     public ResponseEntity<Map<String, Object>> getGitHubAnalysis(HttpSession session) {
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
         
         if (userId == null) {
             Map<String, Object> error = new HashMap<>();
@@ -70,7 +71,7 @@ public class GitHubAnalysisController {
      */
     @GetMapping("/analyze")
     public ResponseEntity<Map<String, Object>> analyzeGitHub(HttpSession session) {
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
         
         if (userId == null) {
             Map<String, Object> error = new HashMap<>();

@@ -35,7 +35,7 @@ public class ProfileController {
      */
     @GetMapping("/mypage/settings")
     public String settingsPage(Model model, HttpSession session) {
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
         
         if (userId == null) {
             return "redirect:/login";
@@ -78,7 +78,7 @@ public class ProfileController {
             HttpSession session,
             RedirectAttributes redirectAttributes) {
         
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
         
         if (userId == null) {
             return "redirect:/login";
@@ -115,7 +115,7 @@ public class ProfileController {
             HttpSession session) {
         
         Map<String, Object> response = new HashMap<>();
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
         
         if (userId == null) {
             response.put("success", false);
@@ -145,7 +145,7 @@ public class ProfileController {
     @PostMapping("/mypage/settings/remove-profile-image")
     public ResponseEntity<Map<String, Object>> removeProfileImage(HttpSession session) {
         Map<String, Object> response = new HashMap<>();
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
+        Long userId = SessionUtils.getUserId(session);
         
         if (userId == null) {
             response.put("success", false);

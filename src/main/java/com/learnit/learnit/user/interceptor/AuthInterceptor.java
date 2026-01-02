@@ -1,5 +1,6 @@
 package com.learnit.learnit.user.interceptor;
 
+import com.learnit.learnit.user.util.SessionUtils;
 import com.learnit.learnit.user.entity.User;
 import com.learnit.learnit.user.repository.UserRepository;
 import jakarta.servlet.http.HttpServletRequest;
@@ -41,11 +42,10 @@ public class AuthInterceptor implements HandlerInterceptor {
         }
         
         // 세션이 없거나 로그인 정보가 없으면 통과 (Spring Security가 처리)
-        if (session == null || session.getAttribute("LOGIN_USER_ID") == null) {
+        Long userId = SessionUtils.getUserId(session);
+        if (userId == null) {
             return true;
         }
-        
-        Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
         User user = userRepository.findById(userId).orElse(null);
         
         if (user == null) {
