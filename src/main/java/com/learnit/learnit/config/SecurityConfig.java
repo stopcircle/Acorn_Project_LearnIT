@@ -29,7 +29,8 @@ public class SecurityConfig {
                                 "/api/mypage/github/**", "/mypage/**",
                                 "/oauth2/authorization/**", "/login/oauth2/code/**",
                                 "/cart/**", "/payment/**", "/payments/**",
-                                "/admin/**").permitAll() // Security는 통과시키고, 실제 검증은 AuthInterceptor에게 위임
+                                "/admin/**", "/api/quiz/**",
+                                "/api/interpreter/**", "/api/resources/**").permitAll() // Security는 통과시키고, 실제 검증은 AuthInterceptor에게 위임
                         .anyRequest().authenticated()
                 )
             .oauth2Login(oauth2 -> oauth2
