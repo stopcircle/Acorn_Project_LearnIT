@@ -86,6 +86,7 @@
         ORDER BY r.created_at DESC
     </select>
 
+<<<<<<< HEAD
     <!-- 마지막 학습 챕터 조회 -->
     <select id="selectLastWatchedChapterId" resultType="Long">
         SELECT chapter_id
@@ -94,6 +95,17 @@
           AND course_id = #{courseId}
         ORDER BY created_at DESC
         LIMIT 1
+=======
+    <!-- ✅ 내 활성 리뷰 존재 여부 (delete_flg = 0) -->
+    <select id="countActiveReviewByCourseAndUser"
+            parameterType="map"
+            resultType="int">
+        SELECT COUNT(*)
+        FROM review
+        WHERE course_id = #{courseId}
+        AND user_id = #{userId}
+        AND delete_flg = 0
+>>>>>>> 4c788d2 (리뷰 등록/수정/삭제 동작 오류 수정)
     </select>
 
 </mapper>
