@@ -199,18 +199,18 @@
 }
 
 /*장바구니 버튼*/
-.cart-btn {
+.header-cart-btn {
     margin-right: 1.2rem;
     display: inline-flex;
     align-items: center;
 }
-.cart-icon {
+.header-cart-icon {
     width: 22px;
     height: 22px;
     vertical-align: middle;
 }
 
-.cart-btn:hover {
+.header-cart-btn:hover {
     opacity: 0.8;
 }
 
