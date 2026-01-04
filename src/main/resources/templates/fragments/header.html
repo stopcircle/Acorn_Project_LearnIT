@@ -41,17 +41,29 @@
 
             <!-- 오른쪽 로그인 버튼 (PC) -->
             <div class="header-right">
+
+                <!-- ✅ 장바구니 버튼: 로그인/비로그인 모두 노출 -->
+                <a th:href="@{/cart}" class="cart-btn" aria-label="장바구니">
+                    <img th:src="@{/images/cart-icon.png}" class="cart-icon" alt="cart">
+                    <span class="cart-count-badge"
+                          th:if="${cartCount > 0}"
+                          th:text="${cartCount}">0</span>
+                </a>
+
                 <th:block th:if="${loginUserId == null}">
-                    <a th:href="@{/login}" class="login-btn">로그인/회원가입</a>
+                    <th:block th:with="redirectUrl=${currentUrl}">
+                        <a th:href="@{/login(redirect=${currentUrl})}" class="login-btn">로그인/회원가입</a>
+                    </th:block>
                 </th:block>
+
                 <th:block th:if="${loginUserId != null}">
-                    <a th:href="@{/cart}" class="cart-btn" aria-label="장바구니"><img th:src="@{/images/cart-icon.png}" class="cart-icon"></a>
                     <a th:href="@{/mypage}" class="user-name" th:text="${loginUserName} + '님'"></a>
                     <form th:action="@{/logout}" method="post" style="display: inline;">
                         <button type="submit" class="logout-btn">로그아웃</button>
                     </form>
                 </th:block>
             </div>
+
 
         </div>
     </header>
@@ -67,17 +79,36 @@
                 </div>
 
                 <div class="mobile-nav__header-actions">
+
+                    <!-- ✅ 장바구니: 로그인/비로그인 모두 노출 + badge -->
+                    <a th:href="@{/cart}" class="mobile-nav__cart" aria-label="장바구니">
+                        <img th:src="@{/images/cart-icon.png}" class="cart-icon" alt="cart">
+                        <span class="cart-count-badge"
+                              th:if="${cartCount > 0}"
+                              th:text="${cartCount}">0</span>
+                    </a>
+
+                    <!-- ✅ 비로그인: 로그인 버튼 + redirect -->
                     <th:block th:if="${loginUserId == null}">
-                        <a th:href="@{/login}" class="mobile-nav__login">로그인</a>
+                        <a th:href="@{/login(redirect=${currentUrl})}"
+                           class="mobile-nav__login">로그인</a>
                     </th:block>
+
+                    <!-- ✅ 로그인 상태 -->
                     <th:block th:if="${loginUserId != null}">
-                        <a th:href="@{/cart}" class="mobile-nav__cart"><img th:src="@{/images/cart-icon.png}" class="cart-icon"></a>
-                        <a th:href="@{/mypage}" class="mobile-nav__user-name" th:text="${loginUserName}"></a>
-                        <form th:action="@{/logout}" method="post" style="display: inline;">
+                        <a th:href="@{/mypage}"
+                           class="mobile-nav__user-name"
+                           th:text="${loginUserName}">사용자</a>
+
+                        <form th:action="@{/logout}" method="post" style="display:inline;">
                             <button type="submit" class="mobile-nav__logout">로그아웃</button>
                         </form>
                     </th:block>
-                    <button class="mobile-nav__close" id="mobile-nav-close" aria-label="카테고리 닫기" type="button">
+
+                    <button class="mobile-nav__close"
+                            id="mobile-nav-close"
+                            aria-label="카테고리 닫기"
+                            type="button">
                         &times;
                     </button>
                 </div>
