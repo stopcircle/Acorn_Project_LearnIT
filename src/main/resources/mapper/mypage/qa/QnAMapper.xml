@@ -18,10 +18,24 @@
             a.content AS answer,
             a.created_at AS answeredAt
         FROM qna_question q
-        LEFT JOIN course c ON q.course_id = c.course_id
+        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
         LEFT JOIN users u ON q.user_id = u.user_id
-        LEFT JOIN qna_answer a ON q.qna_id = a.qna_id
+        LEFT JOIN (
+            SELECT a1.qna_id, a1.content, a1.created_at
+            FROM qna_answer a1
+            INNER JOIN (
+                SELECT qna_id, MAX(created_at) AS max_created_at
+                FROM qna_answer
+                WHERE delete_flg = 0 
+                  AND parent_answer_id IS NULL
+                GROUP BY qna_id
+            ) a2 ON a1.qna_id = a2.qna_id 
+                AND a1.created_at = a2.max_created_at
+                AND a1.delete_flg = 0
+                AND a1.parent_answer_id IS NULL
+        ) a ON q.qna_id = a.qna_id
         WHERE q.user_id = #{userId}
+          AND q.delete_flg = 0
         ORDER BY q.created_at DESC
     </select>
 
