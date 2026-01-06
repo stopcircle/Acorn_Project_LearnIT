@@ -32,8 +32,14 @@ public class CourseVideoController {
         Long userId = (Long) session.getAttribute("LOGIN_USER_ID");
         if (userId == null) return "redirect:/login";
 
+        // 관리자 여부 체크 (관리자는 수강권한 없이도 접근 가능)
+        String role = (String) session.getAttribute("LOGIN_USER_ROLE");
+        boolean isAdmin = "ADMIN".equals(role);
+
         boolean isEnrolled = courseVideoService.isUserEnrolled(userId, courseId);
-        if (!isEnrolled) return "redirect:/CourseDetail?courseId=" + courseId + "&tab=intro";
+
+        // 관리자도 아니고, 수강생도 아니면 접근 불가
+        if (!isAdmin && !isEnrolled) return "redirect:/CourseDetail?courseId=" + courseId + "&tab=intro";
 
         // 현재 챕터 정보 로딩
         CourseVideo chapter = courseVideoService.getChapterDetail(chapterId);
