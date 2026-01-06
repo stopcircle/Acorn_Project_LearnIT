@@ -18,6 +18,12 @@ public class AdminQnaService {
         try {
             int offset = (page - 1) * size;
             List<AdminQnaDto> result = repo.selectQnas(offset, size, type, status, search);
+            if (result != null && !result.isEmpty()) {
+                log.debug("QnA 목록 조회 성공: 총 {}개, 첫 번째 항목 courseId={}, courseTitle={}", 
+                    result.size(), 
+                    result.get(0).getCourseId(), 
+                    result.get(0).getCourseTitle());
+            }
             return result != null ? result : new java.util.ArrayList<>();
         } catch (Exception e) {
             log.error("QnA 목록 조회 실패: page={}, size={}, type={}, status={}, search={}, error={}", 

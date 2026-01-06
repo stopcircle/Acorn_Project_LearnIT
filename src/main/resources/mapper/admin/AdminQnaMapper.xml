@@ -24,7 +24,7 @@
         SELECT
         q.qna_id AS qnaId,
         q.course_id AS courseId,
-        c.title AS courseTitle,
+        COALESCE(c.title, '') AS courseTitle,
 
         q.user_id AS questionUserId,
         qu.name AS questionUserName,
@@ -46,7 +46,7 @@
         a.created_at AS answerCreatedAt
 
         FROM qna_question q
-        LEFT JOIN course c ON q.course_id = c.course_id
+        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
         JOIN users qu ON q.user_id = qu.user_id
         <include refid="latestAnswerJoin"/>
 
@@ -91,7 +91,7 @@
     <select id="countQnas" resultType="int">
         SELECT COUNT(*)
         FROM qna_question q
-        LEFT JOIN course c ON q.course_id = c.course_id
+        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
         JOIN users qu ON q.user_id = qu.user_id
         <where>
             AND q.delete_flg = 0
@@ -132,7 +132,7 @@
         SELECT
         q.qna_id AS qnaId,
         q.course_id AS courseId,
-        c.title AS courseTitle,
+        COALESCE(c.title, '') AS courseTitle,
 
         q.user_id AS questionUserId,
         qu.name AS questionUserName,
@@ -154,7 +154,7 @@
         a.created_at AS answerCreatedAt
 
         FROM qna_question q
-        LEFT JOIN course c ON q.course_id = c.course_id
+        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
         JOIN users qu ON q.user_id = qu.user_id
         <include refid="latestAnswerJoin"/>
 

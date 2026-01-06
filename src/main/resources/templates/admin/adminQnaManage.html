@@ -86,7 +86,7 @@
                         </a>
                     </td>
 
-                    <td th:text="${q.courseId != null ? q.courseId : '-'}">-</td>
+                    <td th:text="${q.courseId != null and q.courseId != 0 ? q.courseId : '-'}">-</td>
 
                     <td>
                         <a class="link"
@@ -98,7 +98,7 @@
                                 page=${currentPage},
                                 size=${pageSize
                            })}"
-                           th:text="${q.courseTitle != null ? q.courseTitle : '-'}">-</a>
+                           th:text="${q.courseTitle != null and q.courseTitle != '' ? q.courseTitle : '-'}">-</a>
                     </td>
 
                     <td th:text="${q.questionUserName}">작성자</td>
