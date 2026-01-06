@@ -52,13 +52,10 @@ public interface AdminUserRoleMapper {
                             @Param("adminRoleId") int adminRoleId,
                             @Param("courseId") Integer courseId);
 
-    int countCourses(@Param("keyword") String keyword);
+    // ✅ 강의 검색(페이징 없음)
+    List<Map<String, Object>> searchCourses(@Param("keyword") String keyword);
 
-    List<Map<String, Object>> searchCourses(@Param("keyword") String keyword,
-                                            @Param("offset") int offset,
-                                            @Param("size") int size);
-
-    // ✅ 추가: SUB_ADMIN 관리강의 삭제/카운트
+    // ✅ SUB_ADMIN 관리강의 삭제/카운트
     int countSubAdminCourses(@Param("userId") Long userId,
                              @Param("adminRoleId") int adminRoleId);
 

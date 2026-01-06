@@ -142,10 +142,14 @@ function setRoleEditMode(tr, on) {
   if (btn) btn.textContent = on ? "저장" : "수정";
 }
 
+/**
+ * ✅ SUB_ADMIN 관리강의 태그 표시를 "courseId - title"로 통일
+ */
 function buildManagedTag(courseId, title) {
+  const label = `${courseId} - ${title}`;
   return `
-    <span class="tag" data-id="${courseId}">
-      <span class="tag-text">${escapeHtml(title)}</span>
+    <span class="tag" data-id="${courseId}" data-title="${escapeHtml(title)}">
+      <span class="tag-text">${escapeHtml(label)}</span>
       <button type="button" class="tag-del" title="삭제" aria-label="삭제">×</button>
     </span>
   `;
@@ -385,6 +389,12 @@ function renderUsers(users) {
       const editing = tr.classList.contains("role-editing");
       if (!editing) {
         setRoleEditMode(tr, true);
+
+        // ✅ UX: 수정 눌렀을 때 (SUB_ADMIN이면) 기본으로 전체 강의 로딩
+        const roleValue = tr.querySelector(".role")?.value;
+        if (roleValue === "SUB_ADMIN") {
+          searchCourse(tr); // 빈칸이면 전체 호출됨
+        }
         return;
       }
       await saveRole(u, tr);
@@ -490,27 +500,58 @@ async function saveRole(u, tr) {
   }
 }
 
+/**
+ * ✅ 강의 검색
+ * - 빈칸이면 전체 호출: /api/admin/courses
+ * - 검색어 있으면: /api/admin/courses?keyword=...
+ * - 응답이 배열(List) 또는 {items:[...]} 둘 다 대응
+ * - 표시: course_id - 강의명
+ */
 async function searchCourse(tr) {
   const kw = tr.querySelector(".course-keyword")?.value?.trim() || "";
+
   try {
-    const data = await apiFetch(`/api/admin/courses?keyword=${encodeURIComponent(kw)}&page=1&size=7`, {
-      method: "GET"
-    });
+    const url = kw
+      ? `/api/admin/courses?keyword=${encodeURIComponent(kw)}`
+      : `/api/admin/courses`;
+
+    const data = await apiFetch(url, { method: "GET" });
+
+    const list = Array.isArray(data) ? data : (data.items || []);
+
     const sel = tr.querySelector(".course-select");
     if (!sel) return;
 
     sel.innerHTML = "";
-    (data.items || []).forEach(c => {
+
+    list.forEach(c => {
+      const courseId = c.courseId ?? c.course_id ?? c.id;
+      const title = c.title ?? c.name ?? "";
+
+      if (!courseId) return;
+
       const opt = document.createElement("option");
-      opt.value = c.courseId;
-      opt.textContent = c.title;
+      opt.value = String(courseId);
+
+      // ✅ 표시: course_id - 강의명
+      opt.textContent = `${courseId} - ${title}`;
+
+      // ✅ 실제 title은 dataset에 보관 (addCourse에서 그대로 사용)
+      opt.dataset.title = String(title);
+
       sel.appendChild(opt);
     });
+
   } catch (e) {
     alert(e.message || "강의 검색 실패");
   }
 }
 
+/**
+ * ✅ 강의 추가
+ * - option 표시(text)는 "id - title"
+ * - 실제 title은 option.dataset.title에서 가져와 태그 생성
+ */
 function addCourse(tr) {
   const sel = tr.querySelector(".course-select");
   if (!sel || !sel.value) return;
@@ -518,11 +559,14 @@ function addCourse(tr) {
   const list = tr.querySelector(".managed");
   if (!list) return;
 
-  const exists = [...list.querySelectorAll(".tag")].some(t => t.dataset.id === String(sel.value));
+  const courseId = String(sel.value);
+
+  const exists = [...list.querySelectorAll(".tag")].some(t => t.dataset.id === courseId);
   if (exists) return;
 
-  const title = sel.selectedOptions[0]?.textContent || sel.value;
-  list.insertAdjacentHTML("beforeend", buildManagedTag(sel.value, title));
+  const title = sel.selectedOptions[0]?.dataset?.title || "";
+
+  list.insertAdjacentHTML("beforeend", buildManagedTag(courseId, title));
 }
 
 async function deleteManagedCourse(userId, courseId, tagEl) {

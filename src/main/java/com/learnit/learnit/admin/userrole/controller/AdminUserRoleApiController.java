@@ -6,6 +6,7 @@ import com.learnit.learnit.admin.userrole.service.AdminUserRoleService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @RestController
@@ -40,13 +41,16 @@ public class AdminUserRoleApiController {
         return Map.of("ok", true);
     }
 
+    /**
+     * ✅ 강의 검색
+     * - keyword 빈칸이면 전체 강의
+     * - keyword 있으면 course_id / title 부분일치(대소문자 무시)
+     */
     @GetMapping("/courses")
-    public Map<String, Object> courses(
-            @RequestParam(defaultValue = "") String keyword,
-            @RequestParam(defaultValue = "1") int page,
-            @RequestParam(defaultValue = "7") int size
+    public List<Map<String, Object>> courses(
+            @RequestParam(defaultValue = "") String keyword
     ) {
-        return service.searchCourses(keyword, page, size);
+        return service.searchCourses(keyword);
     }
 
     // ✅ SUB_ADMIN 태그 “삭제(×)” - 즉시 서버 반영

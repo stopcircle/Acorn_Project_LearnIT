@@ -67,7 +67,8 @@ public class AdminUserRoleService {
         int total = mapper.countUsers(type, keyword, statusFilters, roleFilters);
         int totalPages = (int) Math.ceil(total / (double) safeSize);
 
-        List<Map<String, Object>> items = mapper.searchUsers(type, keyword, statusFilters, roleFilters, offset, safeSize);
+        List<Map<String, Object>> items =
+                mapper.searchUsers(type, keyword, statusFilters, roleFilters, offset, safeSize);
 
         for (Map<String, Object> u : items) {
             String role = String.valueOf(u.get("role"));
@@ -80,9 +81,6 @@ public class AdminUserRoleService {
             }
         }
 
-        // ✅ 필터 목록은 "전체 페이징" 기준(=DB 전체 결과)로 보여줘야 하므로 GROUP BY 로 조회
-        // - 상태 목록: 현재 검색조건 + (권한 필터는 반영) + (상태 필터는 제외)
-        // - 권한 목록: 현재 검색조건 + (상태 필터는 반영) + (권한 필터는 제외)
         List<Map<String, Object>> statusFacet = mapper.groupUsersByStatus(type, keyword, roleFilters);
         List<Map<String, Object>> roleFacet = mapper.groupUsersByRole(type, keyword, statusFilters);
 
@@ -98,7 +96,6 @@ public class AdminUserRoleService {
                 "totalPages", totalPages,
                 "totalCount", total,
                 "facets", facets,
-                // ✅ 현재 적용중인 필터(프론트에서 체크 상태 복구용)
                 "appliedFilters", Map.of(
                         "statuses", statusFilters,
                         "roles", roleFilters
@@ -142,7 +139,6 @@ public class AdminUserRoleService {
         }
 
         mapper.updateUserRole(targetUserId, newRole);
-
         mapper.deleteAdminUserRoles(targetUserId);
 
         if ("USER".equals(newRole)) return;
@@ -187,9 +183,7 @@ public class AdminUserRoleService {
         boolean isSocial = provider != null && !"local".equalsIgnoreCase(provider);
 
         String next = dto.getStatus().trim();
-        if (next.equals(curr)) {
-            return;
-        }
+        if (next.equals(curr)) return;
 
         if (!List.of("SIGNUP_PENDING", "ACTIVE", "BANNED", "DELETE").contains(next)) {
             throw new ResponseStatusException(BAD_REQUEST, "status 값이 올바르지 않습니다.");
@@ -226,31 +220,18 @@ public class AdminUserRoleService {
         }
     }
 
+    /**
+     * ✅ 강의 검색 (페이징 없음)
+     * - keyword 빈칸이면 전체
+     * - keyword 있으면 course_id/title 부분일치(대소문자 무시)
+     */
     @Transactional(readOnly = true)
-    public Map<String, Object> searchCourses(String keyword, int page, int size) {
+    public List<Map<String, Object>> searchCourses(String keyword) {
         requireGlobalAdmin();
-
-        int safePage = Math.max(page, 1);
-        int safeSize = (size <= 0) ? 7 : Math.min(size, 50);
-        int offset = (safePage - 1) * safeSize;
-
         if (keyword == null) keyword = "";
-
-        int total = mapper.countCourses(keyword);
-        int totalPages = (int) Math.ceil(total / (double) safeSize);
-
-        List<Map<String, Object>> items = mapper.searchCourses(keyword, offset, safeSize);
-
-        return Map.of(
-                "items", items,
-                "page", safePage,
-                "size", safeSize,
-                "totalPages", totalPages,
-                "totalCount", total
-        );
+        return mapper.searchCourses(keyword);
     }
 
-    // ✅ SUB_ADMIN 태그 “삭제(×)” - 즉시 반영
     @Transactional
     public void removeSubAdminCourse(Long targetUserId, Integer courseId) {
         requireGlobalAdmin();

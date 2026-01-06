@@ -177,12 +177,16 @@
         VALUES (#{userId}, #{adminRoleId}, #{courseId})
     </insert>
 
+    <!-- ✅ 강의 검색: 빈칸이면 전체(생성일 빠른순), 검색어 있으면 course_id/title 부분일치 + 대소문자 무시 -->
     <select id="countCourses" resultType="int">
         SELECT COUNT(*)
         FROM course
         WHERE delete_flg = 0
-        <if test="keyword != null and keyword != ''">
-            AND title LIKE CONCAT('%', #{keyword}, '%')
+        <if test="keyword != null and keyword.trim() != ''">
+            AND (
+            CAST(course_id AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+            OR LOWER(title) LIKE CONCAT('%', LOWER(#{keyword}), '%')
+            )
         </if>
     </select>
 
@@ -192,11 +196,13 @@
         title     AS title
         FROM course
         WHERE delete_flg = 0
-        <if test="keyword != null and keyword != ''">
-            AND title LIKE CONCAT('%', #{keyword}, '%')
+        <if test="keyword != null and keyword.trim() != ''">
+            AND (
+            CAST(course_id AS CHAR) LIKE CONCAT('%', #{keyword}, '%')
+            OR LOWER(title) LIKE CONCAT('%', LOWER(#{keyword}), '%')
+            )
         </if>
-        ORDER BY course_id DESC
-        LIMIT #{size} OFFSET #{offset}
+        ORDER BY created_at ASC, course_id ASC
     </select>
 
     <!-- ✅ 추가: SUB_ADMIN 관리강의 카운트/삭제 -->
