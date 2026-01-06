@@ -1,6 +1,9 @@
 package com.learnit.learnit.admin;
 
+import com.learnit.learnit.payment.common.LoginRequiredException;
 import com.learnit.learnit.user.dto.UserDTO;
+import com.learnit.learnit.user.util.SessionUtils;
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
@@ -15,12 +18,6 @@ import java.util.List;
 public class AdminCouponController {
 
     private final AdminCouponService adminCouponService;
-
-    //관리자 - 유저 관리 페이지 이동 (쿠폰 구현 확인용 - 삭제 필)
-    @GetMapping("/admin/user")
-    public String adminUserPage() {
-        return "admin/admin-coupon";
-    }
 
     //관리자 - 쿠폰 관리 페이지 이동
     @GetMapping("/admin/coupon")
@@ -47,22 +44,21 @@ public class AdminCouponController {
     //쿠폰 발급
     @PostMapping("/api/admin/coupons/issue")
     @ResponseBody
-    public ResponseEntity<String> issue(@RequestBody AdminCouponDTO adminCouponDTO){
-        try {
-            adminCouponService.issueCoupons(adminCouponDTO);
-            return ResponseEntity.ok("success");
-        } catch (Exception e) {
-            e.printStackTrace();
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
-        }
-    }
+    public ResponseEntity<String> issue(@RequestBody AdminCouponDTO adminCouponDTO,
+                                        HttpSession session){
 
-    //쿠폰만 생성
-//    @PostMapping("/api/admin/coupons")
-//    @ResponseBody
-//    public String create(@RequestBody AdminCouponDTO dto){
-//        adminCouponService.createCoupon(dto);
-//        return "success";
-//    }
+        Long userId = SessionUtils.getUserId(session);
+        if (userId == null) {
+            throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
+        }
+
+        String role = (String) session.getAttribute("LOGIN_USER_ROLE");
+        if(!"ADMIN".equals(role)){
+            return ResponseEntity.status(HttpStatus.FORBIDDEN).body("ADMIN만 쿠폰 발급이 가능합니다.");
+        }
+
+        adminCouponService.issueCoupons(adminCouponDTO);
+        return ResponseEntity.ok("success");
+    }
 
 }
