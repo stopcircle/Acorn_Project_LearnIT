@@ -19,5 +19,5 @@ public class AdminCouponDTO {
 
     //쿠폰 발급
     private List<Long> userIds;
-    private boolean isAllUser;
+    private boolean allUser;
 }

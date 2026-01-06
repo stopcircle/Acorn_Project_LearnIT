@@ -19,14 +19,25 @@ async function searchUsers(){
     const users = await res.json();
     const tbody = document.getElementById('userSearchResult');
 
-    tbody.innerHTML = users.map(user => `
+    tbody.innerHTML = users.map(user => {
+        const isSelected = selectedUsers.has(user.userId);
+
+        return `
         <tr>
             <td>${user.name}</td>
             <td>${user.email}</td>
             <td>${user.userId}</td>
-            <td><button type="button" class="btn-add" onclick='addToIssueList(${JSON.stringify(user)})'>추가</button></td>
+            <td>
+                <button type="button"
+                        class="btn-add"
+                        ${isSelected ? 'disabled' : ''}
+                        onclick='addToIssueList(${JSON.stringify(user)})'>
+                    +
+                </button>
+            </td>
         </tr>
-    `).join('');
+        `;
+    }).join('');
 }
 
 function addToIssueList(user){
@@ -46,7 +57,7 @@ function renderIssueList() {
         <tr>
             <td>${user.userId}</td>
             <td>${user.name}</td>
-            <td style="font-size: 1.1rem; color: #666;">${user.email}</td>
+            <td class="td-email">${user.email}</td>
             <td>
                 <button class="btn-remove-icon"
                         onclick="removeFromIssueList(${user.userId})"
@@ -56,6 +67,8 @@ function renderIssueList() {
             </td>
         </tr>
     `).join('');
+
+    searchUsers();
 }
 
 async function handleIssueCoupon() {
@@ -63,7 +76,7 @@ async function handleIssueCoupon() {
     const targetMode = document.querySelector('input[name="grantTarget"]:checked').value;
 
     let payload = {
-        isAllUser: targetMode === 'all',
+        allUser: targetMode === 'all',
         userIds: targetMode === 'specific' ? Array.from(selectedUsers.keys()) : []
     };
 
@@ -74,7 +87,8 @@ async function handleIssueCoupon() {
         if (!payload.couponId) return alert("지급할 쿠폰을 선택하세요.");
     } else {
         payload.name = document.getElementById('couponName').value;
-        payload.discountAmount = document.getElementById('discountAmount').value; // DTO와 일치
+        payload.minPrice = document.getElementById('minPrice').value;
+        payload.discountAmount = document.getElementById('discountAmount').value;
         payload.expireDate = document.getElementById('expireDate').value;
         payload.type = "MANUAL";
         if (!payload.name || !payload.discountAmount) return alert("새 쿠폰 정보를 입력하세요.");
