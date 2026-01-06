@@ -1,9 +1,68 @@
-.admin-role-search {
+.admin-role-toolbar {
   display: flex;
-  gap: 8px;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
   margin: 12px 0;
 }
 
+.admin-role-search {
+  display: flex;
+  gap: 8px;
+}
+
+.admin-role-actions {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+}
+
+.btn-reset {
+  padding: 8px 12px;
+  border: 1px solid #ddd;
+  background: #fafafa;
+  border-radius: 8px;
+  cursor: pointer;
+}
+
+.btn-reset:hover {
+  background: #f3f3f3;
+}
+
+/* ✅ 적용 조건 칩 */
+.applied-filters {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  margin: 6px 0 12px;
+}
+
+.filter-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 10px;
+  border-radius: 999px;
+  border: 1px solid #ddd;
+  background: #fff;
+  font-size: 13px;
+}
+
+.filter-chip .chip-del {
+  border: 0;
+  background: transparent;
+  cursor: pointer;
+  font-size: 16px;
+  line-height: 1;
+  padding: 0 2px;
+  opacity: 0.7;
+}
+
+.filter-chip .chip-del:hover {
+  opacity: 1;
+}
+
+/* 테이블 */
 .admin-role-table {
   width: 100%;
   border-collapse: collapse;
@@ -34,6 +93,12 @@
 
 .filter-btn:hover {
   opacity: 1;
+}
+
+/* ✅ 필터 적용 중 강조(점 표시 느낌) */
+.filter-btn.filter-on {
+  opacity: 1;
+  font-weight: 700;
 }
 
 .filter-popup {

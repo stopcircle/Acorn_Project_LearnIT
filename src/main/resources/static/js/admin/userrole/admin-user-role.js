@@ -10,6 +10,20 @@ document.addEventListener("DOMContentLoaded", () => {
     loadUsers();
   });
 
+  // ✅ 엔터로 검색
+  document.getElementById("searchKeyword")?.addEventListener("keydown", (e) => {
+    if (e.key === "Enter") {
+      e.preventDefault();
+      currentPage = 1;
+      loadUsers();
+    }
+  });
+
+  // ✅ 검색/필터 전체 초기화
+  document.getElementById("btnResetAll")?.addEventListener("click", () => {
+    resetAllConditions();
+  });
+
   // ✅ 필터 팝업 열기
   document.querySelectorAll(".filter-btn").forEach(btn => {
     btn.addEventListener("click", (e) => {
@@ -31,6 +45,21 @@ document.addEventListener("DOMContentLoaded", () => {
 
   loadUsers();
 });
+
+function resetAllConditions() {
+  const typeEl = document.getElementById("searchType");
+  const kwEl = document.getElementById("searchKeyword");
+
+  if (typeEl) typeEl.value = "email";
+  if (kwEl) kwEl.value = "";
+
+  statusFilters = [];
+  roleFilters = [];
+
+  currentPage = 1;
+  closeAllFilterPopups();
+  loadUsers(1);
+}
 
 function csrfHeaders() {
   const token = document.querySelector('meta[name="_csrf"]')?.getAttribute("content");
@@ -173,6 +202,8 @@ async function loadUsers(page = currentPage) {
 
   // ✅ 서버 GROUP BY 결과로 필터 목록 생성 (전체 페이징 기준)
   renderFilterPopups(data.facets || {}, data.appliedFilters || {});
+  renderAppliedChips();        // ✅ 상단 칩 표시
+  updateFilterButtonState();   // ✅ 필터 버튼 강조
 
   renderUsers(data.items || []);
   renderPagination(data.page, data.totalPages);
@@ -195,6 +226,80 @@ function toggleFilterPopup(which) {
   });
 
   popup.style.display = (popup.style.display === "block") ? "none" : "block";
+}
+
+function updateFilterButtonState() {
+  const statusBtn = document.querySelector('.filter-btn[data-filter="status"]');
+  const roleBtn = document.querySelector('.filter-btn[data-filter="role"]');
+
+  if (statusBtn) statusBtn.classList.toggle("filter-on", statusFilters.length > 0);
+  if (roleBtn) roleBtn.classList.toggle("filter-on", roleFilters.length > 0);
+}
+
+function renderAppliedChips() {
+  const wrap = document.getElementById("appliedFilters");
+  if (!wrap) return;
+
+  const type = document.getElementById("searchType")?.value || "email";
+  const keyword = document.getElementById("searchKeyword")?.value?.trim() || "";
+
+  const chips = [];
+
+  if (keyword) {
+    const label = `검색(${type}): ${keyword}`;
+    chips.push({
+      key: "keyword",
+      label,
+      onDelete: () => {
+        const kwEl = document.getElementById("searchKeyword");
+        if (kwEl) kwEl.value = "";
+        currentPage = 1;
+        loadUsers(1);
+      }
+    });
+  }
+
+  statusFilters.forEach(v => {
+    chips.push({
+      key: `status:${v}`,
+      label: `상태: ${v}`,
+      onDelete: () => {
+        statusFilters = statusFilters.filter(x => x !== v);
+        currentPage = 1;
+        loadUsers(1);
+      }
+    });
+  });
+
+  roleFilters.forEach(v => {
+    chips.push({
+      key: `role:${v}`,
+      label: `권한: ${v}`,
+      onDelete: () => {
+        roleFilters = roleFilters.filter(x => x !== v);
+        currentPage = 1;
+        loadUsers(1);
+      }
+    });
+  });
+
+  if (chips.length === 0) {
+    wrap.innerHTML = "";
+    return;
+  }
+
+  wrap.innerHTML = chips.map(c => `
+    <span class="filter-chip" data-key="${escapeHtml(c.key)}">
+      <span>${escapeHtml(c.label)}</span>
+      <button type="button" class="chip-del" aria-label="조건 제거">×</button>
+    </span>
+  `).join("");
+
+  wrap.querySelectorAll(".filter-chip").forEach(el => {
+    const key = el.getAttribute("data-key");
+    const chip = chips.find(x => x.key === key);
+    el.querySelector(".chip-del")?.addEventListener("click", () => chip?.onDelete?.());
+  });
 }
 
 function renderFilterPopups(facets, applied) {
