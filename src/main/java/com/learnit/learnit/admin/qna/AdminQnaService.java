@@ -17,9 +17,11 @@ public class AdminQnaService {
     public List<AdminQnaDto> getQnas(int page, int size, String type, String status, String search) {
         try {
             int offset = (page - 1) * size;
-            return repo.selectQnas(offset, size, type, status, search);
+            List<AdminQnaDto> result = repo.selectQnas(offset, size, type, status, search);
+            return result != null ? result : new java.util.ArrayList<>();
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("QnA 목록 조회 실패: page={}, size={}, type={}, status={}, search={}, error={}", 
+                page, size, type, status, search, e.getMessage(), e);
             return new java.util.ArrayList<>();
         }
     }
@@ -28,7 +30,8 @@ public class AdminQnaService {
         try {
             return repo.countQnas(type, status, search);
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("QnA 총 개수 조회 실패: type={}, status={}, search={}, error={}", 
+                type, status, search, e.getMessage(), e);
             return 0;
         }
     }

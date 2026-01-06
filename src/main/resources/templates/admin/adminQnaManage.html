@@ -3,11 +3,15 @@
       th:replace="~{layout/admin-layout :: layout(
         ~{::title},
         ~{::content},
-        ~{::css}
+        ~{::css},
+        ~{::script}
       )}">
 
 <th:block th:fragment="css">
     <link rel="stylesheet" th:href="@{/css/admin/qna.css}">
+</th:block>
+
+<th:block th:fragment="script">
 </th:block>
 
 <head>
@@ -107,7 +111,7 @@
                     </td>
 
                     <td class="summary"
-                        th:text="${q.questionContent != null ? #strings.abbreviate(q.questionContent, 30) : '-'}">요약</td>
+                        th:text="${q.questionTitle != null and q.questionTitle != '' ? q.questionTitle : (q.questionContent != null ? #strings.abbreviate(q.questionContent, 30) : '-')}">요약</td>
 
                     <td th:text="${q.questionCreatedAt != null ? #temporals.format(q.questionCreatedAt,'yyyy-MM-dd') : '-'}">-</td>
                 </tr>
