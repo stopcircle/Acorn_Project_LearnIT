@@ -29,7 +29,7 @@
         qu.name AS questionUserName,
         qu.email AS questionUserEmail,
 
-        q.content AS questionTitle,
+        IFNULL(SUBSTRING(q.content, 1, 50), '') AS questionTitle,
         q.content AS questionContent,
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,
@@ -133,7 +133,7 @@
         qu.name AS questionUserName,
         qu.email AS questionUserEmail,
 
-        q.content AS questionTitle,
+        IFNULL(SUBSTRING(q.content, 1, 50), '') AS questionTitle,
         q.content AS questionContent,
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,
