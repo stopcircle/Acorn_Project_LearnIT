@@ -67,7 +67,7 @@
         WHERE n.notice_id = #{noticeId}
     </select>
 
-    <!-- ✅ notice_id 직접 넣어서 insert (AUTO_INCREMENT 미사용) -->
+    <!-- notice_id 직접 넣어서 insert (AUTO_INCREMENT 미사용) -->
     <insert id="insertNotice" parameterType="com.learnit.learnit.admin.notice.AdminNoticeDto">
         INSERT INTO notice (notice_id, user_id, category, title, content, file_url, created_at, updated_at)
         VALUES (#{noticeId}, #{userId}, #{category}, #{title}, #{content}, #{fileUrl}, NOW(), NOW())
@@ -96,7 +96,7 @@
         </foreach>
     </delete>
 
-    <!-- ✅✅✅ 필터 기반 전체 삭제 -->
+    <!-- 필터 기반 전체 삭제 -->
     <delete id="deleteAllByFilter">
         DELETE n
         FROM notice n
@@ -115,7 +115,7 @@
         </where>
     </delete>
 
-    <!-- ✅✅✅ 동시성 방지: MySQL Named Lock -->
+    <!-- 동시성 방지: MySQL Named Lock -->
     <select id="getNoticeIdLock" resultType="int">
         SELECT GET_LOCK(#{lockName}, 5)
     </select>
@@ -124,7 +124,7 @@
         SELECT RELEASE_LOCK(#{lockName})
     </select>
 
-    <!-- ✅✅✅ 가장 작은 빈 notice_id 찾기 (없으면 마지막+1, 비었으면 1) -->
+    <!-- 가장 작은 빈 notice_id 찾기 (없으면 마지막+1, 비었으면 1) -->
     <select id="selectSmallestMissingNoticeId" resultType="int">
         SELECT COALESCE(
         (SELECT 1 FROM dual WHERE NOT EXISTS (SELECT 1 FROM notice WHERE notice_id = 1)),

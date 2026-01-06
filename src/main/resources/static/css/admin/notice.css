@@ -1,208 +1,306 @@
-.admin-notice-container{
-    padding: 2rem;
-    max-width: 1400px;
-    margin: 0 auto;
+/* =========================
+   NOTICE (th/td 가운데 정렬 + 제목만 왼쪽)
+========================= */
+
+.admin-content-inner{
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
-.page-head{
-    display:flex;
-    align-items:center;
-    justify-content: space-between;
-    margin-bottom: 1.6rem;
-    gap: 1rem;
-    flex-wrap: wrap;
+.admin-notice-container{
+  padding: 2rem 0;
+  width: 100%;
+  margin: 0;
+  min-width: 0;
+  box-sizing: border-box;
 }
+
+.admin-notice-container *{ box-sizing: border-box; }
 
 .admin-notice-container h2{
-    font-size: 2.4rem;
-    font-weight: 800;
-    color:#111;
-    margin: 0 0 1.6rem 0;
+  font-size: 2.2rem;
+  font-weight: 800;
+  color: #111;
+  margin: 0 0 1.4rem 0;
 }
 
-.alert{
-    padding: 1.2rem 1.6rem;
-    border-radius: .8rem;
-    margin-bottom: 1.2rem;
-    font-size: 1.4rem;
+/* alert */
+.admin-notice-container .alert{
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
 }
-.alert-success{background:#d4edda; border:1px solid #c3e6cb; color:#155724;}
-.alert-error{background:#f8d7da; border:1px solid #f5c6cb; color:#721c24;}
+.admin-notice-container .alert-success{ background:#d4edda; border:1px solid #c3e6cb; color:#155724; }
+.admin-notice-container .alert-error{ background:#f8d7da; border:1px solid #f5c6cb; color:#721c24; }
 
-.filters{
-    background:#f8f9fa;
-    padding: 1.2rem;
-    border-radius: .8rem;
-    margin-bottom: 1.6rem;
-}
-
-/* ✅ 화면 줄면 아래로 내려가게 */
-.filter-form{
-    display:flex;
-    gap:1rem;
-    align-items:center;
-    flex-wrap: wrap;
+/* filters */
+.admin-notice-container .filters{
+  background:#f8f9fa;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 16px;
 }
 
-.filter-select, .search-input{
-    padding:.8rem 1.2rem;
-    border:1px solid #d5dbe3;
-    border-radius:.6rem;
-    font-size:1.4rem;
+.admin-notice-container .filter-form{
+  display:flex;
+  align-items:center;
+  gap: 10px;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
-/* ✅ 너무 큰 min-width 때문에 작은 화면에서 깨지는걸 방지 */
-.search-input{
-    flex:1;
-    min-width: 220px;
+.admin-notice-container .filter-select{
+  padding: 10px 12px;
+  border: 1px solid #d5dbe3;
+  border-radius: 8px;
+  font-size: 14px;
+  width: 140px;
+  flex: 0 0 auto;
+  background: #fff;
 }
 
-.btn-primary{
-    background:#0A4A7A;
-    color:#fff;
-    border:none;
-    padding:.9rem 1.4rem;
-    border-radius:.6rem;
-    font-weight:700;
-    text-decoration:none;
-    cursor:pointer;
-    display:inline-block;
-    white-space: nowrap;
-}
-.btn-search{
-    background:#0A4A7A; color:#fff; border:none;
-    padding:.9rem 1.4rem; border-radius:.6rem; font-weight:700; cursor:pointer;
-    white-space: nowrap;
-}
-.btn-reset{
-    background:#6c757d;
-    color:#fff;
-    border:none;
-    padding:.9rem 1.4rem;
-    border-radius:.6rem;
-    font-weight:700;
-    text-decoration:none;
-    cursor:pointer;
-    display:inline-block;
-    white-space: nowrap;
+.admin-notice-container .search-input{
+  padding: 10px 12px;
+  border: 1px solid #d5dbe3;
+  border-radius: 8px;
+  font-size: 14px;
+  flex: 1 1 auto;
+  min-width: 0;
+  background: #fff;
 }
 
-/* ✅ 테이블 잘림 방지: 가로 스크롤 */
-.table-wrap{
-    background:#fff;
-    border-radius:.8rem;
-    overflow-x:auto;
-    overflow-y:hidden;
-    box-shadow: 0 .2rem .6rem rgba(0,0,0,.08);
+/* 버튼 */
+.admin-notice-container .btn-search,
+.admin-notice-container .btn-primary,
+.admin-notice-container .btn-reset{
+  border: none;
+  padding: 10px 14px;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  white-space: nowrap;
+  height: 40px;
+  line-height: 1;
+}
+.admin-notice-container .btn-search{ background:#0A4A7A; color:#fff; }
+.admin-notice-container .btn-primary{ background:#0A4A7A; color:#fff; }
+.admin-notice-container .btn-reset{ background:#6c757d; color:#fff; }
+.admin-notice-container .btn-reset:hover{ filter: brightness(0.95); }
+
+/* =========================
+   table
+========================= */
+.admin-notice-container .table-wrap{
+  width:100%;
+  background:#fff;
+  border-radius: 10px;
+  overflow-x:auto;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
+  -webkit-overflow-scrolling: touch;
 }
 
-.notice-table{
-    width:100%;
-    border-collapse: collapse;
-    min-width: 980px;
-    table-layout: fixed; /* ✅ 컬럼 흔들림 방지 */
+.admin-notice-container .notice-table{
+  width: 100%;
+  min-width: 860px;
+  table-layout: fixed;
+  border-collapse: collapse;
 }
 
-.notice-table thead{background:#0A4A7A; color:#fff;}
-
-/* ✅✅ 핵심: th/td 정렬을 통일해야 "왼쪽으로 밀림"이 사라짐 */
-.notice-table th,
-.notice-table td{
-    padding: 1.2rem;
-    font-size: 1.4rem;
-    border-bottom: 1px solid #eaeaea;
-    text-align: center;        /* ✅ 핵심 */
-    vertical-align: middle;
-    box-sizing: border-box;
+.admin-notice-container .notice-table thead{
+  background:#0A4A7A;
+  color:#fff;
 }
 
-.notice-table tbody tr:hover{background:#f8f9fa;}
+.admin-notice-container .notice-table th,
+.admin-notice-container .notice-table td{
+  padding: 12px 10px;
+  font-size: 14px;
+  border-bottom: 1px solid #eaeaea;
+  white-space: nowrap;
 
-/* ✅ 제목만 보기 좋게 왼쪽 정렬 + 말줄임 */
-.title-cell{
-    font-weight:600;
-    color:#111;
-    text-align: left;          /* ✅ 제목만 왼쪽 */
-    overflow: hidden;
-    text-overflow: ellipsis;
-    white-space: nowrap;
+  /* ✅ 여기! 기본은 가운데 정렬 */
+  text-align: center;
+  vertical-align: middle;
 }
 
-/* 혹시 title-cell 클래스가 빠진 경우 대비(4번째 컬럼=제목) */
-.notice-table tbody td:nth-child(4){
-    text-align:left;
+.admin-notice-container .notice-table th{
+  font-weight: 800;
 }
 
-.action-cell{white-space:nowrap;}
-
-.col-check{
-    width:48px;
-    text-align:center;
+/* ✅ 제목 컬럼만 왼쪽 정렬(더 자연스러움) */
+.admin-notice-container .notice-table th:nth-child(3),
+.admin-notice-container .notice-table td:nth-child(3){
+  text-align: left;
+  padding-left: 16px; /* 제목이 너무 딱 붙어보이면 살짝 여백 */
 }
 
-.btn-mini{
-    border:1px solid #d5dbe3;
-    background:#fff;
-    padding:.5rem 1rem;
-    border-radius:.6rem;
-    text-decoration:none;
-    font-weight:700;
-    font-size:1.3rem;
-    cursor:pointer;
-    display:inline-block;
-    margin-right:.4rem;
-    white-space: nowrap;
-}
-.btn-mini.danger{border-color:#dc3545; color:#dc3545;}
-.btn-mini.danger:hover{background:#dc3545; color:#fff;}
+/* 6컬럼 폭(구분/공지번호/제목/작성자/작성일/관리) */
+.admin-notice-container .notice-table th:nth-child(1),
+.admin-notice-container .notice-table td:nth-child(1){ width: 90px; }    /* 구분 */
+.admin-notice-container .notice-table th:nth-child(2),
+.admin-notice-container .notice-table td:nth-child(2){ width: 90px; }    /* 공지번호 */
+.admin-notice-container .notice-table th:nth-child(4),
+.admin-notice-container .notice-table td:nth-child(4){ width: 110px; }   /* 작성자 */
+.admin-notice-container .notice-table th:nth-child(5),
+.admin-notice-container .notice-table td:nth-child(5){ width: 120px; }   /* 작성일 */
+.admin-notice-container .notice-table th:nth-child(6),
+.admin-notice-container .notice-table td:nth-child(6){ width: 150px; }   /* 관리 */
 
-.empty{text-align:center; padding: 3rem; color:#999;}
-
-.pagination{
-    display:flex;
-    justify-content:center;
-    align-items:center;
-    gap:.8rem;
-    margin: 1.6rem 0;
-    flex-wrap: wrap;
-}
-.page-link, .page-number a{
-    padding:.8rem 1.1rem;
-    border:1px solid #d5dbe3;
-    border-radius:.6rem;
-    text-decoration:none;
-    color:#0A4A7A;
-    font-weight:700;
-    white-space: nowrap;
-}
-.page-number strong{
-    padding:.8rem 1.1rem;
-    border-radius:.6rem;
-    background:#0A4A7A;
-    color:#fff;
-    white-space: nowrap;
+.admin-notice-container .title-cell{
+  overflow:hidden;
+  text-overflow: ellipsis;
+  font-weight: 700;
+  color:#111;
 }
 
-.summary{
-    text-align:center;
-    color:#666;
-    font-size:1.4rem;
-    margin-top: 1rem;
+/* 관리 버튼 */
+.admin-notice-container .btn-mini{
+  border: 1px solid #d5dbe3;
+  background:#fff;
+  padding: 6px 10px;
+  border-radius: 8px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration:none;
+  display:inline-flex;
+  align-items:center;
+  justify-content:center;
+  gap: 4px;
+  height: 32px;
+}
+.admin-notice-container .btn-mini.danger{
+  border-color:#dc3545;
+  color:#dc3545;
+}
+.admin-notice-container .btn-mini.danger:hover{
+  background:#dc3545;
+  color:#fff;
+}
+
+.admin-notice-container .empty{
+  text-align:center;
+  padding: 3rem;
+  color:#999;
+}
+
+/* pagination */
+.admin-notice-container .pagination{
+  display:flex;
+  justify-content:center;
+  align-items:center;
+  gap: 8px;
+  margin: 18px 0;
+  flex-wrap: wrap;
+}
+
+.admin-notice-container .page-link,
+.admin-notice-container .page-number a{
+  padding: 8px 12px;
+  border: 1px solid #d5dbe3;
+  border-radius: 8px;
+  text-decoration:none;
+  color:#0A4A7A;
+  font-weight: 800;
+  background:#fff;
+}
+
+.admin-notice-container .page-number strong{
+  padding: 8px 12px;
+  border-radius: 8px;
+  background:#0A4A7A;
+  color:#fff;
+  font-weight: 900;
+}
+
+.admin-notice-container .summary{
+  text-align:center;
+  color:#666;
+  font-size: 14px;
+  margin-top: 10px;
 }
 
 /* form */
-.form-wrap{
-    background:#fff;
-    border-radius:.8rem;
-    padding: 1.8rem;
-    box-shadow: 0 .2rem .6rem rgba(0,0,0,.08);
+.admin-notice-container .form-wrap{
+  width: 100%;
+  background:#fff;
+  border-radius: 10px;
+  padding: 18px;
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
-.form-row{display:flex; flex-direction:column; gap:.6rem; margin-bottom: 1.4rem;}
-.form-row label{font-size:1.4rem; font-weight:800; color:#111;}
-.form-row input, .form-row select, .form-row textarea{
-    border:1px solid #d5dbe3;
-    border-radius:.6rem;
-    padding:.9rem 1.2rem;
-    font-size:1.4rem;
+
+.admin-notice-container .form-row{
+  display:flex;
+  flex-direction:column;
+  gap: 8px;
+  margin-bottom: 14px;
 }
-.form-actions{display:flex; gap: 1rem; justify-content:flex-end; margin-top: 1.2rem; flex-wrap: wrap;}
+
+.admin-notice-container .form-row label{
+  font-size: 14px;
+  font-weight: 900;
+  color:#111;
+}
+
+.admin-notice-container .form-row input,
+.admin-notice-container .form-row select,
+.admin-notice-container .form-row textarea{
+  border: 1px solid #d5dbe3;
+  border-radius: 8px;
+  padding: 10px 12px;
+  font-size: 14px;
+  background:#fff;
+}
+
+.admin-notice-container .file-link{
+  display:inline-block;
+  font-weight: 800;
+  color:#0A4A7A;
+  text-decoration:none;
+}
+
+.admin-notice-container .form-actions{
+  display:flex;
+  gap: 10px;
+  justify-content:flex-end;
+  margin-top: 12px;
+  flex-wrap: wrap;
+}
+
+/* responsive */
+@media (max-width: 1024px){
+  .admin-content-inner{
+    max-width: 100%;
+    padding: 0 12px;
+  }
+
+  .admin-notice-container{
+    padding: 14px 0;
+  }
+
+  .admin-notice-container .filter-form{
+    flex-wrap: wrap;
+  }
+
+  .admin-notice-container .search-input{
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+
+  /* 모바일에서는 제목도 가운데로 원하면 아래 주석 해제 */
+  /*
+  .admin-notice-container .notice-table th:nth-child(3),
+  .admin-notice-container .notice-table td:nth-child(3){
+    text-align: center;
+    padding-left: 10px;
+  }
+  */
+}

@@ -2,12 +2,17 @@ package com.learnit.learnit.admin.notice;
 
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
+import org.springframework.web.multipart.MultipartFile;
 import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
+import java.io.IOException;
+import java.nio.file.*;
 import java.util.List;
+import java.util.UUID;
 
 @Slf4j
 @Controller
@@ -17,24 +22,28 @@ public class AdminNoticeController {
 
     private final AdminNoticeService service;
 
+    @Value("${app.upload.dir:uploads}")
+    private String uploadDir;
+
+    private static final int PAGE_BLOCK_SIZE = 5;
+
     @GetMapping
     public String list(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "size", defaultValue = "7") int size,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "search", required = false) String search,
             Model model
     ) {
         int totalCount = service.getTotalCount(category, search);
         int totalPages = (int) Math.ceil((double) totalCount / size);
+        if (totalPages <= 0) totalPages = 1;
 
-        if (totalPages <= 0) {
-            totalPages = 1;
-            page = 1;
-        } else {
-            if (page < 1) page = 1;
-            if (page > totalPages) page = totalPages;
-        }
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+
+        int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
+        int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
 
         List<AdminNoticeDto> notices = service.getNotices(page, size, category, search);
 
@@ -46,14 +55,16 @@ public class AdminNoticeController {
         model.addAttribute("searchKeyword", search);
         model.addAttribute("pageSize", size);
 
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+
         return "admin/adminNoticeList";
     }
 
-    // ✅ 글작성 폼: 목록 상태 유지용은 returnXXX로 받음(이름 충돌 방지)
     @GetMapping("/new")
     public String createForm(
             @RequestParam(value = "returnPage", defaultValue = "1") int returnPage,
-            @RequestParam(value = "returnSize", defaultValue = "10") int returnSize,
+            @RequestParam(value = "returnSize", defaultValue = "7") int returnSize,
             @RequestParam(value = "returnCategory", required = false) String returnCategory,
             @RequestParam(value = "returnSearch", required = false) String returnSearch,
             Model model
@@ -69,18 +80,24 @@ public class AdminNoticeController {
         return "admin/adminNoticeForm";
     }
 
-    // ✅ 등록
     @PostMapping
     public String create(
             @ModelAttribute AdminNoticeDto notice,
+            @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "returnPage", defaultValue = "1") int returnPage,
-            @RequestParam(value = "returnSize", defaultValue = "10") int returnSize,
+            @RequestParam(value = "returnSize", defaultValue = "7") int returnSize,
             @RequestParam(value = "returnCategory", required = false) String returnCategory,
             @RequestParam(value = "returnSearch", required = false) String returnSearch,
             RedirectAttributes ra
     ) {
         try {
-            notice.setUserId(4); // ✅ 임시 고정
+            notice.setUserId(4); // 임시
+
+            if (file != null && !file.isEmpty()) {
+                String savedUrl = saveNoticeFile(file);
+                notice.setFileUrl(savedUrl);
+            }
+
             service.create(notice);
             ra.addFlashAttribute("successMessage", "공지가 등록되었습니다.");
 
@@ -88,7 +105,6 @@ public class AdminNoticeController {
             return "redirect:/admin/notice";
         } catch (Exception e) {
             ra.addFlashAttribute("errorMessage", e.getMessage());
-
             ra.addAttribute("returnPage", returnPage);
             ra.addAttribute("returnSize", returnSize);
             if (hasText(returnCategory)) ra.addAttribute("returnCategory", returnCategory);
@@ -97,12 +113,11 @@ public class AdminNoticeController {
         }
     }
 
-    // ✅ 수정 폼
     @GetMapping("/{noticeId}/edit")
     public String editForm(
             @PathVariable int noticeId,
             @RequestParam(value = "returnPage", defaultValue = "1") int returnPage,
-            @RequestParam(value = "returnSize", defaultValue = "10") int returnSize,
+            @RequestParam(value = "returnSize", defaultValue = "7") int returnSize,
             @RequestParam(value = "returnCategory", required = false) String returnCategory,
             @RequestParam(value = "returnSearch", required = false) String returnSearch,
             Model model
@@ -121,22 +136,44 @@ public class AdminNoticeController {
         return "admin/adminNoticeForm";
     }
 
-    // ✅ 수정 처리
     @PostMapping("/{noticeId}/update")
     public String update(
             @PathVariable int noticeId,
             @ModelAttribute AdminNoticeDto notice,
+            @RequestParam(value = "file", required = false) MultipartFile file,
+            @RequestParam(value = "deleteFile", defaultValue = "false") boolean deleteFile,
             @RequestParam(value = "returnPage", defaultValue = "1") int returnPage,
-            @RequestParam(value = "returnSize", defaultValue = "10") int returnSize,
+            @RequestParam(value = "returnSize", defaultValue = "7") int returnSize,
             @RequestParam(value = "returnCategory", required = false) String returnCategory,
             @RequestParam(value = "returnSearch", required = false) String returnSearch,
             RedirectAttributes ra
     ) {
         try {
             notice.setNoticeId(noticeId);
-            notice.setUserId(4); // ✅ 임시
+            notice.setUserId(4); // 임시
+
+            AdminNoticeDto origin = service.getNotice(noticeId);
+            String originUrl = (origin != null) ? origin.getFileUrl() : null;
+
+            notice.setFileUrl(originUrl);
+
+            if (deleteFile && hasText(originUrl)) {
+                deletePhysicalFile(originUrl);
+                originUrl = null;
+                notice.setFileUrl(null);
+            }
+
+            if (file != null && !file.isEmpty()) {
+                if (hasText(originUrl)) {
+                    deletePhysicalFile(originUrl);
+                }
+                String savedUrl = saveNoticeFile(file);
+                notice.setFileUrl(savedUrl);
+            }
+
             service.update(notice);
             ra.addFlashAttribute("successMessage", "공지가 수정되었습니다.");
+
         } catch (Exception e) {
             ra.addFlashAttribute("errorMessage", e.getMessage());
         }
@@ -145,61 +182,66 @@ public class AdminNoticeController {
         return "redirect:/admin/notice";
     }
 
-    // ✅ 개별 삭제
+    /**
+     * ✅ (추가) 단건 삭제 매핑
+     * 화면에서 POST /admin/notice/{id}/delete 로 보내는걸 받아줌
+     */
     @PostMapping("/{noticeId}/delete")
     public String delete(
             @PathVariable int noticeId,
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "size", defaultValue = "7") int size,
             @RequestParam(value = "category", required = false) String category,
             @RequestParam(value = "search", required = false) String search,
             RedirectAttributes ra
     ) {
         try {
+            // ✅ 첨부파일도 같이 지우고 싶으면(권장)
+            AdminNoticeDto origin = service.getNotice(noticeId);
+            if (origin != null && hasText(origin.getFileUrl())) {
+                deletePhysicalFile(origin.getFileUrl());
+            }
+
             service.delete(noticeId);
             ra.addFlashAttribute("successMessage", "공지가 삭제되었습니다.");
         } catch (Exception e) {
-            ra.addFlashAttribute("errorMessage", "삭제 실패: " + e.getMessage());
+            ra.addFlashAttribute("errorMessage", e.getMessage());
         }
 
         addListParams(ra, page, size, category, search);
         return "redirect:/admin/notice";
     }
 
-    // ✅ 선택삭제 + 전체삭제(selectAll=true)
-    @PostMapping("/delete-selected")
-    public String deleteSelected(
-            @RequestParam(value = "noticeIds", required = false) List<Integer> noticeIds,
-            @RequestParam(value = "selectAll", defaultValue = "false") boolean selectAll,
-            @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
-            @RequestParam(value = "category", required = false) String category,
-            @RequestParam(value = "search", required = false) String search,
-            RedirectAttributes ra
-    ) {
+    private String saveNoticeFile(MultipartFile file) throws IOException {
+        String original = file.getOriginalFilename();
+        if (original == null) original = "file";
+        original = sanitizeFilename(original);
+
+        String savedName = UUID.randomUUID().toString().replace("-", "") + "__" + original;
+
+        Path dir = Paths.get(uploadDir, "notice").toAbsolutePath().normalize();
+        Files.createDirectories(dir);
+
+        Path target = dir.resolve(savedName);
+        Files.copy(file.getInputStream(), target, StandardCopyOption.REPLACE_EXISTING);
+
+        return "/uploads/notice/" + savedName;
+    }
+
+    private void deletePhysicalFile(String fileUrl) {
         try {
-            if (selectAll) {
-                service.deleteAllByFilter(category, search);
-                ra.addFlashAttribute("successMessage", "조건에 해당하는 공지를 모두 삭제했습니다.");
-                addListParams(ra, page, size, category, search);
-                return "redirect:/admin/notice";
-            }
-
-            if (noticeIds == null || noticeIds.isEmpty()) {
-                ra.addFlashAttribute("errorMessage", "삭제할 공지를 선택해주세요.");
-                addListParams(ra, page, size, category, search);
-                return "redirect:/admin/notice";
-            }
-
-            service.deleteSelected(noticeIds);
-            ra.addFlashAttribute("successMessage", "선택한 공지를 삭제했습니다.");
-
+            String storedName = Paths.get(fileUrl).getFileName().toString(); // uuid__원본
+            Path path = Paths.get(uploadDir, "notice", storedName).toAbsolutePath().normalize();
+            Files.deleteIfExists(path);
         } catch (Exception e) {
-            ra.addFlashAttribute("errorMessage", "선택삭제 실패: " + e.getMessage());
+            log.warn("첨부파일 삭제 실패: {}", e.getMessage());
         }
+    }
 
-        addListParams(ra, page, size, category, search);
-        return "redirect:/admin/notice";
+    private String sanitizeFilename(String name) {
+        name = name.replace("\\", "_").replace("/", "_");
+        name = name.replaceAll("[\\r\\n\\t]", "_");
+        return name;
     }
 
     private void addListParams(RedirectAttributes ra, int page, int size, String category, String search) {

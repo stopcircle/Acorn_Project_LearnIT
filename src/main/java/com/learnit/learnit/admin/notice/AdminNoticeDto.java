@@ -18,4 +18,7 @@ public class AdminNoticeDto {
 
     // 조인용(표시)
     private String writerName;
+
+    // ✅ 화면 표시용 (DB컬럼 아님): fileUrl에서 원본 파일명 추출
+    private String originalFileName;
 }

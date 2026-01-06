@@ -15,18 +15,29 @@ public class AdminQnaController {
 
     private final AdminQnaService service;
 
+    private static final int PAGE_BLOCK_SIZE = 5;
+
     @GetMapping
     public String manage(
             @RequestParam(value = "page", defaultValue = "1") int page,
-            @RequestParam(value = "size", defaultValue = "10") int size,
+            @RequestParam(value = "size", defaultValue = "7") int size,
             @RequestParam(value = "type", required = false) String type,
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "selectedId", required = false) Integer selectedId,
             Model model
     ) {
-        List<AdminQnaDto> list = service.getQnas(page, size, type, status, search);
         int totalCount = service.getTotalCount(type, status, search);
         int totalPages = (int) Math.ceil((double) totalCount / size);
+        if (totalPages <= 0) totalPages = 1;
+
+        if (page < 1) page = 1;
+        if (page > totalPages) page = totalPages;
+
+        int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
+        int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
+
+        List<AdminQnaDto> list = service.getQnas(page, size, type, status, search);
 
         model.addAttribute("qnas", list);
         model.addAttribute("currentPage", page);
@@ -38,27 +49,33 @@ public class AdminQnaController {
         model.addAttribute("searchKeyword", search);
         model.addAttribute("pageSize", size);
 
+        model.addAttribute("startPage", startPage);
+        model.addAttribute("endPage", endPage);
+
+        if (selectedId != null) {
+            model.addAttribute("selectedId", selectedId);
+            model.addAttribute("selectedQna", service.getDetail(selectedId));
+        }
+
         return "admin/adminQnaManage";
     }
 
+    // ✅ 기존 /{qnaId} 접근 들어와도 "같은 페이지(selectedId)"로 보내기
     @GetMapping("/{qnaId}")
-    public String detail(@PathVariable int qnaId,
-                         @RequestParam(value = "type", required = false) String type,
-                         @RequestParam(value = "status", required = false) String status,
-                         @RequestParam(value = "search", required = false) String search,
-                         @RequestParam(value = "page", defaultValue = "1") int page,
-                         @RequestParam(value = "size", defaultValue = "10") int size,
-                         Model model) {
-
-        model.addAttribute("qna", service.getDetail(qnaId));
-
-        model.addAttribute("currentType", type);
-        model.addAttribute("currentStatus", status);
-        model.addAttribute("searchKeyword", search);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("pageSize", size);
-
-        return "admin/adminQnaDetail";
+    public String detailRedirect(
+            @PathVariable int qnaId,
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "7") int size
+    ) {
+        return "redirect:/admin/qna?selectedId=" + qnaId
+                + (type != null ? "&type=" + type : "")
+                + (status != null ? "&status=" + status : "")
+                + (search != null ? "&search=" + search : "")
+                + "&page=" + page
+                + "&size=" + size;
     }
 
     @PostMapping("/{qnaId}/answer")
@@ -69,7 +86,7 @@ public class AdminQnaController {
                              @RequestParam(value = "status", required = false) String status,
                              @RequestParam(value = "search", required = false) String search,
                              @RequestParam(value = "page", defaultValue = "1") int page,
-                             @RequestParam(value = "size", defaultValue = "10") int size,
+                             @RequestParam(value = "size", defaultValue = "7") int size,
                              RedirectAttributes ra) {
         try {
             int adminUserId = 4; // ✅ 임시 고정
@@ -79,8 +96,8 @@ public class AdminQnaController {
             ra.addFlashAttribute("errorMessage", e.getMessage());
         }
 
-        addListParams(ra, type, status, search, page, size);
-        return "redirect:/admin/qna/" + qnaId;
+        addListParams(ra, type, status, search, page, size, qnaId);
+        return "redirect:/admin/qna";
     }
 
     @PostMapping("/{qnaId}/status")
@@ -90,7 +107,7 @@ public class AdminQnaController {
                                @RequestParam(value = "statusFilter", required = false) String statusFilter,
                                @RequestParam(value = "search", required = false) String search,
                                @RequestParam(value = "page", defaultValue = "1") int page,
-                               @RequestParam(value = "size", defaultValue = "10") int size,
+                               @RequestParam(value = "size", defaultValue = "7") int size,
                                RedirectAttributes ra) {
         try {
             service.updateStatus(qnaId, uiStatus);
@@ -99,19 +116,17 @@ public class AdminQnaController {
             ra.addFlashAttribute("errorMessage", e.getMessage());
         }
 
-        // statusFilter는 목록 필터용(이름 충돌 방지)
-        addListParams(ra, type, statusFilter, search, page, size);
-        return "redirect:/admin/qna/" + qnaId;
+        addListParams(ra, type, statusFilter, search, page, size, qnaId);
+        return "redirect:/admin/qna";
     }
 
-    // ✅✅ 추가: 삭제
     @PostMapping("/{qnaId}/delete")
     public String delete(@PathVariable int qnaId,
                          @RequestParam(value = "type", required = false) String type,
                          @RequestParam(value = "status", required = false) String status,
                          @RequestParam(value = "search", required = false) String search,
                          @RequestParam(value = "page", defaultValue = "1") int page,
-                         @RequestParam(value = "size", defaultValue = "10") int size,
+                         @RequestParam(value = "size", defaultValue = "7") int size,
                          RedirectAttributes ra) {
         try {
             service.deleteQna(qnaId);
@@ -120,15 +135,18 @@ public class AdminQnaController {
             ra.addFlashAttribute("errorMessage", "삭제 실패: " + e.getMessage());
         }
 
-        addListParams(ra, type, status, search, page, size);
+        // 삭제 후 선택 해제
+        addListParams(ra, type, status, search, page, size, null);
         return "redirect:/admin/qna";
     }
 
-    private void addListParams(RedirectAttributes ra, String type, String status, String search, int page, int size) {
+    private void addListParams(RedirectAttributes ra, String type, String status, String search,
+                               int page, int size, Integer selectedId) {
         ra.addAttribute("page", page);
         ra.addAttribute("size", size);
         if (type != null && !type.isBlank()) ra.addAttribute("type", type);
         if (status != null && !status.isBlank()) ra.addAttribute("status", status);
         if (search != null && !search.isBlank()) ra.addAttribute("search", search);
+        if (selectedId != null) ra.addAttribute("selectedId", selectedId);
     }
 }

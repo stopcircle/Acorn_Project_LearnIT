@@ -11,8 +11,10 @@
         JOIN (
         SELECT qna_id, MAX(created_at) AS max_created
         FROM qna_answer
+        WHERE delete_flg = 0
         GROUP BY qna_id
         ) m ON a1.qna_id = m.qna_id AND a1.created_at = m.max_created
+        WHERE a1.delete_flg = 0
         ) a ON q.qna_id = a.qna_id
         LEFT JOIN users au ON a.user_id = au.user_id
     </sql>
@@ -44,6 +46,8 @@
         <include refid="latestAnswerJoin"/>
 
         <where>
+            AND q.delete_flg = 0
+
             <if test="type != null and type != ''">
                 <choose>
                     <when test="type == 'SITE'">
@@ -86,6 +90,8 @@
         LEFT JOIN course c ON q.course_id = c.course_id
         JOIN users qu ON q.user_id = qu.user_id
         <where>
+            AND q.delete_flg = 0
+
             <if test="type != null and type != ''">
                 <choose>
                     <when test="type == 'SITE'">
@@ -146,31 +152,34 @@
         <include refid="latestAnswerJoin"/>
 
         WHERE q.qna_id = #{qnaId}
+        AND q.delete_flg = 0
     </select>
 
     <select id="selectLatestAnswerId" resultType="int">
         SELECT answer_id
         FROM qna_answer
         WHERE qna_id = #{qnaId}
+        AND delete_flg = 0
         ORDER BY created_at DESC
         LIMIT 1
     </select>
 
     <insert id="insertAnswer">
-        INSERT INTO qna_answer (qna_id, user_id, content, created_at)
-        VALUES (#{qnaId}, #{userId}, #{content}, NOW())
+        INSERT INTO qna_answer (qna_id, user_id, content, created_at, updated_at, delete_flg)
+        VALUES (#{qnaId}, #{userId}, #{content}, NOW(), NOW(), 0)
     </insert>
 
     <update id="updateAnswer">
         UPDATE qna_answer
         SET content = #{content},
-        created_at = NOW()
+        updated_at = NOW()
         WHERE answer_id = #{answerId}
     </update>
 
     <update id="updateResolved">
         UPDATE qna_question
-        SET is_resolved = #{isResolved}
+        SET is_resolved = #{isResolved},
+        updated_at = NOW()
         WHERE qna_id = #{qnaId}
     </update>
 
@@ -182,13 +191,11 @@
         DELETE FROM qna_question WHERE qna_id = #{qnaId}
     </delete>
 
-    <!-- ✅✅ 추가: 다음 qna_id = MAX+1 (비어있으면 1) -->
     <select id="selectNextQnaId" resultType="int">
         SELECT IFNULL(MAX(qna_id), 0) + 1
         FROM qna_question
     </select>
 
-    <!-- ✅✅ 추가: AUTO_INCREMENT를 nextId로 맞춤 -->
     <update id="resetQnaAutoIncrement">
         ALTER TABLE qna_question AUTO_INCREMENT = ${nextId}
     </update>
