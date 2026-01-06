@@ -1,11 +1,13 @@
 package com.learnit.learnit.admin.qna;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class AdminQnaService {
@@ -32,7 +34,12 @@ public class AdminQnaService {
     }
 
     public AdminQnaDto getDetail(int qnaId) {
-        return repo.selectQnaDetail(qnaId);
+        try {
+            return repo.selectQnaDetail(qnaId);
+        } catch (Exception e) {
+            log.error("QnA 상세 조회 실패: qnaId={}, error={}", qnaId, e.getMessage(), e);
+            return null;
+        }
     }
 
     @Transactional

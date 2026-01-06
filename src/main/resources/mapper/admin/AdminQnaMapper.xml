@@ -14,6 +14,7 @@
         WHERE delete_flg = 0
         GROUP BY qna_id
         ) m ON a1.qna_id = m.qna_id AND a1.created_at = m.max_created AND a1.delete_flg = 0
+        GROUP BY a1.qna_id
         ) a ON q.qna_id = a.qna_id
         LEFT JOIN users au ON a.user_id = au.user_id
     </sql>

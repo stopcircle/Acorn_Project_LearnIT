@@ -1,6 +1,7 @@
 package com.learnit.learnit.admin.qna;
 
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -8,6 +9,7 @@ import org.springframework.web.servlet.mvc.support.RedirectAttributes;
 
 import java.util.List;
 
+@Slf4j
 @Controller
 @RequiredArgsConstructor
 @RequestMapping("/admin/qna")
@@ -54,9 +56,16 @@ public class AdminQnaController {
             model.addAttribute("endPage", endPage);
 
             if (selectedId != null) {
-                model.addAttribute("selectedId", selectedId);
-                AdminQnaDto selectedQna = service.getDetail(selectedId);
-                model.addAttribute("selectedQna", selectedQna);
+                try {
+                    model.addAttribute("selectedId", selectedId);
+                    AdminQnaDto selectedQna = service.getDetail(selectedId);
+                    if (selectedQna != null) {
+                        model.addAttribute("selectedQna", selectedQna);
+                    }
+                } catch (Exception e) {
+                    log.error("QnA 상세 조회 실패: selectedId={}, error={}", selectedId, e.getMessage());
+                    // selectedQna는 추가하지 않음
+                }
             }
         } catch (Exception e) {
             model.addAttribute("qnas", new java.util.ArrayList<>());
