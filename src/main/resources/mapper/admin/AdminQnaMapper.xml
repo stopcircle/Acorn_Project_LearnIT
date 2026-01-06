@@ -29,7 +29,11 @@
         qu.name AS questionUserName,
         qu.email AS questionUserEmail,
 
-        IFNULL(SUBSTRING(q.content, 1, 50), '') AS questionTitle,
+        CASE 
+            WHEN q.content IS NULL OR q.content = '' THEN ''
+            WHEN LENGTH(q.content) > 50 THEN SUBSTRING(q.content, 1, 50)
+            ELSE q.content
+        END AS questionTitle,
         q.content AS questionContent,
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,
@@ -133,7 +137,11 @@
         qu.name AS questionUserName,
         qu.email AS questionUserEmail,
 
-        IFNULL(SUBSTRING(q.content, 1, 50), '') AS questionTitle,
+        CASE 
+            WHEN q.content IS NULL OR q.content = '' THEN ''
+            WHEN LENGTH(q.content) > 50 THEN SUBSTRING(q.content, 1, 50)
+            ELSE q.content
+        END AS questionTitle,
         q.content AS questionContent,
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,

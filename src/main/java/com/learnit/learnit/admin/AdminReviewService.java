@@ -30,8 +30,8 @@ public class AdminReviewService {
             if (userId != null) {
                 try {
                     // 전체 권한(course_id가 NULL)이 있으면 필터링 없음
-                    Boolean hasFullAccess = adminReviewRepository.hasFullAdminAccess(userId);
-                    if (hasFullAccess == null || !hasFullAccess) {
+                    boolean hasFullAccess = adminReviewRepository.hasFullAdminAccess(userId);
+                    if (!hasFullAccess) {
                         // 부분 권한만 있는 경우 해당 course_id 목록으로 필터링
                         managedCourseIds = adminReviewRepository.selectManagedCourseIds(userId);
                         if (managedCourseIds == null || managedCourseIds.isEmpty()) {
@@ -68,8 +68,8 @@ public class AdminReviewService {
             if (userId != null) {
                 try {
                     // 전체 권한(course_id가 NULL)이 있으면 필터링 없음
-                    Boolean hasFullAccess = adminReviewRepository.hasFullAdminAccess(userId);
-                    if (hasFullAccess == null || !hasFullAccess) {
+                    boolean hasFullAccess = adminReviewRepository.hasFullAdminAccess(userId);
+                    if (!hasFullAccess) {
                         // 부분 권한만 있는 경우 해당 course_id 목록으로 필터링
                         managedCourseIds = adminReviewRepository.selectManagedCourseIds(userId);
                         if (managedCourseIds == null || managedCourseIds.isEmpty()) {

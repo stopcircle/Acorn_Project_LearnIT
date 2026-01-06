@@ -30,7 +30,7 @@
     </select>
 
     <select id="selectPendingCertificates" resultType="com.learnit.learnit.admin.AdminHome$AdminCertificate">
-        SELECT c.title as title, u.name as name
+        SELECT COALESCE(c.title, '') as title, COALESCE(u.name, '') as name
         FROM certificate cert
             JOIN enrollment e ON cert.enrollment_id = e.enrollment_id
             JOIN course c ON e.course_id = c.course_id
