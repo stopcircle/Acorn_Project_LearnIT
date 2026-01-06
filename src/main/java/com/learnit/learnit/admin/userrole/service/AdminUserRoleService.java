@@ -39,9 +39,9 @@ public class AdminUserRoleService {
                                            int size) {
         requireGlobalAdmin();
 
+        // ✅ notice와 동일하게: page/size 보정 + totalPages 계산 후 page 범위 보정
         int safePage = Math.max(page, 1);
         int safeSize = (size <= 0) ? 7 : Math.min(size, 50);
-        int offset = (safePage - 1) * safeSize;
 
         if (!List.of("email", "name", "userId").contains(type)) type = "email";
         if (keyword == null) keyword = "";
@@ -66,6 +66,10 @@ public class AdminUserRoleService {
 
         int total = mapper.countUsers(type, keyword, statusFilters, roleFilters);
         int totalPages = (int) Math.ceil(total / (double) safeSize);
+        if (totalPages <= 0) totalPages = 1;
+
+        if (safePage > totalPages) safePage = totalPages;
+        int offset = (safePage - 1) * safeSize;
 
         List<Map<String, Object>> items =
                 mapper.searchUsers(type, keyword, statusFilters, roleFilters, offset, safeSize);

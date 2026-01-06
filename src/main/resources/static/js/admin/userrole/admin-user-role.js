@@ -1,5 +1,8 @@
 let currentPage = 1;
 
+// ✅ notice와 동일한 페이지 블록(5개 단위)
+const PAGE_BLOCK_SIZE = 5;
+
 // ✅ 현재 적용중인 필터(서버 페이징 기준으로 동작)
 let statusFilters = []; // ex: ["ACTIVE","BANNED"]
 let roleFilters = [];   // ex: ["ADMIN","SUB_ADMIN"]
@@ -683,6 +686,7 @@ async function deleteManagedCourse(userId, courseId, tagEl) {
   }
 }
 
+// ✅ 공지(/admin/notice)와 동일한 “5개 단위 페이지 블록” 페이징
 function renderPagination(page, totalPages) {
   const el = document.getElementById("pagination");
   if (!el) return;
@@ -690,12 +694,40 @@ function renderPagination(page, totalPages) {
   el.innerHTML = "";
   if (!totalPages || totalPages <= 1) return;
 
-  for (let p = 1; p <= totalPages; p++) {
+  const safePage = Math.max(1, Number(page || 1));
+  const safeTotal = Math.max(1, Number(totalPages || 1));
+
+  const startPage = Math.floor((safePage - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
+  const endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, safeTotal);
+
+  // ✅ 이전(블록 단위)
+  if (startPage > 1) {
+    const prev = document.createElement("button");
+    prev.type = "button";
+    prev.className = "page-link";
+    prev.textContent = "이전";
+    prev.addEventListener("click", () => loadUsers(startPage - 1));
+    el.appendChild(prev);
+  }
+
+  // ✅ 페이지 번호(블록)
+  for (let p = startPage; p <= endPage; p++) {
     const b = document.createElement("button");
     b.type = "button";
-    b.textContent = p;
-    b.disabled = (p === page);
+    b.className = (p === safePage) ? "page-number active" : "page-number";
+    b.textContent = String(p);
+    b.disabled = (p === safePage);
     b.addEventListener("click", () => loadUsers(p));
     el.appendChild(b);
+  }
+
+  // ✅ 다음(블록 단위)
+  if (endPage < safeTotal) {
+    const next = document.createElement("button");
+    next.type = "button";
+    next.className = "page-link";
+    next.textContent = "다음";
+    next.addEventListener("click", () => loadUsers(endPage + 1));
+    el.appendChild(next);
   }
 }
