@@ -1,10 +1,8 @@
 package com.learnit.learnit.payment.common.controller;
 
 import com.learnit.learnit.payment.common.LoginRequiredException;
-import com.learnit.learnit.payment.common.PaymentException;
 import com.learnit.learnit.payment.common.dto.PaymentRequestDTO;
 import com.learnit.learnit.payment.common.service.PaymentFreeService;
-import com.learnit.learnit.payment.kakao.service.PaymentKakaoService;
 import com.learnit.learnit.user.util.SessionUtils;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
