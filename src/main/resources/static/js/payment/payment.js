@@ -29,6 +29,14 @@ document.addEventListener("DOMContentLoaded", function () {
         let finalPrice = basePrice - discountAmount;
         if (finalPrice < 0) finalPrice = 0;
 
+        if(finalPrice === 0){
+            kakaoBtn.textContent = "무료로 수강하기";
+            cardBtn.style.display = "none";
+        }else{
+            kakaoBtn.textContent = "카카오페이로 결제";
+            cardBtn.style.display = "block";
+        }
+
         totalText.textContent = formatWon(basePrice);
         discountText.textContent = "-" + formatWon(discountAmount);
         finalText.textContent = formatWon(finalPrice);
@@ -112,98 +120,141 @@ document.addEventListener("DOMContentLoaded", function () {
         return res.json();
     }
 
+    //무료 결제 처리
+    async function handleFreePayment(){
+        if(!confirm("무료 강의입니다. 바로 수강신청하시겠습니까?")) return;
+
+        try{
+            const res = await fetch("/payments/free/complete", {
+                method: "POST",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    courseIds: courseIds,
+                    totalPrice: 0,
+                    couponId: selectedCouponId
+                })
+            });
+            const data = await checkResponse(res);
+            location.href = "/payment/result?orderNo=" + data.orderNo;
+
+        }catch (e) {
+            alert(e.message || "처리 중 오류가 발생했습니다. [프론트]");
+        }
+    }
+
     // 카카오페이 결제
     kakaoBtn?.addEventListener("click", () => {
-        setBtnLoading(kakaoBtn, true);
+        const finalPrice = basePrice - discountAmount;
 
-        fetch("/payments/kakao/ready", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({
-                courseIds: courseIds,
-                totalPrice: basePrice - discountAmount,
-                couponId: selectedCouponId
+        if(finalPrice === 0){
+            handleFreePayment();
+
+        }else{
+
+            setBtnLoading(kakaoBtn, true);
+
+            fetch("/payments/kakao/ready", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    courseIds: courseIds,
+                    totalPrice: basePrice - discountAmount,
+                    couponId: selectedCouponId
+                })
             })
-        })
-            .then(checkResponse)
-            .then(data => location.href = data.next_redirect_pc_url)
-            .catch(err => {
-                if(err.message !== "UNAUTHORIZED") alert(err.message);
-                setBtnLoading(kakaoBtn, false);
-            });
+                .then(checkResponse)
+                .then(data => location.href = data.next_redirect_pc_url)
+                .catch(err => {
+                    if(err.message !== "UNAUTHORIZED") alert(err.message);
+                    setBtnLoading(kakaoBtn, false);
+                });
+        }
+
     });
 
     // 일반 카드 결제
     cardBtn?.addEventListener("click", () => {
-        setBtnLoading(cardBtn, true);
+        const finalPrice = basePrice - discountAmount;
 
-        fetch("/payments/card/ready", {
-            method: "POST",
-            credentials: "include",
-            headers: {
-                "Content-Type": "application/json",
-                "Accept": "application/json"
-            },
-            body: JSON.stringify({
-                courseIds: courseIds,
-                couponId: selectedCouponId
+        if(finalPrice === 0){
+            handleFreePayment();
+
+        }else{
+
+            setBtnLoading(cardBtn, true);
+
+            fetch("/payments/card/ready", {
+                method: "POST",
+                credentials: "include",
+                headers: {
+                    "Content-Type": "application/json",
+                    "Accept": "application/json"
+                },
+                body: JSON.stringify({
+                    courseIds: courseIds,
+                    couponId: selectedCouponId
+                })
             })
-        })
-            .then(checkResponse)
-            .then(data => {
-                // PortOne 초기화 (가맹점 식별코드)
-                IMP.init("imp45313105");
+                .then(checkResponse)
+                .then(data => {
+                    // PortOne 초기화 (가맹점 식별코드)
+                    IMP.init("imp45313105");
 
-                IMP.request_pay({
-                    pg: "html5_inicis",
-                    pay_method: "card",
-                    merchant_uid: data.orderNo,
-                    name: "강의 결제 테스트",
-                    amount: data.amount
-                }, function (rsp) {
-                    if (!rsp.success) {
-                        alert("결제 실패: " + rsp.error_msg);
-                        setBtnLoading(cardBtn, false);
-                        return;
-                    }
-
-                    // 서버에 결제 완료 통지
-                    fetch("/payments/card/complete", {
-                        method: "POST",
-                        credentials: "include",
-                        headers: {
-                            "Content-Type": "application/json",
-                            "Accept": "application/json"
-                        },
-                        body: JSON.stringify({
-                            impUid: rsp.imp_uid,
-                            merchantUid: rsp.merchant_uid
-                        })
-                    })
-                        .then(checkResponse)
-                        .then(result => {
-                            location.href = "/payment/result?orderNo=" + encodeURIComponent(result.orderNo);
-                        })
-                        .catch(err => {
-                            if(err.message !== "UNAUTHORIZED"){
-                                console.error(err);
-                                alert(err.message || "결제 처리 중 오류가 발생했습니다.");
-                            }
+                    IMP.request_pay({
+                        pg: "html5_inicis",
+                        pay_method: "card",
+                        merchant_uid: data.orderNo,
+                        name: "강의 결제 테스트",
+                        amount: data.amount
+                    }, function (rsp) {
+                        if (!rsp.success) {
+                            alert("결제 실패: " + rsp.error_msg);
                             setBtnLoading(cardBtn, false);
-                        });
+                            return;
+                        }
+
+                        // 서버에 결제 완료 통지
+                        fetch("/payments/card/complete", {
+                            method: "POST",
+                            credentials: "include",
+                            headers: {
+                                "Content-Type": "application/json",
+                                "Accept": "application/json"
+                            },
+                            body: JSON.stringify({
+                                impUid: rsp.imp_uid,
+                                merchantUid: rsp.merchant_uid
+                            })
+                        })
+                            .then(checkResponse)
+                            .then(result => {
+                                location.href = "/payment/result?orderNo=" + encodeURIComponent(result.orderNo);
+                            })
+                            .catch(err => {
+                                if(err.message !== "UNAUTHORIZED"){
+                                    console.error(err);
+                                    alert(err.message || "결제 처리 중 오류가 발생했습니다.");
+                                }
+                                setBtnLoading(cardBtn, false);
+                            });
+                    });
+                })
+                .catch(err => {
+                    if (err.message !== "UNAUTHORIZED") {
+                        console.error(err);
+                        alert(err.message || "카드 결제 준비에 실패했습니다.");
+                    }
+                    setBtnLoading(cardBtn, false);
                 });
-            })
-            .catch(err => {
-                if (err.message !== "UNAUTHORIZED") {
-                    console.error(err);
-                    alert(err.message || "카드 결제 준비에 실패했습니다.");
-                }
-                setBtnLoading(cardBtn, false);
-            });
+        }
+
     });
 
     // 초기 실행
