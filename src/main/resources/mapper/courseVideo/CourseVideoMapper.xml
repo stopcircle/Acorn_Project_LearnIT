@@ -121,4 +121,12 @@
         )
     </insert>
 
+    <select id="selectFirstChapterId" resultType="Long">
+        SELECT chapter_id
+        FROM chapter
+        WHERE course_id = #{courseId}
+        ORDER BY order_index ASC
+        LIMIT 1
+    </select>
+
 </mapper>

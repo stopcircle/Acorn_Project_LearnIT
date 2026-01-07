@@ -62,6 +62,9 @@
                     </when>
                 </choose>
             </if>
+            <if test="commentStatus != null and commentStatus != ''">
+                AND r.comment_status = #{commentStatus}
+            </if>
             <if test="managedCourseIds != null and managedCourseIds.size() > 0">
                 AND c.course_id IN
                 <foreach collection="managedCourseIds" item="courseId" open="(" separator="," close=")">
@@ -93,6 +96,9 @@
                         AND u.name LIKE CONCAT('%', #{searchKeyword}, '%')
                     </when>
                 </choose>
+            </if>
+            <if test="commentStatus != null and commentStatus != ''">
+                AND r.comment_status = #{commentStatus}
             </if>
             <if test="managedCourseIds != null and managedCourseIds.size() > 0">
                 AND c.course_id IN

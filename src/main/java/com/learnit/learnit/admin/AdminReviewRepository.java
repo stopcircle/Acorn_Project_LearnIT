@@ -18,6 +18,7 @@ public interface AdminReviewRepository {
         @Param("limit") int limit,
         @Param("searchType") String searchType,
         @Param("searchKeyword") String searchKeyword,
+        @Param("commentStatus") String commentStatus,
         @Param("managedCourseIds") List<Integer> managedCourseIds
     );
 
@@ -27,6 +28,7 @@ public interface AdminReviewRepository {
     int countReviews(
         @Param("searchType") String searchType,
         @Param("searchKeyword") String searchKeyword,
+        @Param("commentStatus") String commentStatus,
         @Param("managedCourseIds") List<Integer> managedCourseIds
     );
 

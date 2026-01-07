@@ -36,4 +36,6 @@ public interface CourseVideoMapper {
                               @Param("courseId") Long courseId,
                               @Param("chapterId") Long chapterId,
                               @Param("languageId") Integer languageId);
+
+    Long selectFirstChapterId(@Param("courseId") Long courseId);
 }

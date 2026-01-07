@@ -20,7 +20,7 @@ public class AdminReviewService {
     /**
      * 리뷰 목록 조회 (페이징, 서브 어드민 필터링)
      */
-    public List<AdminReviewDto> getReviews(int page, int size, String searchType, String searchKeyword, Long userId) {
+    public List<AdminReviewDto> getReviews(int page, int size, String searchType, String searchKeyword, String commentStatus, Long userId) {
         try {
             int offset = (page - 1) * size;
             int limit = size;
@@ -51,7 +51,7 @@ public class AdminReviewService {
                 }
             }
             
-            List<AdminReviewDto> reviews = adminReviewRepository.selectReviews(offset, limit, searchType, searchKeyword, managedCourseIds);
+            List<AdminReviewDto> reviews = adminReviewRepository.selectReviews(offset, limit, searchType, searchKeyword, commentStatus, managedCourseIds);
             log.info("리뷰 목록 조회 성공: page={}, size={}, searchType={}, searchKeyword={}, userId={}, count={}", 
                 page, size, searchType, searchKeyword, userId, reviews != null ? reviews.size() : 0);
             return reviews != null ? reviews : new java.util.ArrayList<>();
@@ -67,7 +67,7 @@ public class AdminReviewService {
     /**
      * 리뷰 총 개수 조회 (서브 어드민 필터링)
      */
-    public int getReviewCount(String searchType, String searchKeyword, Long userId) {
+    public int getReviewCount(String searchType, String searchKeyword, String commentStatus, Long userId) {
         try {
             // 서브 어드민 필터링: 관리하는 course_id 목록 조회
             // admin_user_role 테이블이 없거나 오류 발생 시 전체 권한으로 처리
@@ -95,7 +95,7 @@ public class AdminReviewService {
                 }
             }
             
-            int count = adminReviewRepository.countReviews(searchType, searchKeyword, managedCourseIds);
+            int count = adminReviewRepository.countReviews(searchType, searchKeyword, commentStatus, managedCourseIds);
             log.info("리뷰 총 개수 조회 성공: searchType={}, searchKeyword={}, userId={}, count={}", searchType, searchKeyword, userId, count);
             return count;
         } catch (Exception e) {

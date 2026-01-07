@@ -112,6 +112,10 @@ public class CourseVideoService {
         courseVideoMapper.insertInterpreterLog(userId, courseId, chapterId, languageId);
     }
 
+    public Long getFirstChapterId(Long courseId) {
+        return courseVideoMapper.selectFirstChapterId(courseId);
+    }
+
     public Map<String, Object> runInterpreterCode(String sourceCode, String languageId) {
 
         RestTemplate restTemplate = new RestTemplate();

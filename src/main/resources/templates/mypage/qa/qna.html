@@ -52,10 +52,9 @@
                         </div>
                     </div>
                 </div>
-                <div class="qna-actions" th:if="${qna.courseId != null}">
-                    <a th:href="@{'/CourseDetail?courseId=' + ${qna.courseId}}" 
-                       class="course-link-btn"
-                       target="_blank">
+                <div class="qna-actions" th:if="${qna.courseId != null and qna.firstChapterId != null}">
+                    <a th:href="@{'/course/play?courseId=' + ${qna.courseId} + '&chapterId=' + ${qna.firstChapterId} + '&openTab=qna'}"
+                       class="course-link-btn">
                         강의 상세보기 →
                     </a>
                 </div>
@@ -66,6 +65,32 @@
         <div class="empty-message" th:if="${qnaList == null or #lists.isEmpty(qnaList)}">
             <p>작성한 Q&A가 없습니다.</p>
         </div>
+    </div>
+
+    <!-- 페이징 -->
+    <div class="pagination" th:if="${totalPages > 1}">
+        <a th:if="${startPage > 1}"
+           th:href="@{/mypage/qa(page=${startPage - 1}, size=${pageSize})}"
+           class="page-link">
+            이전
+        </a>
+        <span th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-number">
+            <a th:if="${i != currentPage}"
+               th:href="@{/mypage/qa(page=${i}, size=${pageSize})}"
+               th:text="${i}">1</a>
+            <strong th:if="${i == currentPage}"
+                    th:text="${i}">1</strong>
+        </span>
+        <a th:if="${endPage < totalPages}"
+           th:href="@{/mypage/qa(page=${endPage + 1}, size=${pageSize})}"
+           class="page-link">
+            다음
+        </a>
+    </div>
+
+    <!-- 총 개수 표시 -->
+    <div class="qna-summary">
+        <p>총 <strong th:text="${totalCount}">0</strong>개의 Q&A</p>
     </div>
 </div>
 

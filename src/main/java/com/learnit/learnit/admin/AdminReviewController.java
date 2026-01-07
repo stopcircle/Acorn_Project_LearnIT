@@ -22,6 +22,8 @@ public class AdminReviewController {
 
     private final AdminReviewService adminReviewService;
 
+    private static final int PAGE_BLOCK_SIZE = 5;
+
     /**
      * 리뷰 목록 페이지
      */
@@ -31,6 +33,7 @@ public class AdminReviewController {
             @RequestParam(value = "size", defaultValue = "7") int size,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "commentStatus", required = false) String commentStatus,
             HttpSession session,
             Model model) {
         try {
@@ -39,12 +42,19 @@ public class AdminReviewController {
                 log.warn("리뷰 목록 조회 시도: 로그인하지 않은 사용자");
                 return "redirect:/login";
             }
-            List<AdminReviewDto> reviews = adminReviewService.getReviews(page, size, searchType, search, userId);
-            int totalCount = adminReviewService.getReviewCount(searchType, search, userId);
+            List<AdminReviewDto> reviews = adminReviewService.getReviews(page, size, searchType, search, commentStatus, userId);
+            int totalCount = adminReviewService.getReviewCount(searchType, search, commentStatus, userId);
             int totalPages = (int) Math.ceil((double) totalCount / size);
+            if (totalPages <= 0) totalPages = 1;
 
-            log.info("리뷰 목록 조회 완료: page={}, size={}, searchType={}, search={}, userId={}, reviews.size()={}, totalCount={}", 
-                page, size, searchType, search, userId, reviews != null ? reviews.size() : 0, totalCount);
+            if (page < 1) page = 1;
+            if (page > totalPages) page = totalPages;
+
+            int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
+            int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
+
+            log.info("리뷰 목록 조회 완료: page={}, size={}, searchType={}, search={}, commentStatus={}, userId={}, reviews.size()={}, totalCount={}", 
+                page, size, searchType, search, commentStatus, userId, reviews != null ? reviews.size() : 0, totalCount);
 
             model.addAttribute("reviews", reviews != null ? reviews : new java.util.ArrayList<>());
             model.addAttribute("currentPage", page);
@@ -52,7 +62,10 @@ public class AdminReviewController {
             model.addAttribute("totalCount", totalCount);
             model.addAttribute("currentSearchType", searchType);
             model.addAttribute("searchKeyword", search);
+            model.addAttribute("currentCommentStatus", commentStatus);
             model.addAttribute("pageSize", size);
+            model.addAttribute("startPage", startPage);
+            model.addAttribute("endPage", endPage);
         } catch (Exception e) {
             log.error("리뷰 목록 조회 실패: page={}, size={}, searchType={}, search={}, error={}", 
                 page, size, searchType, search, e.getMessage(), e);
@@ -63,7 +76,10 @@ public class AdminReviewController {
             model.addAttribute("totalCount", 0);
             model.addAttribute("currentSearchType", searchType);
             model.addAttribute("searchKeyword", search);
+            model.addAttribute("currentCommentStatus", commentStatus);
             model.addAttribute("pageSize", size);
+            model.addAttribute("startPage", 1);
+            model.addAttribute("endPage", 0);
             model.addAttribute("errorMessage", "리뷰 목록을 불러오는 중 오류가 발생했습니다: " + e.getMessage());
         }
 
@@ -92,6 +108,7 @@ public class AdminReviewController {
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "commentStatus", required = false) String commentStatus,
             RedirectAttributes redirectAttributes) {
         try {
             adminReviewService.approveReview(reviewId);
@@ -112,6 +129,9 @@ public class AdminReviewController {
         if (search != null && !search.isEmpty()) {
             redirectAttributes.addAttribute("search", search);
         }
+        if (commentStatus != null && !commentStatus.isEmpty()) {
+            redirectAttributes.addAttribute("commentStatus", commentStatus);
+        }
         
         return "redirect:/admin/review";
     }
@@ -125,6 +145,7 @@ public class AdminReviewController {
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "commentStatus", required = false) String commentStatus,
             RedirectAttributes redirectAttributes) {
         try {
             adminReviewService.rejectReview(reviewId);
@@ -145,6 +166,9 @@ public class AdminReviewController {
         if (search != null && !search.isEmpty()) {
             redirectAttributes.addAttribute("search", search);
         }
+        if (commentStatus != null && !commentStatus.isEmpty()) {
+            redirectAttributes.addAttribute("commentStatus", commentStatus);
+        }
         
         return "redirect:/admin/review";
     }
@@ -159,6 +183,7 @@ public class AdminReviewController {
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "commentStatus", required = false) String commentStatus,
             RedirectAttributes redirectAttributes) {
         try {
             adminReviewService.updateStatus(reviewId, status);
@@ -181,6 +206,9 @@ public class AdminReviewController {
         if (search != null && !search.isEmpty()) {
             redirectAttributes.addAttribute("search", search);
         }
+        if (commentStatus != null && !commentStatus.isEmpty()) {
+            redirectAttributes.addAttribute("commentStatus", commentStatus);
+        }
         
         return "redirect:/admin/review";
     }
@@ -194,6 +222,7 @@ public class AdminReviewController {
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "commentStatus", required = false) String commentStatus,
             RedirectAttributes redirectAttributes) {
         try {
             adminReviewService.deleteReview(reviewId);
@@ -214,6 +243,9 @@ public class AdminReviewController {
         if (search != null && !search.isEmpty()) {
             redirectAttributes.addAttribute("search", search);
         }
+        if (commentStatus != null && !commentStatus.isEmpty()) {
+            redirectAttributes.addAttribute("commentStatus", commentStatus);
+        }
         
         return "redirect:/admin/review";
     }
@@ -230,6 +262,7 @@ public class AdminReviewController {
             @RequestParam(value = "page", required = false) Integer page,
             @RequestParam(value = "searchType", required = false) String searchType,
             @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "filterCommentStatus", required = false) String filterCommentStatus,
             RedirectAttributes redirectAttributes) {
         try {
             adminReviewService.updateReview(reviewId, content, rating, commentStatus);
@@ -250,6 +283,9 @@ public class AdminReviewController {
         }
         if (search != null && !search.isEmpty()) {
             redirectAttributes.addAttribute("search", search);
+        }
+        if (filterCommentStatus != null && !filterCommentStatus.isEmpty()) {
+            redirectAttributes.addAttribute("commentStatus", filterCommentStatus);
         }
         
         return "redirect:/admin/review";
