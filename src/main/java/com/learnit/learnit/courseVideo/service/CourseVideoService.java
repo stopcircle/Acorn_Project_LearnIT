@@ -108,8 +108,17 @@ public class CourseVideoService {
         return "ACTIVE".equals(status);
     }
 
+    public boolean isInstructor(Long userId, Long courseId) {
+        Long instructorId = courseVideoMapper.selectCourseInstructorId(courseId);
+        return userId != null && userId.equals(instructorId);
+    }
+
     public void saveInterpreterLog(Long userId, Long courseId, Long chapterId, Integer languageId) {
         courseVideoMapper.insertInterpreterLog(userId, courseId, chapterId, languageId);
+    }
+
+    public Long getFirstChapterId(Long courseId) {
+        return courseVideoMapper.selectFirstChapterId(courseId);
     }
 
     public Map<String, Object> runInterpreterCode(String sourceCode, String languageId) {

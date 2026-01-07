@@ -104,6 +104,12 @@
           AND course_id = #{courseId}
     </select>
 
+    <select id="selectCourseInstructorId" resultType="Long">
+        SELECT user_id
+        FROM course
+        WHERE course_id = #{courseId}
+    </select>
+
     <!-- 인터프리터 실행 로그 저장 -->
     <insert id="insertInterpreterLog">
         INSERT INTO interpreter_log (
@@ -120,5 +126,13 @@
             NOW()
         )
     </insert>
+
+    <select id="selectFirstChapterId" resultType="Long">
+        SELECT chapter_id
+        FROM chapter
+        WHERE course_id = #{courseId}
+        ORDER BY order_index ASC
+        LIMIT 1
+    </select>
 
 </mapper>

@@ -59,3 +59,39 @@ document.addEventListener('DOMContentLoaded', function() {
     });
 });
 
+/**
+ * 댓글 상태 필터 드롭다운 토글
+ * @param {Event} event - 클릭 이벤트
+ */
+function toggleStatusFilter(event) {
+    event.stopPropagation();
+    const dropdown = document.getElementById('statusFilterDropdown');
+    const labelRect = event.target.closest('.status-filter-header').getBoundingClientRect();
+
+    dropdown.style.display = dropdown.style.display === 'block' ? 'none' : 'block';
+
+    if (dropdown.style.display === 'block') {
+        dropdown.style.left = `${labelRect.left}px`;
+        dropdown.style.top = `${labelRect.bottom + 8}px`;
+    }
+}
+
+/**
+ * 댓글 상태로 필터링
+ * @param {string} status - 필터링할 상태 (전체: '', Active, Approved, Rejected)
+ */
+function filterByStatus(status) {
+    const form = document.getElementById('filterForm');
+    form.elements['commentStatus'].value = status;
+    form.submit();
+}
+
+// 드롭다운 외부 클릭 시 닫기
+document.addEventListener('click', function(event) {
+    const dropdown = document.getElementById('statusFilterDropdown');
+    const label = document.querySelector('.status-filter-label');
+    if (dropdown && label && !dropdown.contains(event.target) && !label.contains(event.target)) {
+        dropdown.style.display = 'none';
+    }
+});
+
