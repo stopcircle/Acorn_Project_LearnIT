@@ -210,6 +210,7 @@ async function loadUsers(page = currentPage) {
 
   renderUsers(data.items || []);
   renderPagination(data.page, data.totalPages);
+  renderTotalCount(data.totalCount);
 }
 
 function closeAllFilterPopups() {
@@ -730,4 +731,12 @@ function renderPagination(page, totalPages) {
     next.addEventListener("click", () => loadUsers(endPage + 1));
     el.appendChild(next);
   }
+}
+
+function renderTotalCount(totalCount) {
+  const el = document.getElementById("totalCount");
+  if (!el) return;
+
+  const n = Number(totalCount ?? 0);
+  el.innerHTML = `총 <strong>${n.toLocaleString("ko-KR")}</strong>명`;
 }

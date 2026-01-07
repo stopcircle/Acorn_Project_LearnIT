@@ -237,3 +237,12 @@ tr.role-editing .tag .tag-del {
   background: #f2f4f7;
   cursor: default;
 }
+.admin-total-count {
+  margin-top: 10px;
+  font-size: 14px;
+  color: #444;
+}
+
+.admin-total-count strong {
+  font-weight: 700;
+}
