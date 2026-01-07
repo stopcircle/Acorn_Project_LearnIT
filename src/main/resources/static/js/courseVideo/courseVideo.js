@@ -35,9 +35,16 @@ function initApp() {
     }
 
     // Restore side panel state
-    const savedTab = localStorage.getItem('lastActivePanel');
-    if (savedTab) {
-        openPanel(savedTab);
+    const urlParams = new URLSearchParams(window.location.search);
+    const openTab = urlParams.get('openTab');
+
+    if (openTab) {
+        openPanel(openTab);
+    } else {
+        const savedTab = localStorage.getItem('lastActivePanel');
+        if (savedTab) {
+            openPanel(savedTab);
+        }
     }
 }
 

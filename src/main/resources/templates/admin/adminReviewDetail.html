@@ -18,7 +18,7 @@
   <title>리뷰 상세</title>
 </head>
 <body>
-<section th:fragment="content">
+<section th:fragment="content" class="admin-content-inner">
   <div class="admin-review-container">
     <h2>리뷰 상세</h2>
 
@@ -41,8 +41,7 @@
               <span th:if="${review.courseId != null}">
                 <a th:href="@{'/CourseDetail?courseId=' + ${review.courseId}}" 
                    target="_blank" 
-                   class="course-detail-link" 
-                   style="margin-left: 8px; color: #007bff; text-decoration: none;">
+                   class="course-detail-link">
                   [강의 상세보기]
                 </a>
               </span>
@@ -88,17 +87,17 @@
 
       <!-- 리뷰 상세/검수 화면 (PASS/APPROVE/REJECT 처리) -->
       <div class="detail-actions">
-        <form th:action="@{'/admin/review/' + ${review.reviewId} + '/approve'}" method="post" style="display: inline;">
+        <form th:action="@{'/admin/review/' + ${review.reviewId} + '/approve'}" method="post" class="detail-action-form">
           <button type="submit" class="btn-approve">승인(APPROVE)</button>
         </form>
-        <form th:action="@{'/admin/review/' + ${review.reviewId} + '/reject'}" method="post" style="display: inline;">
+        <form th:action="@{'/admin/review/' + ${review.reviewId} + '/reject'}" method="post" class="detail-action-form">
           <button type="submit" class="btn-reject">거부(REJECT)</button>
         </form>
-        <form th:action="@{'/admin/review/' + ${review.reviewId} + '/update-status'}" method="post" style="display: inline;">
+        <form th:action="@{'/admin/review/' + ${review.reviewId} + '/update-status'}" method="post" class="detail-action-form">
           <input type="hidden" name="status" value="Active">
           <button type="submit" class="btn-pass">대기(PASS)</button>
         </form>
-        <form th:action="@{'/admin/review/' + ${review.reviewId} + '/delete'}" method="post" style="display: inline;"
+        <form th:action="@{'/admin/review/' + ${review.reviewId} + '/delete'}" method="post" class="detail-action-form"
               onsubmit="return confirm('정말 삭제하시겠습니까?');">
           <button type="submit" class="btn-delete">삭제</button>
         </form>
