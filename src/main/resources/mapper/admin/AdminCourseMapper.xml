@@ -72,4 +72,20 @@
         )
     </insert>
 
+    <insert id="insertChapter" parameterType="com.learnit.learnit.admin.AdminChapterInsertDTO" useGeneratedKeys="true" keyProperty="chapterId">
+        INSERT INTO chapter (
+            course_id, section_title, title, order_index, video_url
+        ) VALUES (
+            #{courseId}, #{sectionTitle}, #{title}, #{orderIndex}, #{videoUrl}
+        )
+    </insert>
+
+    <insert id="insertChapterResource">
+        INSERT INTO chapter_resource (
+            chapter_id, title, file_url, file_type
+        ) VALUES (
+            #{chapterId}, #{title}, #{fileUrl}, #{fileType}
+        )
+    </insert>
+
 </mapper>

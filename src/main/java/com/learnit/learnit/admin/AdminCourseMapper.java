@@ -20,4 +20,11 @@ public interface AdminCourseMapper {
     void deleteCourse(@Param("courseId") Long courseId);
 
     void insertCourse(AdminCourseCreateDTO course);
+
+    void insertChapter(AdminChapterInsertDTO chapter);
+
+    void insertChapterResource(@Param("chapterId") Long chapterId,
+                               @Param("title") String title,
+                               @Param("fileUrl") String fileUrl,
+                               @Param("fileType") String fileType);
 }

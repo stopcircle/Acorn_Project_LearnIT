@@ -2,6 +2,7 @@ package com.learnit.learnit.admin;
 
 import lombok.Data;
 import org.springframework.format.annotation.DateTimeFormat;
+import org.springframework.web.multipart.MultipartFile;
 
 import java.time.LocalDate;
 import java.util.List;
@@ -24,10 +25,26 @@ public class AdminCourseCreateDTO {
     private boolean alwaysOpen;
 
     // 파일 업로드 (입력)
-    private org.springframework.web.multipart.MultipartFile thumbnail;
-    private org.springframework.web.multipart.MultipartFile detailThumbnail;
+    private MultipartFile thumbnail;
+    private MultipartFile detailThumbnail;
 
     // 파일 경로 (DB 저장용)
     private String thumbnailUrl;
     private String detailImgUrl;
+
+    // 커리큘럼 (섹션 + 챕터)
+    private List<SectionRequest> sections;
+
+    @Data
+    public static class SectionRequest {
+        private String title;
+        private List<ChapterRequest> chapters;
+    }
+
+    @Data
+    public static class ChapterRequest {
+        private String title;
+        private String videoUrl;
+        private MultipartFile file; // 챕터 자료 파일
+    }
 }

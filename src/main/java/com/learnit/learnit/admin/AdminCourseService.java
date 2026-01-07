@@ -67,6 +67,45 @@ public class AdminCourseService {
         }
 
         adminCourseMapper.insertCourse(dto);
+        Long courseId = dto.getCourseId();
+
+        // 커리큘럼 저장
+        if (dto.getSections() != null) {
+            int totalOrderIndex = 1; // 전체 챕터 순서 (단순 증가)
+
+            for (AdminCourseCreateDTO.SectionRequest section : dto.getSections()) {
+                if (section.getChapters() != null) {
+                    for (AdminCourseCreateDTO.ChapterRequest chapterReq : section.getChapters()) {
+                        // 1. 챕터 DB 저장
+                        AdminChapterInsertDTO chapterDto = new AdminChapterInsertDTO();
+                        chapterDto.setCourseId(courseId);
+                        chapterDto.setSectionTitle(section.getTitle());
+                        chapterDto.setTitle(chapterReq.getTitle());
+                        chapterDto.setOrderIndex(totalOrderIndex++);
+                        chapterDto.setVideoUrl(chapterReq.getVideoUrl());
+
+                        adminCourseMapper.insertChapter(chapterDto);
+                        Long chapterId = chapterDto.getChapterId();
+
+                        // 2. 챕터 자료 파일 업로드 및 저장
+                        if (chapterReq.getFile() != null && !chapterReq.getFile().isEmpty()) {
+                            try {
+                                String fileUrl = saveFile(chapterReq.getFile());
+                                String originalFilename = chapterReq.getFile().getOriginalFilename();
+                                String fileType = "";
+                                if (originalFilename != null && originalFilename.contains(".")) {
+                                    fileType = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+                                }
+
+                                adminCourseMapper.insertChapterResource(chapterId, originalFilename, fileUrl, fileType);
+                            } catch (IOException e) {
+                                throw new RuntimeException("챕터 자료 파일 저장 중 오류가 발생했습니다.", e);
+                            }
+                        }
+                    }
+                }
+            }
+        }
     }
 
     private String savePdfAsText(MultipartFile file) throws IOException {

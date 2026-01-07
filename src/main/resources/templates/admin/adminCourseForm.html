@@ -42,32 +42,32 @@
             </div>
         </form>
     </div>
-
-    <script>
-        function switchTab(tabName) {
-            // 탭 스타일 활성화
-            const tabs = document.querySelectorAll('.tab-item');
-            tabs.forEach(tab => {
-                tab.classList.remove('active');
-            });
-            event.target.classList.add('active');
-
-            // 섹션 표시 전환
-            const sections = document.querySelectorAll('.form-section');
-            sections.forEach(section => {
-                section.classList.remove('active');
-            });
-
-            if (tabName === 'info') {
-                document.getElementById('section-info').classList.add('active');
-            } else if (tabName === 'thumbnail') {
-                document.getElementById('section-thumbnail').classList.add('active');
-            } else if (tabName === 'file') {
-                document.getElementById('section-file').classList.add('active');
-            }
-        }
-    </script>
-    <script th:src="@{/js/admin/admin-course-form.js}"></script>
 </section>
+
+<script>
+    function switchTab(tabName) {
+        // 탭 스타일 활성화
+        const tabs = document.querySelectorAll('.tab-item');
+        tabs.forEach(tab => {
+            tab.classList.remove('active');
+        });
+        event.target.classList.add('active');
+
+        // 섹션 표시 전환
+        const sections = document.querySelectorAll('.form-section');
+        sections.forEach(section => {
+            section.classList.remove('active');
+        });
+
+        if (tabName === 'info') {
+            document.getElementById('section-info').classList.add('active');
+        } else if (tabName === 'thumbnail') {
+            document.getElementById('section-thumbnail').classList.add('active');
+        } else if (tabName === 'file') {
+            document.getElementById('section-file').classList.add('active');
+        }
+    }
+</script>
+<script th:src="@{/js/admin/admin-course-form.js}"></script>
 </body>
 </html>
