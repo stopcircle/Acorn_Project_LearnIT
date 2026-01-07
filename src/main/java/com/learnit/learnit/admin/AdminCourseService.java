@@ -76,6 +76,8 @@ public class AdminCourseService {
             for (AdminCourseCreateDTO.SectionRequest section : dto.getSections()) {
                 if (section.getChapters() != null) {
                     for (AdminCourseCreateDTO.ChapterRequest chapterReq : section.getChapters()) {
+                        if (chapterReq == null) continue;
+
                         // 1. 챕터 DB 저장
                         AdminChapterInsertDTO chapterDto = new AdminChapterInsertDTO();
                         chapterDto.setCourseId(courseId);

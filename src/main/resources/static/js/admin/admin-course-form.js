@@ -253,13 +253,13 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function addSection() {
-        sectionCount++;
+        const currentSectionIndex = sectionCount++;
         
         const sectionItem = document.createElement('div');
         sectionItem.className = 'section-item';
         sectionItem.innerHTML = `
             <div class="section-header">
-                <input type="text" name="sections[${sectionCount-1}].title" class="section-title-input" placeholder="섹션 제목을 입력하세요 (예: 섹션 1. 오리엔테이션)">
+                <input type="text" name="sections[${currentSectionIndex}].title" class="section-title-input" placeholder="섹션 제목을 입력하세요 (예: 섹션 1. 오리엔테이션)">
                 <button type="button" class="btn-remove-section">삭제</button>
             </div>
             <div class="chapter-list">
@@ -282,7 +282,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
         btnAddChapter.addEventListener('click', function() {
             chapterCount++;
-            addChapter(chapterList, sectionCount - 1, chapterCount - 1); // 인덱스 전달
+            addChapter(chapterList, currentSectionIndex, chapterCount - 1); // 인덱스 전달
         });
 
         sectionListContainer.appendChild(sectionItem);
