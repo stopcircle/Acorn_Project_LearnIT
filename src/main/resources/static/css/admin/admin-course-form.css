@@ -390,6 +390,10 @@ input:checked + .slider:before {
     gap: 1rem;
 }
 
+.file-upload-input {
+    display: none;
+}
+
 .btn-upload {
     padding: 0.8rem 1.6rem;
     background-color: #fff;

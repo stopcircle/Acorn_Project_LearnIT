@@ -29,126 +29,133 @@ public class AdminCourseService {
     private final AdminCourseMapper adminCourseMapper;
     private final UserMapper userMapper;
 
-    @Value("${file.upload-dir.course:src/main/resources/static/uploads/course}")
+    @Value("${file.upload-dir.course:uploads/course}")
     private String courseUploadDir;
 
     @Transactional
     public void createCourse(AdminCourseCreateDTO dto) {
-        // 상시 오픈 체크 시 날짜 NULL 처리
         if (dto.isAlwaysOpen()) {
             dto.setStartDate(null);
             dto.setEndDate(null);
         }
 
         try {
-            // 썸네일 저장
-            if (dto.getThumbnail() != null && !dto.getThumbnail().isEmpty()) {
-                String path = saveFile(dto.getThumbnail());
-                dto.setThumbnailUrl(path);
-            }
-
-            // 상세 이미지(또는 PDF) 저장
-            if (dto.getDetailThumbnail() != null && !dto.getDetailThumbnail().isEmpty()) {
-                MultipartFile file = dto.getDetailThumbnail();
-                String originalFilename = file.getOriginalFilename();
-                
-                if (originalFilename != null && originalFilename.toLowerCase().endsWith(".pdf")) {
-                    // PDF인 경우 텍스트 추출하여 .txt로 저장
-                    String textPath = savePdfAsText(file);
-                    dto.setDetailImgUrl(textPath);
-                } else {
-                    // 이미지인 경우 그대로 저장
-                    String path = saveFile(file);
-                    dto.setDetailImgUrl(path);
-                }
-            }
+            saveThumbnails(dto);
         } catch (IOException e) {
             throw new RuntimeException("파일 저장 중 오류가 발생했습니다.", e);
         }
 
         adminCourseMapper.insertCourse(dto);
-        Long courseId = dto.getCourseId();
+        
+        saveCurriculum(dto);
+    }
 
-        // 커리큘럼 저장
-        if (dto.getSections() != null) {
-            int totalOrderIndex = 1; // 전체 챕터 순서 (단순 증가)
+    private void saveThumbnails(AdminCourseCreateDTO dto) throws IOException {
+        // 썸네일 저장
+        if (dto.getThumbnail() != null && !dto.getThumbnail().isEmpty()) {
+            String path = saveFile(dto.getThumbnail());
+            dto.setThumbnailUrl(path);
+        }
 
-            for (AdminCourseCreateDTO.SectionRequest section : dto.getSections()) {
-                if (section == null) continue;
-                if (section.getChapters() != null) {
-                    for (AdminCourseCreateDTO.ChapterRequest chapterReq : section.getChapters()) {
-                        if (chapterReq == null) continue;
-
-                        // 1. 챕터 DB 저장
-                        AdminChapterInsertDTO chapterDto = new AdminChapterInsertDTO();
-                        chapterDto.setCourseId(courseId);
-                        chapterDto.setSectionTitle(section.getTitle());
-                        chapterDto.setTitle(chapterReq.getTitle());
-                        chapterDto.setOrderIndex(totalOrderIndex++);
-                        chapterDto.setVideoUrl(chapterReq.getVideoUrl());
-
-                        adminCourseMapper.insertChapter(chapterDto);
-                        Long chapterId = chapterDto.getChapterId();
-
-                        // 2. 챕터 자료 파일 업로드 및 저장
-                        if (chapterReq.getFile() != null && !chapterReq.getFile().isEmpty()) {
-                            try {
-                                String fileUrl = saveFile(chapterReq.getFile());
-                                String originalFilename = chapterReq.getFile().getOriginalFilename();
-                                String fileType = "";
-                                if (originalFilename != null && originalFilename.contains(".")) {
-                                    fileType = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
-                                }
-
-                                adminCourseMapper.insertChapterResource(chapterId, originalFilename, fileUrl, fileType);
-                            } catch (IOException e) {
-                                throw new RuntimeException("챕터 자료 파일 저장 중 오류가 발생했습니다.", e);
-                            }
-                        }
-                    }
-                }
+        // 상세 이미지(또는 PDF) 저장
+        if (dto.getDetailThumbnail() != null && !dto.getDetailThumbnail().isEmpty()) {
+            MultipartFile file = dto.getDetailThumbnail();
+            String originalFilename = file.getOriginalFilename();
+            
+            if (originalFilename != null && originalFilename.toLowerCase().endsWith(".pdf")) {
+                String textPath = savePdfAsText(file);
+                dto.setDetailImgUrl(textPath);
+            } else {
+                String path = saveFile(file);
+                dto.setDetailImgUrl(path);
             }
         }
     }
 
-    private String savePdfAsText(MultipartFile file) throws IOException {
-        // 1. PDF 파일 임시 저장
-        File tempPdf = File.createTempFile("temp", ".pdf");
-        file.transferTo(tempPdf);
+    private void saveCurriculum(AdminCourseCreateDTO dto) {
+        if (dto.getSections() == null) return;
 
-        // 2. 텍스트 추출
-        String text;
-        try (PDDocument document = Loader.loadPDF(tempPdf)) {
-            PDFTextStripper stripper = new PDFTextStripper();
-            stripper.setSortByPosition(true); // 시각적 위치에 따라 텍스트 정렬 (레이아웃 개선)
-            text = stripper.getText(document);
-        } finally {
-            tempPdf.delete();
+        Long courseId = dto.getCourseId();
+        int totalOrderIndex = 1;
+
+        for (AdminCourseCreateDTO.SectionRequest section : dto.getSections()) {
+            if (section == null || section.getChapters() == null) continue;
+
+            for (AdminCourseCreateDTO.ChapterRequest chapterReq : section.getChapters()) {
+                if (chapterReq == null) continue;
+
+                // 1. 챕터 DB 저장
+                AdminChapterInsertDTO chapterDto = new AdminChapterInsertDTO();
+                chapterDto.setCourseId(courseId);
+                chapterDto.setSectionTitle(section.getTitle());
+                chapterDto.setTitle(chapterReq.getTitle());
+                chapterDto.setOrderIndex(totalOrderIndex++);
+                chapterDto.setVideoUrl(chapterReq.getVideoUrl());
+
+                adminCourseMapper.insertChapter(chapterDto);
+                Long chapterId = chapterDto.getChapterId();
+
+                // 2. 챕터 자료 파일 업로드 및 저장
+                saveChapterResource(chapterId, chapterReq);
+            }
         }
+    }
 
-        // 3. .txt 파일로 저장
-        String savedFilename = UUID.randomUUID().toString() + ".txt";
-        
-        // 디렉토리 생성 (설정값 없으면 기본값 사용)
+    private void saveChapterResource(Long chapterId, AdminCourseCreateDTO.ChapterRequest chapterReq) {
+        if (chapterReq.getFile() != null && !chapterReq.getFile().isEmpty()) {
+            try {
+                String fileUrl = saveFile(chapterReq.getFile());
+                String originalFilename = chapterReq.getFile().getOriginalFilename();
+                String fileType = "";
+                if (originalFilename != null && originalFilename.contains(".")) {
+                    fileType = originalFilename.substring(originalFilename.lastIndexOf(".") + 1);
+                }
+
+                adminCourseMapper.insertChapterResource(chapterId, originalFilename, fileUrl, fileType);
+            } catch (IOException e) {
+                throw new RuntimeException("챕터 자료 파일 저장 중 오류가 발생했습니다.", e);
+            }
+        }
+    }
+
+    private Path getUploadPath() throws IOException {
         String uploadDir = (courseUploadDir != null && !courseUploadDir.isEmpty()) 
                 ? courseUploadDir 
-                : "src/main/resources/static/uploads/course";
+                : "uploads/course";
+        
+        if (!Paths.get(uploadDir).isAbsolute()) {
+            uploadDir = System.getProperty("user.dir") + File.separator + uploadDir;
+        }
                 
         Path uploadPath = Paths.get(uploadDir);
         if (!Files.exists(uploadPath)) {
             Files.createDirectories(uploadPath);
         }
+        return uploadPath;
+    }
 
-        Path filePath = uploadPath.resolve(savedFilename);
+    private String savePdfAsText(MultipartFile file) throws IOException {
+        File tempPdf = File.createTempFile("temp", ".pdf");
+        file.transferTo(tempPdf);
+
+        String text;
+        try (PDDocument document = Loader.loadPDF(tempPdf)) {
+            PDFTextStripper stripper = new PDFTextStripper();
+            stripper.setSortByPosition(true);
+            text = stripper.getText(document);
+        } finally {
+            tempPdf.delete();
+        }
+
+        String savedFilename = UUID.randomUUID().toString() + ".txt";
+        Path filePath = getUploadPath().resolve(savedFilename);
         Files.writeString(filePath, text, StandardCharsets.UTF_8);
 
         return "/uploads/course/" + savedFilename;
     }
 
     private String saveFile(MultipartFile file) throws IOException {
-        if (file.isEmpty()) {
-            return null;
-        }
+        if (file.isEmpty()) return null;
 
         String originalFilename = file.getOriginalFilename();
         String extension = "";
@@ -156,24 +163,10 @@ public class AdminCourseService {
             extension = originalFilename.substring(originalFilename.lastIndexOf("."));
         }
 
-        // 고유 파일명 생성
         String savedFilename = UUID.randomUUID().toString() + extension;
-        
-        // 디렉토리 생성 (설정값 없으면 기본값 사용)
-        String uploadDir = (courseUploadDir != null && !courseUploadDir.isEmpty()) 
-                ? courseUploadDir 
-                : "src/main/resources/static/uploads/course";
-                
-        Path uploadPath = Paths.get(uploadDir);
-        if (!Files.exists(uploadPath)) {
-            Files.createDirectories(uploadPath);
-        }
-
-        // 파일 저장
-        Path filePath = uploadPath.resolve(savedFilename);
+        Path filePath = getUploadPath().resolve(savedFilename);
         Files.copy(file.getInputStream(), filePath, StandardCopyOption.REPLACE_EXISTING);
 
-        // Web 접근 경로 반환
         return "/uploads/course/" + savedFilename;
     }
 
