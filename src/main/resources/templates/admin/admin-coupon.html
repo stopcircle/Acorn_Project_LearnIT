@@ -16,7 +16,7 @@
 
 <div th:fragment="content" class="admin-coupon">
 
-    <th:block th:replace="admin/adminUser-tab :: tab('coupon')" />
+    <th:block th:replace="admin/adminFragments/adminUser-tab :: tab('coupon')" />
 
     <!-- ===============================
          1. 쿠폰 지급 설정
@@ -131,7 +131,7 @@
 </div>
 
 <th:block th:fragment="script">
-    <script th:src="@{/js/admin/userCoupon/admin-coupon.js}"></script>
+    <script th:src="@{/js/admin/admin-coupon.js}"></script>
 </th:block>
 
 </body>

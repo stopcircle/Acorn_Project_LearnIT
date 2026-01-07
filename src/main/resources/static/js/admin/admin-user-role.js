@@ -7,6 +7,9 @@ const PAGE_BLOCK_SIZE = 5;
 let statusFilters = []; // ex: ["ACTIVE","BANNED"]
 let roleFilters = [];   // ex: ["ADMIN","SUB_ADMIN"]
 
+// ✅ [PATCH] filter-popup이 th/overflow 컨텍스트에 갇혀 투명/잘림 현상 방지용(원래 자리 기억)
+const popupOrigins = new Map();
+
 document.addEventListener("DOMContentLoaded", () => {
   document.getElementById("btnSearch")?.addEventListener("click", () => {
     currentPage = 1;
@@ -45,6 +48,10 @@ document.addEventListener("DOMContentLoaded", () => {
   document.addEventListener("click", () => {
     closeAllFilterPopups();
   });
+
+  // ✅ [PATCH] 창 리사이즈/스크롤 시 열려있는 팝업 닫기(좌표 꼬임 방지)
+  window.addEventListener("resize", closeAllFilterPopups);
+  window.addEventListener("scroll", closeAllFilterPopups, true);
 
   loadUsers();
 });
@@ -213,8 +220,13 @@ async function loadUsers(page = currentPage) {
   renderTotalCount(data.totalCount);
 }
 
+/* ===============================
+   [PATCH] Filter popup positioning fix
+   - filter-popup을 body로 이동해서 th/overflow/sticky/opacity 영향 제거
+=============================== */
+
 function closeAllFilterPopups() {
-  document.querySelectorAll(".filter-popup").forEach(p => (p.style.display = "none"));
+  document.querySelectorAll(".filter-popup").forEach(p => hidePopup(p));
 }
 
 function toggleFilterPopup(which) {
@@ -222,15 +234,71 @@ function toggleFilterPopup(which) {
     ? document.getElementById("statusFilterPopup")
     : document.getElementById("roleFilterPopup");
 
+  const btn = document.querySelector(`.filter-btn[data-filter="${which}"]`);
+
   if (!popup) return;
 
   // 다른 팝업은 닫고
   document.querySelectorAll(".filter-popup").forEach(p => {
-    if (p !== popup) p.style.display = "none";
+    if (p !== popup) hidePopup(p);
   });
 
-  popup.style.display = (popup.style.display === "block") ? "none" : "block";
+  const isOpen = popup.style.display === "block";
+  if (isOpen) hidePopup(popup);
+  else showPopup(popup, btn);
 }
+
+function showPopup(popup, anchorBtn) {
+  if (!popup || !anchorBtn) return;
+
+  // 원래 부모/자리 기억(1회)
+  if (!popupOrigins.has(popup)) {
+    popupOrigins.set(popup, {
+      parent: popup.parentNode,
+      next: popup.nextSibling
+    });
+  }
+
+  // 먼저 보이게 해서 width 계산
+  popup.style.display = "block";
+
+  const rect = anchorBtn.getBoundingClientRect();
+
+  // body로 옮겨서(부모의 overflow/opacity 영향 끊기)
+  document.body.appendChild(popup);
+
+  // fixed 배치
+  popup.style.position = "fixed";
+  popup.style.top = `${rect.bottom + 8}px`;
+
+  const w = popup.offsetWidth || 240;
+
+  // 버튼 오른쪽 기준 정렬 + 화면 밖 방지(clamp)
+  let left = rect.right - w;
+  left = Math.max(8, Math.min(left, window.innerWidth - w - 8));
+
+  popup.style.left = `${left}px`;
+  popup.style.right = "auto";
+  popup.style.zIndex = "999999";
+}
+
+function hidePopup(popup) {
+  if (!popup) return;
+
+  popup.style.display = "none";
+  popup.style.position = "";
+  popup.style.top = "";
+  popup.style.left = "";
+  popup.style.right = "";
+  popup.style.zIndex = "";
+
+  const origin = popupOrigins.get(popup);
+  if (origin?.parent) {
+    origin.parent.insertBefore(popup, origin.next);
+  }
+}
+
+/* =============================== */
 
 function updateFilterButtonState() {
   const statusBtn = document.querySelector('.filter-btn[data-filter="status"]');

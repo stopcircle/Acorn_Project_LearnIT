@@ -1,8 +1,5 @@
-package com.learnit.learnit.admin.userrole.service;
+package com.learnit.learnit.admin.userrole;
 
-import com.learnit.learnit.admin.userrole.dto.UpdateUserRoleDTO;
-import com.learnit.learnit.admin.userrole.dto.UpdateUserStatusDTO;
-import com.learnit.learnit.admin.userrole.mapper.AdminUserRoleMapper;
 import com.learnit.learnit.user.util.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;

@@ -1,6 +1,5 @@
-package com.learnit.learnit.admin.userrole.controller;
+package com.learnit.learnit.admin.userrole;
 
-import com.learnit.learnit.admin.userrole.mapper.AdminUserRoleMapper;
 import com.learnit.learnit.user.util.SessionUtils;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Controller;
@@ -13,7 +12,7 @@ public class AdminUserRolePageController {
 
     private final AdminUserRoleMapper mapper;
 
-    @GetMapping("/admin/role")
+    @GetMapping("/admin/user")
     public String page(Model model) {
         Long loginUserId = SessionUtils.requireLoginUserId();
 
@@ -22,7 +21,7 @@ public class AdminUserRolePageController {
             return "redirect:/login";
         }
 
-        model.addAttribute("activeTab", "role");
-        return "admin/admin-role";
+        model.addAttribute("activeTab", "user");
+        return "admin/admin-user";
     }
 }

@@ -1,4 +1,4 @@
-package com.learnit.learnit.admin.userrole.dto;
+package com.learnit.learnit.admin.userrole;
 
 import lombok.Data;
 
