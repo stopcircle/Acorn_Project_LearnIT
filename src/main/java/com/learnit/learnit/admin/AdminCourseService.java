@@ -74,6 +74,7 @@ public class AdminCourseService {
             int totalOrderIndex = 1; // 전체 챕터 순서 (단순 증가)
 
             for (AdminCourseCreateDTO.SectionRequest section : dto.getSections()) {
+                if (section == null) continue;
                 if (section.getChapters() != null) {
                     for (AdminCourseCreateDTO.ChapterRequest chapterReq : section.getChapters()) {
                         if (chapterReq == null) continue;
