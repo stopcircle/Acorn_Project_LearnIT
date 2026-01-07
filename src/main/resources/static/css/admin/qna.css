@@ -1,303 +1,499 @@
 /* =========================
-   QNA (정리본)
-   - notice와 폭/여백 통일
-   - 목록 + 상세패널 한 페이지
+   QNA (NOTICE 느낌으로 폭/정렬 통일 + 아코디언 유지)
 ========================= */
 
+/* 전역 */
+html, body { max-width: 100%; }
+
+/* ✅ 레일: notice와 동일 */
 .admin-content-inner{
-  width: auto !important;
-  max-width: 100% !important;
-  min-width: 0 !important;
-  flex: 1 1 auto !important;
+  width: 100%;
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  box-sizing: border-box;
+  min-width: 0;
 }
 
+/* 컨테이너 */
 .admin-qna-container{
-  padding: 2rem;
-  max-width: 1200px;
-  margin: 0 0 0 28px;
+  padding: 2rem 0;
+  width: 100%;
+  margin: 0;
   min-width: 0;
   box-sizing: border-box;
 }
-
 .admin-qna-container *{ box-sizing: border-box; }
 
 .admin-qna-container h2{
-  font-size: 2.4rem;
+  font-size: 2.2rem;
   font-weight: 800;
+  color: #111;
   margin: 0 0 1.4rem 0;
-  color:#111;
 }
 
 /* alert */
 .admin-qna-container .alert{
-  padding:1.2rem 1.6rem;
-  border-radius:.8rem;
-  margin-bottom:1rem;
-  font-size:1.4rem;
+  padding: 12px 16px;
+  border-radius: 8px;
+  margin-bottom: 12px;
+  font-size: 14px;
 }
-.admin-qna-container .alert-success{background:#d4edda;border:1px solid #c3e6cb;color:#155724;}
-.admin-qna-container .alert-error{background:#f8d7da;border:1px solid #f5c6cb;color:#721c24;}
+.admin-qna-container .alert-success{ background:#d4edda; border:1px solid #c3e6cb; color:#155724; }
+.admin-qna-container .alert-error{ background:#f8d7da; border:1px solid #f5c6cb; color:#721c24; }
 
-/* filters */
+/* =========================
+   filters (notice처럼 한 줄 정렬)
+========================= */
 .admin-qna-container .filters{
   background:#f8f9fa;
-  padding:1.2rem;
-  border-radius:.8rem;
-  margin-bottom:1.6rem;
+  padding: 12px;
+  border-radius: 10px;
+  margin-bottom: 16px;
 }
+
 .admin-qna-container .filter-form{
   display:flex;
   align-items:center;
-  gap:10px;
-  flex-wrap: wrap;
-}
-.admin-qna-container .filter-select,
-.admin-qna-container .search-input{
-  padding:.8rem 1.2rem;
-  border:1px solid #d5dbe3;
-  border-radius:.6rem;
-  font-size:1.4rem;
-}
-.admin-qna-container .search-input{
-  flex: 1 1 420px;
-  min-width: 420px;
+  gap: 10px;
+  flex-wrap: nowrap;
+  min-width: 0;
 }
 
+/* =========================
+   ✅ select 공통(핵심)
+   - HTML이 qnaid-select를 쓰고 있어서 "둘 다" 먹게 처리
+========================= */
+.admin-qna-container .filter-select,
+.admin-qna-container .qnaid-select,
+.admin-qna-container .status-select{
+  height: 44px;
+  padding: 10px 42px 10px 14px;
+  border: 1px solid #d5dbe3;
+  border-radius: 10px;
+  background-color: #fff;
+
+  font-size: 14px;
+  font-weight: 800;
+  color: #111;
+  line-height: 1;
+  cursor: pointer;
+
+  -webkit-appearance: none;
+  appearance: none;
+  -moz-appearance: none;
+
+  /* ✅ 커스텀 화살표(▼) */
+  background-image:
+    linear-gradient(45deg, transparent 50%, #111 50%),
+    linear-gradient(135deg, #111 50%, transparent 50%);
+  background-position:
+    calc(100% - 18px) 50%,
+    calc(100% - 12px) 50%;
+  background-size:
+    6px 6px,
+    6px 6px;
+  background-repeat: no-repeat;
+
+  box-shadow: 0 1px 0 rgba(0,0,0,.02);
+}
+
+/* 상단 검색 필터 select 폭 */
+.admin-qna-container .filter-select,
+.admin-qna-container .qnaid-select{
+  width: 160px;
+  flex: 0 0 auto;
+}
+
+/* status select는 내용이 짧으니 폭 줄임 */
+.admin-qna-container .status-select{
+  width: 160px;
+}
+
+/* IE/레거시 화살표 제거 */
+.admin-qna-container .filter-select::-ms-expand,
+.admin-qna-container .qnaid-select::-ms-expand,
+.admin-qna-container .status-select::-ms-expand{
+  display:none;
+}
+
+.admin-qna-container .filter-select:focus,
+.admin-qna-container .qnaid-select:focus,
+.admin-qna-container .status-select:focus{
+  outline: none;
+  border-color: #0A4A7A;
+  box-shadow: 0 0 0 3px rgba(10,74,122,.12);
+}
+
+/* 검색 input */
+.admin-qna-container .search-input{
+  height: 44px;
+  padding: 10px 12px;
+  border: 1px solid #d5dbe3;
+  border-radius: 10px;
+  font-size: 14px;
+  flex: 1 1 auto;
+  min-width: 0;
+  background: #fff;
+}
+
+/* 버튼 */
 .admin-qna-container .btn-search,
 .admin-qna-container .btn-reset{
-  border:none;
-  padding:.9rem 1.4rem;
-  border-radius:.6rem;
-  font-weight:900;
-  cursor:pointer;
-  text-decoration:none;
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 800;
+  cursor: pointer;
+  text-decoration: none;
   display:inline-flex;
   align-items:center;
   justify-content:center;
-  height:38px;
-  white-space:nowrap;
+  white-space: nowrap;
+  height: 44px;
+  line-height: 1;
 }
 .admin-qna-container .btn-search{ background:#0A4A7A; color:#fff; }
 .admin-qna-container .btn-reset{ background:#6c757d; color:#fff; }
+.admin-qna-container .btn-reset:hover{ filter: brightness(0.95); }
 
-/* table */
+.admin-qna-container .role-hint{
+  margin-left: 6px;
+  font-weight: 800;
+  color:#0A4A7A;
+  font-size: 13px;
+}
+
+/* =========================
+   table (notice 스펙)
+========================= */
 .admin-qna-container .table-wrap{
   width:100%;
   background:#fff;
-  border-radius:.8rem;
-  overflow-x:auto;
-  box-shadow:0 .2rem .6rem rgba(0,0,0,.08);
-  -webkit-overflow-scrolling: touch;
+  border-radius: 10px;
+  overflow-x: hidden; /* ✅ notice처럼 기본은 스크롤 안 보이게 */
+  box-shadow: 0 2px 8px rgba(0,0,0,.08);
 }
+
+/* 화면이 너무 좁을 때만 가로 스크롤 */
+@media (max-width: 900px){
+  .admin-qna-container .table-wrap{ overflow-x:auto; }
+}
+
 .admin-qna-container .qna-table{
-  width:100%;
+  width: 100%;
+  min-width: 860px;
   table-layout: fixed;
   border-collapse: collapse;
 }
-.admin-qna-container .qna-table thead{ background:#0A4A7A; color:#fff; }
+
+.admin-qna-container .qna-table thead{
+  background:#0A4A7A;
+  color:#fff;
+}
+
 .admin-qna-container .qna-table th,
 .admin-qna-container .qna-table td{
-  padding:10px 8px;
-  font-size:1.4rem;
-  border-bottom:1px solid #eee;
+  padding: 12px 10px;
+  font-size: 14px;
+  border-bottom: 1px solid #eaeaea;
   white-space: nowrap;
+  text-align: center;
+  vertical-align: middle;
 }
-.admin-qna-container .qna-table tbody tr:hover{ background:#f8f9fa; }
 
+.admin-qna-container .qna-table tbody tr.main-row{ cursor:pointer; }
+.admin-qna-container .qna-table tbody tr.main-row:hover{ background:#f8f9fa; }
+
+/* 컬럼 폭(860 근처) */
 .admin-qna-container .qna-table th:nth-child(1),
 .admin-qna-container .qna-table td:nth-child(1){ width: 90px; }
 .admin-qna-container .qna-table th:nth-child(2),
 .admin-qna-container .qna-table td:nth-child(2){ width: 90px; }
-.admin-qna-container .qna-table th:nth-child(3),
-.admin-qna-container .qna-table td:nth-child(3){ width: 80px; }
 .admin-qna-container .qna-table th:nth-child(4),
-.admin-qna-container .qna-table td:nth-child(4){ width: 220px; }
+.admin-qna-container .qna-table td:nth-child(4){ width: 110px; }
 .admin-qna-container .qna-table th:nth-child(5),
-.admin-qna-container .qna-table td:nth-child(5){ width: 90px; }
+.admin-qna-container .qna-table td:nth-child(5){ width: 100px; }
 .admin-qna-container .qna-table th:nth-child(6),
-.admin-qna-container .qna-table td:nth-child(6){ width: 90px; }
-.admin-qna-container .qna-table th:nth-child(8),
-.admin-qna-container .qna-table td:nth-child(8){ width: 110px; }
+.admin-qna-container .qna-table td:nth-child(6){ width: 120px; }
 
-.admin-qna-container .link{
-  color:#0A4A7A;
-  font-weight:900;
-  text-decoration:none;
+/* 강좌명/제목만 왼쪽 */
+.admin-qna-container .qna-table th:nth-child(3),
+.admin-qna-container .qna-table td:nth-child(3){
+  text-align: left;
+  padding-left: 16px;
 }
-.admin-qna-container .summary{
+
+.admin-qna-container .title-cell{
   overflow:hidden;
   text-overflow:ellipsis;
+  font-weight: 700;
+  color:#111;
 }
 
+/* badge */
 .admin-qna-container .badge{
   padding:.35rem .8rem;
   border-radius:999px;
   font-weight:900;
-  font-size:1.2rem;
+  font-size:12px;
   display:inline-block;
 }
 .admin-qna-container .badge-active{ background:#fff3cd; color:#856404; }
 .admin-qna-container .badge-pass{ background:#d4edda; color:#155724; }
 
-.admin-qna-container .empty{ text-align:center; padding:3rem; color:#999; }
+/* empty */
+.admin-qna-container .empty{
+  text-align:center;
+  padding: 3rem;
+  color:#999;
+}
 
-/* pagination (5개 블록) */
+/* 구분 헤더 필터(유지) */
+.th-filter{ position: relative; }
+.filter-icon{ margin-left: 6px; cursor: pointer; opacity: .9; font-weight: 900; }
+.filter-icon:hover{ opacity: 1; }
+
+.filter-popup{
+  position: absolute;
+  top: 42px;
+  left: 8px;
+  width: 180px;
+  background: #fff;
+  border: 1px solid #d5dbe3;
+  border-radius: .8rem;
+  box-shadow: 0 .2rem .6rem rgba(0,0,0,.12);
+  padding: 8px;
+  display: none;
+  z-index: 30;
+}
+
+.popup-link{
+  display:block;
+  padding: 10px 10px;
+  border-radius: .6rem;
+  color:#0A4A7A;
+  text-decoration:none;
+  font-weight: 900;
+}
+.popup-link:hover{ background:#f1f4f8; }
+
+/* 상태 배지 클릭 팝업 */
+.status-badge-wrap{
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+}
+.status-badge-wrap.can-click .status-badge-click{ cursor: pointer; }
+
+.status-action-popup{
+  position: absolute;
+  top: 30px;
+  left: 0;
+  width: 160px;
+  background: #fff;
+  border: 1px solid #d5dbe3;
+  border-radius: .8rem;
+  box-shadow: 0 .2rem .6rem rgba(0,0,0,.12);
+  padding: 8px;
+  display: none;
+  z-index: 9999;
+}
+
+.status-action-form{
+  margin: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+}
+
+.popup-btn{
+  display: block;
+  width: 100%;
+  border: none;
+  background: transparent;
+  text-align: left;
+  padding: 10px 10px;
+  border-radius: .6rem;
+  color:#0A4A7A;
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+}
+.popup-btn:hover{ background:#f1f4f8; }
+
+/* accordion detail (관리 리스트 내부) */
+.detail-row td{
+  background:#fafafa;
+  border-bottom: 1px solid #eee;
+  text-align: left;
+}
+.detail-inner{ padding: 14px 10px; }
+
+.detail-meta{
+  display:flex;
+  flex-wrap: wrap;
+  gap: 12px;
+  font-size: 13px;
+  color:#333;
+  margin-bottom: 10px;
+}
+.detail-title{
+  font-size: 18px;
+  font-weight: 900;
+  color:#111;
+  margin-bottom: 12px;
+}
+.detail-body{
+  display:flex;
+  gap:12px;
+  flex-wrap: wrap;
+}
+
+.question-box, .answer-box{
+  flex: 1;
+  min-width: 320px;
+  background:#fff;
+  border:1px solid #e9edf2;
+  border-radius: .8rem;
+  padding: 12px;
+}
+.box-title{ font-weight: 900; margin-bottom: 8px; }
+.box-content{
+  white-space: pre-wrap;
+  line-height: 1.6;
+  color:#222;
+  font-size:14px;
+}
+
+.answer-form textarea{
+  width:100%;
+  border:1px solid #d5dbe3;
+  border-radius:10px;
+  padding:10px 12px;
+  font-size:14px;
+  resize:vertical;
+  margin-bottom:8px;
+}
+
+.status-inline{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin: 8px 0 12px;
+}
+.status-label{ font-weight: 900; color:#333; }
+
+/* =========================
+   ✅ 버튼 통일 (여기부터가 핵심 수정)
+   - 수정/삭제: 크기/모양 동일
+   - 삭제: 빨간색만 다르게
+========================= */
+
+/* 공통 큰 버튼 베이스 (수정/삭제 같이 사용) */
+.btn-primary,
+.btn-danger{
+  border: none;
+  padding: 10px 14px;
+  border-radius: 10px;
+  font-weight: 900;
+  cursor: pointer;
+  white-space: nowrap;
+  height: 44px;
+  line-height: 1;
+
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+
+  /* 버튼 너비가 글자에 따라 들쭉날쭉해 보이면 아래 주석 해제 */
+  /* min-width: 84px; */
+}
+
+/* 수정(파랑) */
+.btn-primary{
+  background:#0A4A7A;
+  color:#fff;
+}
+
+/* 삭제(빨강) - 모양은 동일, 색만 변경 */
+.btn-danger{
+  background:#dc3545;
+  color:#fff;
+}
+
+/* hover */
+.btn-primary:hover{ filter: brightness(0.95); }
+.btn-danger:hover{ filter: brightness(0.95); }
+
+/* 작은 버튼 (기존 유지) */
+.btn-mini{
+  border:1px solid #d5dbe3;
+  background:#fff;
+  padding:6px 10px;
+  border-radius:10px;
+  font-weight:800;
+  cursor:pointer;
+  white-space:nowrap;
+  height: 32px;
+}
+.btn-mini.danger{ border-color:#dc3545; color:#dc3545; }
+.btn-mini.danger:hover{ background:#dc3545; color:#fff; }
+
+.no-permission{ margin-top: 10px; font-weight: 900; color:#666; }
+.btn-row{ display:flex; align-items:center; gap:10px; margin-top: 8px; }
+
+/* pagination */
 .admin-qna-container .pagination{
   display:flex;
   justify-content:center;
   align-items:center;
-  gap:.6rem;
-  margin: 1.6rem 0;
+  gap: 8px;
+  margin: 18px 0;
   flex-wrap: wrap;
 }
 .admin-qna-container .page-link,
 .admin-qna-container .page-number a{
-  padding:.7rem 1.05rem;
-  border:1px solid #d5dbe3;
-  border-radius:.6rem;
+  padding: 8px 12px;
+  border: 1px solid #d5dbe3;
+  border-radius: 10px;
   text-decoration:none;
   color:#0A4A7A;
-  font-weight:800;
+  font-weight: 800;
+  background:#fff;
 }
 .admin-qna-container .page-number strong{
-  padding:.7rem 1.05rem;
-  border-radius:.6rem;
+  padding: 8px 12px;
+  border-radius: 10px;
   background:#0A4A7A;
   color:#fff;
-  font-weight:900;
+  font-weight: 900;
 }
 
 .admin-qna-container .summary-total{
   text-align:center;
   color:#666;
-  font-size:1.4rem;
-  margin-top:1rem;
+  font-size: 14px;
+  margin-top: 10px;
 }
 
-/* detail panel (피그마 느낌: 하단에서 수정) */
-.admin-qna-container .detail-wrap{
-  margin-top: 1.6rem;
-  background:#fff;
-  border-radius:.8rem;
-  box-shadow:0 .2rem .6rem rgba(0,0,0,.08);
-  padding: 1.6rem;
-}
-.admin-qna-container .detail-head{
-  display:flex;
-  justify-content:space-between;
-  align-items:flex-start;
-  gap: 1rem;
-  border-bottom:1px solid #eee;
-  padding-bottom: 1rem;
-  margin-bottom: 1rem;
-  flex-wrap: wrap;
-}
-.admin-qna-container .meta{
-  display:flex;
-  gap:1.2rem;
-  flex-wrap:wrap;
-  font-size:1.3rem;
-  color:#333;
-}
-.admin-qna-container .qtitle{
-  margin-top:.6rem;
-  font-size:1.8rem;
-  font-weight:900;
-  color:#111;
-}
-
-.admin-qna-container .status-form{
-  display:flex;
-  gap:.6rem;
-  align-items:center;
-  flex-wrap: wrap;
-}
-.admin-qna-container .status-select{
-  padding:.6rem 1rem;
-  border:1px solid #d5dbe3;
-  border-radius:.6rem;
-  font-weight:900;
-}
-.admin-qna-container .btn-mini{
-  border:1px solid #d5dbe3;
-  background:#fff;
-  padding:.6rem 1rem;
-  border-radius:.6rem;
-  font-weight:900;
-  cursor:pointer;
-  white-space:nowrap;
-}
-.admin-qna-container .btn-mini.danger{
-  border-color:#dc3545;
-  color:#dc3545;
-}
-.admin-qna-container .btn-mini.danger:hover{
-  background:#dc3545;
-  color:#fff;
-}
-
-.admin-qna-container .detail-body{
-  display:flex;
-  gap:1.2rem;
-  flex-wrap:wrap;
-}
-.admin-qna-container .question-box,
-.admin-qna-container .answer-box{
-  flex:1;
-  min-width: 320px;
-  background:#f8f9fa;
-  border-radius:.8rem;
-  padding:1.2rem;
-}
-.admin-qna-container .box-title{
-  font-weight:900;
-  margin-bottom:.8rem;
-  color:#111;
-}
-.admin-qna-container .box-content{
-  white-space:pre-wrap;
-  line-height:1.6;
-  color:#222;
-  font-size:1.4rem;
-}
-
-.admin-qna-container .answer-form textarea{
-  width:100%;
-  border:1px solid #d5dbe3;
-  border-radius:.6rem;
-  padding:1rem;
-  font-size:1.4rem;
-  resize:vertical;
-  margin-bottom:.8rem;
-}
-.admin-qna-container .check{
-  display:flex;
-  gap:.6rem;
-  align-items:center;
-  font-size:1.3rem;
-  color:#333;
-  margin-bottom:.8rem;
-}
-.admin-qna-container .btn-primary{
-  background:#0A4A7A;
-  color:#fff;
-  border:none;
-  padding:.9rem 1.4rem;
-  border-radius:.6rem;
-  font-weight:900;
-  cursor:pointer;
-  float:right;
-  white-space:nowrap;
-}
-
-/* mobile */
+/* responsive */
 @media (max-width: 1024px){
-  .admin-qna-container{
-    margin-left:0;
-    max-width:100%;
-    padding:1.2rem;
+  .admin-content-inner{
+    max-width: 100%;
+    padding: 0 12px;
   }
+  .admin-qna-container{ padding: 14px 0; }
+
+  .admin-qna-container .filter-form{ flex-wrap: wrap; }
   .admin-qna-container .search-input{
-    min-width:100%;
+    flex: 1 1 100%;
+    min-width: 100%;
+  }
+  .admin-qna-container .filter-select,
+  .admin-qna-container .qnaid-select{
+    width: 100%;
+    flex: 1 1 100%;
   }
 }

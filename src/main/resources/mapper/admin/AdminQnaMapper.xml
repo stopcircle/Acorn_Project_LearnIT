@@ -6,82 +6,109 @@
 
     <sql id="latestAnswerJoin">
         LEFT JOIN (
-        SELECT a1.answer_id, a1.qna_id, a1.user_id, a1.content, a1.created_at
+        SELECT a1.*
         FROM qna_answer a1
-        INNER JOIN (
-            SELECT qna_id, MAX(created_at) AS max_created
-            FROM qna_answer
-            WHERE delete_flg = 0
-            GROUP BY qna_id
-        ) m ON a1.qna_id = m.qna_id 
-           AND a1.created_at = m.max_created 
-           AND a1.delete_flg = 0
+        JOIN (
+        SELECT qna_id, MAX(created_at) AS max_created
+        FROM qna_answer
+        WHERE delete_flg = 0
+        GROUP BY qna_id
+        ) m ON a1.qna_id = m.qna_id AND a1.created_at = m.max_created
+        WHERE a1.delete_flg = 0
         ) a ON q.qna_id = a.qna_id
         LEFT JOIN users au ON a.user_id = au.user_id
+    </sql>
+
+    <sql id="baseWhere">
+        q.delete_flg = 0
+
+        <if test="type != null and type != ''">
+            <choose>
+                <when test="type == 'SITE'">
+                    AND q.course_id IS NULL
+                </when>
+                <when test="type == 'LECTURE'">
+                    AND q.course_id IS NOT NULL
+                </when>
+            </choose>
+        </if>
+
+        <if test="status != null and status != ''">
+            <choose>
+                <when test="status == 'ACTIVE'">
+                    AND q.is_resolved = 'N'
+                </when>
+                <when test="status == 'PASS'">
+                    AND q.is_resolved = 'Y'
+                </when>
+            </choose>
+        </if>
+
+        <!-- ✅ SUB_ADMIN 전용 필터: 본인 강의만 -->
+        <if test="instructorUserId != null">
+            AND q.course_id IS NOT NULL
+            AND c.user_id = #{instructorUserId}
+        </if>
+
+        <!-- ✅ 검색 -->
+        <if test="searchField == 'QNA_ID'">
+            <if test="searchQnaId != null">
+                AND q.qna_id = #{searchQnaId}
+            </if>
+        </if>
+
+        <if test="searchField != null and searchField != '' and search != null and search != '' and searchField != 'QNA_ID'">
+            <choose>
+                <when test="searchField == 'WRITER'">
+                    AND LOWER(qu.name) LIKE CONCAT('%', LOWER(#{search}), '%')
+                </when>
+
+                <when test="searchField == 'TITLE'">
+                    AND (
+                    LOWER(IFNULL(c.title,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(IFNULL(q.title,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    )
+                </when>
+
+                <otherwise>
+                    AND (
+                    LOWER(IFNULL(q.title,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(IFNULL(q.content,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(IFNULL(qu.name,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    OR LOWER(IFNULL(c.title,'')) LIKE CONCAT('%', LOWER(#{search}), '%')
+                    )
+                </otherwise>
+            </choose>
+        </if>
     </sql>
 
     <select id="selectQnas" resultType="com.learnit.learnit.admin.qna.AdminQnaDto">
         SELECT
         q.qna_id AS qnaId,
         q.course_id AS courseId,
-        COALESCE(c.title, '') AS courseTitle,
+        c.title AS courseTitle,
 
         q.user_id AS questionUserId,
         qu.name AS questionUserName,
         qu.email AS questionUserEmail,
 
-        CASE 
-            WHEN q.content IS NULL OR q.content = '' THEN ''
-            WHEN LENGTH(q.content) > 50 THEN SUBSTRING(q.content, 1, 50)
-            ELSE q.content
-        END AS questionTitle,
+        q.title AS questionTitle,
         q.content AS questionContent,
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,
 
         a.answer_id AS answerId,
         a.user_id AS answerUserId,
-        COALESCE(au.name, '') AS answerUserName,
+        au.name AS answerUserName,
         a.content AS answerContent,
         a.created_at AS answerCreatedAt
-
         FROM qna_question q
-        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
+        LEFT JOIN course c ON q.course_id = c.course_id
         JOIN users qu ON q.user_id = qu.user_id
         <include refid="latestAnswerJoin"/>
 
         <where>
-            AND q.delete_flg = 0
-
-            <if test="type != null and type != ''">
-                <choose>
-                    <when test="type == 'SITE'">
-                        AND q.course_id IS NULL
-                    </when>
-                    <when test="type == 'LECTURE'">
-                        AND q.course_id IS NOT NULL
-                    </when>
-                </choose>
-            </if>
-
-            <if test="status != null and status != ''">
-                <choose>
-                    <when test="status == 'ACTIVE'">
-                        AND q.is_resolved = 'N'
-                    </when>
-                    <when test="status == 'PASS'">
-                        AND q.is_resolved = 'Y'
-                    </when>
-                </choose>
-            </if>
-
-            <if test="search != null and search != ''">
-                AND (
-                q.content LIKE CONCAT('%', #{search}, '%')
-                OR qu.name LIKE CONCAT('%', #{search}, '%')
-                OR c.title LIKE CONCAT('%', #{search}, '%')
-                )
-            </if>
+            <include refid="baseWhere"/>
         </where>
 
         ORDER BY q.created_at DESC
@@ -91,40 +118,10 @@
     <select id="countQnas" resultType="int">
         SELECT COUNT(*)
         FROM qna_question q
-        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
+        LEFT JOIN course c ON q.course_id = c.course_id
         JOIN users qu ON q.user_id = qu.user_id
         <where>
-            AND q.delete_flg = 0
-
-            <if test="type != null and type != ''">
-                <choose>
-                    <when test="type == 'SITE'">
-                        AND q.course_id IS NULL
-                    </when>
-                    <when test="type == 'LECTURE'">
-                        AND q.course_id IS NOT NULL
-                    </when>
-                </choose>
-            </if>
-
-            <if test="status != null and status != ''">
-                <choose>
-                    <when test="status == 'ACTIVE'">
-                        AND q.is_resolved = 'N'
-                    </when>
-                    <when test="status == 'PASS'">
-                        AND q.is_resolved = 'Y'
-                    </when>
-                </choose>
-            </if>
-
-            <if test="search != null and search != ''">
-                AND (
-                q.content LIKE CONCAT('%', #{search}, '%')
-                OR qu.name LIKE CONCAT('%', #{search}, '%')
-                OR c.title LIKE CONCAT('%', #{search}, '%')
-                )
-            </if>
+            <include refid="baseWhere"/>
         </where>
     </select>
 
@@ -132,37 +129,31 @@
         SELECT
         q.qna_id AS qnaId,
         q.course_id AS courseId,
-        COALESCE(c.title, '') AS courseTitle,
+        c.title AS courseTitle,
 
         q.user_id AS questionUserId,
         qu.name AS questionUserName,
         qu.email AS questionUserEmail,
 
-        CASE 
-            WHEN q.content IS NULL OR q.content = '' THEN ''
-            WHEN LENGTH(q.content) > 50 THEN SUBSTRING(q.content, 1, 50)
-            ELSE q.content
-        END AS questionTitle,
+        q.title AS questionTitle,
         q.content AS questionContent,
         q.created_at AS questionCreatedAt,
         q.is_resolved AS isResolved,
 
         a.answer_id AS answerId,
         a.user_id AS answerUserId,
-        COALESCE(au.name, '') AS answerUserName,
+        au.name AS answerUserName,
         a.content AS answerContent,
         a.created_at AS answerCreatedAt
-
         FROM qna_question q
-        LEFT JOIN course c ON q.course_id = c.course_id AND c.delete_flg = 0
+        LEFT JOIN course c ON q.course_id = c.course_id
         JOIN users qu ON q.user_id = qu.user_id
         <include refid="latestAnswerJoin"/>
-
         WHERE q.qna_id = #{qnaId}
         AND q.delete_flg = 0
     </select>
 
-    <select id="selectLatestAnswerId" resultType="int">
+    <select id="selectLatestAnswerId" resultType="java.lang.Integer">
         SELECT answer_id
         FROM qna_answer
         WHERE qna_id = #{qnaId}
@@ -172,8 +163,8 @@
     </select>
 
     <insert id="insertAnswer">
-        INSERT INTO qna_answer (qna_id, user_id, content, created_at, updated_at, delete_flg)
-        VALUES (#{qnaId}, #{userId}, #{content}, NOW(), NOW(), 0)
+        INSERT INTO qna_answer (qna_id, user_id, parent_answer_id, content, created_at, updated_at, delete_flg)
+        VALUES (#{qnaId}, #{userId}, NULL, #{content}, NOW(), NOW(), 0)
     </insert>
 
     <update id="updateAnswer">
@@ -190,21 +181,26 @@
         WHERE qna_id = #{qnaId}
     </update>
 
-    <delete id="deleteAnswersByQnaId">
-        DELETE FROM qna_answer WHERE qna_id = #{qnaId}
-    </delete>
-
-    <delete id="deleteQuestionById">
-        DELETE FROM qna_question WHERE qna_id = #{qnaId}
-    </delete>
-
-    <select id="selectNextQnaId" resultType="int">
-        SELECT IFNULL(MAX(qna_id), 0) + 1
-        FROM qna_question
-    </select>
-
-    <update id="resetQnaAutoIncrement">
-        ALTER TABLE qna_question AUTO_INCREMENT = ${nextId}
+    <update id="softDeleteAnswersByQnaId">
+        UPDATE qna_answer
+        SET delete_flg = 1,
+        updated_at = NOW()
+        WHERE qna_id = #{qnaId}
     </update>
+
+    <update id="softDeleteQuestionById">
+        UPDATE qna_question
+        SET delete_flg = 1,
+        updated_at = NOW()
+        WHERE qna_id = #{qnaId}
+    </update>
+
+    <!-- ✅ 추가: 강사(강의 소유자) 조회 -->
+    <select id="selectInstructorUserIdByCourseId" resultType="java.lang.Long">
+        SELECT user_id
+        FROM course
+        WHERE course_id = #{courseId}
+        LIMIT 1
+    </select>
 
 </mapper>
