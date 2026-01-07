@@ -47,6 +47,10 @@
         <where>
             q.delete_flg = 0
 
+            <if test="qnaId != null">
+                AND q.qna_id = #{qnaId}
+            </if>
+
             <if test="type != null and type != ''">
                 <choose>
                     <when test="type == 'SITE'">
@@ -90,6 +94,10 @@
         JOIN users qu ON q.user_id = qu.user_id
         <where>
             q.delete_flg = 0
+
+            <if test="qnaId != null">
+                AND q.qna_id = #{qnaId}
+            </if>
 
             <if test="type != null and type != ''">
                 <choose>
@@ -148,12 +156,10 @@
         LEFT JOIN course c ON q.course_id = c.course_id
         JOIN users qu ON q.user_id = qu.user_id
         <include refid="latestAnswerJoin"/>
-
         WHERE q.qna_id = #{qnaId}
         AND q.delete_flg = 0
     </select>
 
-    <!-- ✅✅ 핵심: 없으면 NULL 가능 → Integer -->
     <select id="selectLatestAnswerId" resultType="java.lang.Integer">
         SELECT answer_id
         FROM qna_answer
@@ -182,7 +188,6 @@
         WHERE qna_id = #{qnaId}
     </update>
 
-    <!-- ✅✅ 삭제는 소프트 삭제로 통일 -->
     <update id="softDeleteAnswersByQnaId">
         UPDATE qna_answer
         SET delete_flg = 1,
@@ -196,5 +201,49 @@
         updated_at = NOW()
         WHERE qna_id = #{qnaId}
     </update>
+
+    <!-- ✅ qnaId 드롭다운 옵션 -->
+    <select id="selectQnaIds" resultType="int">
+        SELECT q.qna_id
+        FROM qna_question q
+        LEFT JOIN course c ON q.course_id = c.course_id
+        JOIN users qu ON q.user_id = qu.user_id
+        <where>
+            q.delete_flg = 0
+
+            <if test="type != null and type != ''">
+                <choose>
+                    <when test="type == 'SITE'">
+                        AND q.course_id IS NULL
+                    </when>
+                    <when test="type == 'LECTURE'">
+                        AND q.course_id IS NOT NULL
+                    </when>
+                </choose>
+            </if>
+
+            <if test="status != null and status != ''">
+                <choose>
+                    <when test="status == 'ACTIVE'">
+                        AND q.is_resolved = 'N'
+                    </when>
+                    <when test="status == 'PASS'">
+                        AND q.is_resolved = 'Y'
+                    </when>
+                </choose>
+            </if>
+
+            <if test="search != null and search != ''">
+                AND (
+                q.title LIKE CONCAT('%', #{search}, '%')
+                OR q.content LIKE CONCAT('%', #{search}, '%')
+                OR qu.name LIKE CONCAT('%', #{search}, '%')
+                OR c.title LIKE CONCAT('%', #{search}, '%')
+                )
+            </if>
+        </where>
+        ORDER BY q.qna_id DESC
+        LIMIT 200
+    </select>
 
 </mapper>

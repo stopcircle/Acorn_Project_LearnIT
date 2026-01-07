@@ -12,48 +12,48 @@ public class AdminQnaService {
 
     private final AdminQnaRepository repo;
 
-    public List<AdminQnaDto> getQnas(int page, int size, String type, String status, String search) {
-        int offset = (page - 1) * size;
-        return repo.selectQnas(offset, size, type, status, search);
+    public int getTotalCount(String type, String status, String search, Integer qnaId) {
+        return repo.countQnas(type, status, search, qnaId);
     }
 
-    public int getTotalCount(String type, String status, String search) {
-        return repo.countQnas(type, status, search);
+    public List<AdminQnaDto> getList(String type, String status, String search, Integer qnaId, int offset, int size) {
+        return repo.selectQnas(offset, size, type, status, search, qnaId);
     }
 
     public AdminQnaDto getDetail(int qnaId) {
         return repo.selectQnaDetail(qnaId);
     }
 
-    @Transactional
-    public void saveAnswer(int qnaId, int adminUserId, String content, boolean markResolved) {
-        if (content == null || content.isBlank())
-            throw new IllegalArgumentException("답변 내용을 입력하세요.");
+    public List<Integer> getQnaIdOptions(String type, String status, String search) {
+        return repo.selectQnaIds(type, status, search);
+    }
 
+    @Transactional
+    public void saveAnswerAndStatus(int qnaId, long adminUserId, String content, String newStatus) {
         Integer answerId = repo.selectLatestAnswerId(qnaId);
 
-        if (answerId == null) {
-            repo.insertAnswer(qnaId, adminUserId, content);
-        } else {
-            repo.updateAnswer(answerId, content);
+        // ✅ 답변 업서트
+        if (content != null) {
+            String trimmed = content.trim();
+            if (!trimmed.isEmpty()) {
+                if (answerId == null) {
+                    repo.insertAnswer(qnaId, adminUserId, trimmed);
+                } else {
+                    repo.updateAnswer(answerId, trimmed);
+                }
+            }
         }
 
-        if (markResolved) {
+        // ✅ 상태 반영 (PASS => Y, ACTIVE => N)
+        if ("PASS".equalsIgnoreCase(newStatus)) {
             repo.updateResolved(qnaId, "Y");
+        } else if ("ACTIVE".equalsIgnoreCase(newStatus)) {
+            repo.updateResolved(qnaId, "N");
         }
     }
 
     @Transactional
-    public void updateStatus(int qnaId, String uiStatus) {
-        if (uiStatus == null || uiStatus.isBlank())
-            throw new IllegalArgumentException("상태값이 없습니다.");
-
-        String isResolved = "PASS".equalsIgnoreCase(uiStatus) ? "Y" : "N";
-        repo.updateResolved(qnaId, isResolved);
-    }
-
-    @Transactional
-    public void deleteQna(int qnaId) {
+    public void delete(int qnaId) {
         repo.softDeleteAnswersByQnaId(qnaId);
         repo.softDeleteQuestionById(qnaId);
     }

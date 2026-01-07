@@ -3,11 +3,73 @@
       th:replace="~{layout/admin-layout :: layout(
         ~{::title},
         ~{::content},
-        ~{::css}
+        ~{::css},
+        ~{::script}
       )}">
 
 <th:block th:fragment="css">
     <link rel="stylesheet" th:href="@{/css/admin/qna.css}">
+</th:block>
+
+<th:block th:fragment="script">
+    <script>
+        document.addEventListener("DOMContentLoaded", () => {
+
+          // 1) 행 클릭 → 아코디언 토글
+          document.querySelectorAll("tr.main-row").forEach(row => {
+            row.addEventListener("click", (e) => {
+              const tag = (e.target.tagName || "").toLowerCase();
+              // 폼 요소/클릭영역은 아코디언 토글 막기
+              if (["button","a","select","textarea","input","label","option","form"].includes(tag)) return;
+
+              const detail = row.nextElementSibling;
+              if (!detail || !detail.classList.contains("detail-row")) return;
+
+              detail.style.display = (detail.style.display === "table-row") ? "none" : "table-row";
+            });
+          });
+
+          // 2) 구분 필터 팝업
+          document.querySelectorAll(".filter-icon").forEach(icon => {
+            icon.addEventListener("click", (e) => {
+              e.stopPropagation();
+              const key = icon.dataset.key;
+              const popup = document.querySelector(`.filter-popup[data-popup="${key}"]`);
+              if (!popup) return;
+
+              document.querySelectorAll(".filter-popup").forEach(p => {
+                if (p !== popup) p.style.display = "none";
+              });
+
+              popup.style.display = (popup.style.display === "block") ? "none" : "block";
+            });
+          });
+
+          // 3) ✅ 상태 배지 클릭 → "해당 행 상태 변경" 팝업 토글 (필터 X)
+          document.querySelectorAll(".status-badge-wrap").forEach(wrap => {
+            const badge = wrap.querySelector(".status-badge-click");
+            const popup = wrap.querySelector(".status-action-popup");
+            if (!badge || !popup) return;
+
+            badge.addEventListener("click", (e) => {
+              e.stopPropagation();
+              document.querySelectorAll(".status-action-popup").forEach(p => {
+                if (p !== popup) p.style.display = "none";
+              });
+              popup.style.display = (popup.style.display === "block") ? "none" : "block";
+            });
+
+            // 팝업 내부 클릭은 바깥클릭 닫기 방지
+            popup.addEventListener("click", (e) => e.stopPropagation());
+          });
+
+          // 바깥 클릭시 닫기
+          document.addEventListener("click", () => {
+            document.querySelectorAll(".filter-popup").forEach(p => p.style.display = "none");
+            document.querySelectorAll(".status-action-popup").forEach(p => p.style.display = "none");
+          });
+        });
+    </script>
 </th:block>
 
 <head>
@@ -22,40 +84,37 @@
         <div th:if="${successMessage}" class="alert alert-success" th:text="${successMessage}"></div>
         <div th:if="${errorMessage}" class="alert alert-error" th:text="${errorMessage}"></div>
 
+        <!-- 상단 검색 영역 -->
         <div class="filters">
             <form method="get" th:action="@{/admin/qna}" class="filter-form">
 
-                <!-- ✅ SUB_ADMIN이면 type 강제(LECTURE) -->
-                <th:block th:if="${isSubAdmin}">
-
-                    <input type="hidden" name="type" value="LECTURE"/>
-
-                    <span style="font-weight:900; color:#0A4A7A;">강의 Q&A만 열람 가능</span>
-                </th:block>
-
-                <!-- ✅ ADMIN이면 구분 선택 가능 -->
-                <th:block th:if="${isAdmin}">
-                    <select name="type" class="filter-select">
-                        <option value="">구분 전체</option>
-                        <option value="LECTURE" th:selected="${currentType == 'LECTURE'}">강의 Q&A</option>
-                        <option value="SITE" th:selected="${currentType == 'SITE'}">전체 Q&A</option>
-                    </select>
-                </th:block>
-
-                <select name="status" class="filter-select">
-                    <option value="">상태 전체</option>
-                    <option value="ACTIVE" th:selected="${currentStatus == 'ACTIVE'}">ACTIVE(대기)</option>
-                    <option value="PASS" th:selected="${currentStatus == 'PASS'}">PASS(처리)</option>
+                <!-- ✅ Q&A번호: 드롭다운 -->
+                <select name="qnaId" class="qnaid-select">
+                    <option value="" th:selected="${qnaIdFilter == null}">Q&A번호</option>
+                    <option th:each="id : ${qnaIdOptions}"
+                            th:value="${id}"
+                            th:text="${id}"
+                            th:selected="${qnaIdFilter != null and qnaIdFilter == id}">
+                    </option>
                 </select>
 
+                <!-- type/status 유지 -->
+                <input type="hidden" name="type" th:value="${currentType}">
+                <input type="hidden" name="status" th:value="${currentStatus}">
+
                 <input type="text" name="search" class="search-input"
-                       placeholder="강의명/작성자/제목/내용 검색" th:value="${searchKeyword}">
+                       placeholder="강의명/작성자/제목/내용 검색"
+                       th:value="${searchKeyword}">
 
                 <input type="hidden" name="page" value="1">
                 <input type="hidden" name="size" th:value="${pageSize}">
 
                 <button type="submit" class="btn-search">검색</button>
                 <a th:href="@{/admin/qna(size=${pageSize})}" class="btn-reset">초기화</a>
+
+                <th:block th:if="${isSubAdmin and !isAdmin}">
+                    <span class="role-hint">SUB_ADMIN: 강의 Q&A만 처리 가능</span>
+                </th:block>
             </form>
         </div>
 
@@ -63,190 +122,191 @@
             <table class="qna-table">
                 <thead>
                 <tr>
-                    <th>구분</th>
+                    <!-- 구분 + 필터 -->
+                    <th class="th-filter">
+                        구분
+                        <span class="filter-icon" data-key="type">🔽</span>
+                        <div class="filter-popup" data-popup="type">
+                            <a class="popup-link"
+                               th:href="@{/admin/qna(page=1,size=${pageSize},type=LECTURE,status=${currentStatus},search=${searchKeyword},qnaId=${qnaIdFilter})}">
+                                강의 Q&A
+                            </a>
+
+                            <a class="popup-link"
+                               th:href="@{/admin/qna(page=1,size=${pageSize},type=SITE,status=${currentStatus},search=${searchKeyword},qnaId=${qnaIdFilter})}"
+                               th:if="${isAdmin}">
+                                전체 Q&A
+                            </a>
+
+                            <a class="popup-link"
+                               th:href="@{/admin/qna(page=1,size=${pageSize},type=,status=${currentStatus},search=${searchKeyword},qnaId=${qnaIdFilter})}"
+                               th:if="${isAdmin}">
+                                전체(강의+전체)
+                            </a>
+                        </div>
+                    </th>
+
                     <th>Q&A번호</th>
-                    <th>강좌ID</th>
-                    <th>강좌명</th>
+                    <th>강좌명/제목</th>
                     <th>작성자</th>
-                    <th>Q&A 상태</th>
-                    <th>요약</th>
+                    <th>상태</th>
                     <th>등록일</th>
                 </tr>
                 </thead>
 
                 <tbody>
-                <tr th:each="q : ${qnas}">
-                    <td th:text="${q.typeLabel}">강의 Q&A</td>
+                <th:block th:each="q : ${qnas}">
 
-                    <td>
-                        <a class="link"
-                           th:href="@{/admin/qna(
-                                selectedId=${q.qnaId},
-                                type=${currentType},
-                                status=${currentStatus},
-                                search=${searchKeyword},
-                                page=${currentPage},
-                                size=${pageSize}
-                           )}"
-                           th:text="${q.qnaId}">1</a>
-                    </td>
+                    <!-- 메인 행 -->
+                    <tr class="main-row">
+                        <td th:text="${q.typeLabel}">강의 Q&A</td>
+                        <td th:text="${q.qnaId}">1</td>
 
-                    <td th:text="${q.courseId != null ? q.courseId : '-'}">-</td>
+                        <td class="title-cell"
+                            th:text="${q.courseId != null
+                                    ? (q.courseTitle + ' / ' + (q.questionTitle != null ? q.questionTitle : '(제목없음)'))
+                                    : (q.questionTitle != null ? q.questionTitle : '전체 Q&A')}">
+                            -
+                        </td>
 
-                    <td>
-                        <a class="link"
-                           th:href="@{/admin/qna(
-                                selectedId=${q.qnaId},
-                                type=${currentType},
-                                status=${currentStatus},
-                                search=${searchKeyword},
-                                page=${currentPage},
-                                size=${pageSize}
-                           )}"
-                           th:text="${q.courseTitle != null ? q.courseTitle : '-'}">-</a>
-                    </td>
+                        <td th:text="${q.questionUserName}">작성자</td>
 
-                    <td th:text="${q.questionUserName}">작성자</td>
+                        <!-- ✅ 상태 배지 클릭 → 해당 row 상태만 변경 (필터 X) -->
+                        <td>
+                            <div class="status-badge-wrap"
+                                 th:classappend="${isAdmin or isSubAdmin} ? 'can-click' : ''">
 
-                    <td>
-                        <span class="badge"
-                              th:classappend="${q.statusLabel == 'ACTIVE'} ? 'badge-active' : 'badge-pass'"
-                              th:text="${q.statusLabel}"></span>
-                    </td>
+                                <span class="badge status-badge-click"
+                                      th:classappend="${q.statusLabel == 'ACTIVE'} ? 'badge-active' : 'badge-pass'"
+                                      th:text="${q.statusLabel}">
+                                </span>
 
-                    <td class="summary"
-                        th:text="${q.questionContent != null ? #strings.abbreviate(q.questionContent, 30) : '-'}">요약</td>
+                                <!-- ✅ 권한 있을 때만: 상태 변경 팝업 -->
+                                <div class="status-action-popup" th:if="${isAdmin or (isSubAdmin and q.courseId != null)}">
+                                    <form th:action="@{'/admin/qna/' + ${q.qnaId} + '/status'}" method="post" class="status-action-form">
+                                        <input type="hidden" name="type" th:value="${currentType}">
+                                        <input type="hidden" name="status" th:value="${currentStatus}">
+                                        <input type="hidden" name="search" th:value="${searchKeyword}">
+                                        <input type="hidden" name="qnaId" th:value="${qnaIdFilter}">
+                                        <input type="hidden" name="page" th:value="${currentPage}">
+                                        <input type="hidden" name="size" th:value="${pageSize}">
 
-                    <td th:text="${q.questionCreatedAt != null ? #temporals.format(q.questionCreatedAt,'yyyy-MM-dd') : '-'}">-</td>
-                </tr>
+                                        <button type="submit" name="newStatus" value="ACTIVE" class="popup-btn">
+                                            ACTIVE로 변경
+                                        </button>
+                                        <button type="submit" name="newStatus" value="PASS" class="popup-btn">
+                                            PASS로 변경
+                                        </button>
+                                    </form>
+                                </div>
+                            </div>
+                        </td>
+
+                        <td th:text="${q.questionCreatedAt != null ? #temporals.format(q.questionCreatedAt,'yyyy-MM-dd') : '-'}">-</td>
+                    </tr>
+
+                    <!-- 상세 아코디언 행 -->
+                    <tr class="detail-row" style="display:none;">
+                        <td colspan="6">
+                            <div class="detail-inner">
+                                <div class="detail-meta">
+                                    <span><b>구분</b> : <span th:text="${q.typeLabel}"></span></span>
+                                    <span><b>작성자</b> : <span th:text="${q.questionUserName}"></span></span>
+                                    <span><b>이메일</b> : <span th:text="${q.questionUserEmail}"></span></span>
+                                    <span th:if="${q.courseTitle != null}">
+                                        <b>강의</b> : <span th:text="${q.courseTitle}"></span>
+                                    </span>
+                                </div>
+
+                                <div class="detail-title" th:text="${q.questionTitle != null ? q.questionTitle : '(제목없음)'}"></div>
+
+                                <div class="detail-body">
+                                    <div class="question-box">
+                                        <div class="box-title">질문</div>
+                                        <div class="box-content" th:text="${q.questionContent}">질문 내용</div>
+                                    </div>
+
+                                    <div class="answer-box">
+                                        <div class="box-title">답변</div>
+
+                                        <th:block th:if="${isAdmin or (isSubAdmin and q.courseId != null)}">
+                                            <form th:action="@{'/admin/qna/' + ${q.qnaId} + '/save'}"
+                                                  method="post" class="answer-form">
+
+                                                <textarea name="content" rows="6"
+                                                          placeholder="답변을 입력하세요"
+                                                          th:text="${q.answerContent}"></textarea>
+
+                                                <div class="status-inline">
+                                                    <label class="status-label">상태</label>
+                                                    <select name="newStatus" class="status-select">
+                                                        <option value="ACTIVE" th:selected="${q.statusLabel == 'ACTIVE'}">ACTIVE</option>
+                                                        <option value="PASS" th:selected="${q.statusLabel == 'PASS'}">PASS</option>
+                                                    </select>
+                                                </div>
+
+                                                <input type="hidden" name="type" th:value="${currentType}">
+                                                <input type="hidden" name="status" th:value="${currentStatus}">
+                                                <input type="hidden" name="search" th:value="${searchKeyword}">
+                                                <input type="hidden" name="qnaId" th:value="${qnaIdFilter}">
+                                                <input type="hidden" name="page" th:value="${currentPage}">
+                                                <input type="hidden" name="size" th:value="${pageSize}">
+
+                                                <div class="btn-row">
+                                                    <button type="submit" class="btn-primary">수정</button>
+
+                                                    <button type="submit"
+                                                            class="btn-mini danger"
+                                                            th:formaction="@{'/admin/qna/' + ${q.qnaId} + '/delete'}"
+                                                            formmethod="post"
+                                                            onclick="return confirm('정말 삭제하시겠습니까?');">
+                                                        삭제
+                                                    </button>
+                                                </div>
+                                            </form>
+                                        </th:block>
+
+                                        <th:block th:if="${!(isAdmin or (isSubAdmin and q.courseId != null))}">
+                                            <div class="box-content"
+                                                 th:text="${q.answerContent != null ? q.answerContent : '등록된 답변이 없습니다.'}"></div>
+                                            <div class="no-permission">권한이 없습니다.</div>
+                                        </th:block>
+
+                                    </div>
+                                </div>
+                            </div>
+                        </td>
+                    </tr>
+
+                </th:block>
 
                 <tr th:if="${qnas == null or #lists.isEmpty(qnas)}">
-                    <td colspan="8" class="empty">Q&A가 없습니다.</td>
+                    <td colspan="6" class="empty">Q&A가 없습니다.</td>
                 </tr>
                 </tbody>
             </table>
         </div>
 
+        <!-- 페이징 -->
         <div class="pagination" th:if="${totalPages > 1}">
             <a th:if="${startPage > 1}"
-               th:href="@{/admin/qna(page=${startPage-1}, size=${pageSize}, type=${currentType}, status=${currentStatus}, search=${searchKeyword})}"
+               th:href="@{/admin/qna(page=${startPage-1}, size=${pageSize}, type=${currentType}, status=${currentStatus}, search=${searchKeyword}, qnaId=${qnaIdFilter})}"
                class="page-link">이전</a>
 
             <span th:each="i : ${#numbers.sequence(startPage, endPage)}" class="page-number">
                 <a th:if="${i != currentPage}"
-                   th:href="@{/admin/qna(page=${i}, size=${pageSize}, type=${currentType}, status=${currentStatus}, search=${searchKeyword})}"
+                   th:href="@{/admin/qna(page=${i}, size=${pageSize}, type=${currentType}, status=${currentStatus}, search=${searchKeyword}, qnaId=${qnaIdFilter})}"
                    th:text="${i}">1</a>
                 <strong th:if="${i == currentPage}" th:text="${i}">1</strong>
             </span>
 
             <a th:if="${endPage < totalPages}"
-               th:href="@{/admin/qna(page=${endPage+1}, size=${pageSize}, type=${currentType}, status=${currentStatus}, search=${searchKeyword})}"
+               th:href="@{/admin/qna(page=${endPage+1}, size=${pageSize}, type=${currentType}, status=${currentStatus}, search=${searchKeyword}, qnaId=${qnaIdFilter})}"
                class="page-link">다음</a>
         </div>
 
         <div class="summary-total">
             총 <strong th:text="${totalCount}">0</strong>개
-        </div>
-
-        <!-- ✅ 하단 상세 패널 -->
-        <div class="detail-wrap" th:if="${selectedQna != null}">
-            <div class="detail-head">
-                <div>
-                    <div class="meta">
-                        <span><b>구분</b> : <span th:text="${selectedQna.typeLabel}"></span></span>
-                        <span><b>작성자</b> : <span th:text="${selectedQna.questionUserName}"></span></span>
-                        <span><b>이메일</b> : <span th:text="${selectedQna.questionUserEmail}"></span></span>
-                        <span th:if="${selectedQna.courseTitle != null}">
-                            <b>강의</b> : <span th:text="${selectedQna.courseTitle}"></span>
-                        </span>
-                    </div>
-                    <div class="qtitle"
-                         th:text="${selectedQna.questionTitle != null ? selectedQna.questionTitle : '(제목없음)'}"></div>
-                </div>
-
-                <!-- ✅ 삭제는 ADMIN만 -->
-                <div class="detail-actions" th:if="${isAdmin}">
-                    <form th:action="@{'/admin/qna/' + ${selectedQna.qnaId} + '/delete'}"
-                          method="post"
-                          onsubmit="return confirm('정말 삭제하시겠습니까?');">
-                        <input type="hidden" name="type" th:value="${currentType}">
-                        <input type="hidden" name="status" th:value="${currentStatus}">
-                        <input type="hidden" name="search" th:value="${searchKeyword}">
-                        <input type="hidden" name="page" th:value="${currentPage}">
-                        <input type="hidden" name="size" th:value="${pageSize}">
-                        <button type="submit" class="btn-mini danger">삭제</button>
-                    </form>
-                </div>
-            </div>
-
-            <!-- ✅ 상태변경은 ADMIN만 -->
-            <form th:if="${isAdmin}"
-                  th:action="@{'/admin/qna/' + ${selectedQna.qnaId} + '/status'}"
-                  method="post"
-                  class="status-form"
-                  style="margin-bottom:12px;">
-                <select name="status" class="status-select">
-                    <option value="ACTIVE" th:selected="${selectedQna.statusLabel == 'ACTIVE'}">ACTIVE</option>
-                    <option value="PASS" th:selected="${selectedQna.statusLabel == 'PASS'}">PASS</option>
-                </select>
-                <button type="submit" class="btn-mini">상태변경</button>
-
-                <input type="hidden" name="type" th:value="${currentType}">
-                <input type="hidden" name="statusFilter" th:value="${currentStatus}">
-                <input type="hidden" name="search" th:value="${searchKeyword}">
-                <input type="hidden" name="page" th:value="${currentPage}">
-                <input type="hidden" name="size" th:value="${pageSize}">
-            </form>
-
-            <!-- ✅ SUB_ADMIN이면 안내 -->
-            <div th:if="${isSubAdmin}" style="margin:0 0 12px 0; color:#666; font-weight:700;">
-                SUB_ADMIN은 열람만 가능합니다. (답변/상태변경/삭제 불가)
-            </div>
-
-            <div class="detail-body">
-                <div class="question-box">
-                    <div class="box-title">질문</div>
-                    <div class="box-content" th:text="${selectedQna.questionContent}">질문 내용</div>
-                </div>
-
-                <div class="answer-box">
-                    <div class="box-title">답변</div>
-
-                    <!-- ✅ 답변 저장은 ADMIN만 -->
-                    <form th:if="${isAdmin}"
-                          th:action="@{'/admin/qna/' + ${selectedQna.qnaId} + '/answer'}"
-                          method="post"
-                          class="answer-form">
-                        <textarea name="content" rows="6"
-                                  placeholder="답변을 입력하세요"
-                                  th:text="${selectedQna.answerContent}"></textarea>
-
-                        <label class="check">
-                            <input type="checkbox" name="markResolved" value="true" checked>
-                            답변 저장 시 PASS 처리
-                        </label>
-
-                        <input type="hidden" name="type" th:value="${currentType}">
-                        <input type="hidden" name="status" th:value="${currentStatus}">
-                        <input type="hidden" name="search" th:value="${searchKeyword}">
-                        <input type="hidden" name="page" th:value="${currentPage}">
-                        <input type="hidden" name="size" th:value="${pageSize}">
-
-                        <button type="submit" class="btn-primary">수정/완료</button>
-                    </form>
-
-                    <!-- ✅ SUB_ADMIN은 읽기용으로 답변만 표시 -->
-                    <div th:if="${isSubAdmin}" class="box-content"
-                         th:text="${selectedQna.answerContent != null ? selectedQna.answerContent : '등록된 답변이 없습니다.'}">
-                        -
-                    </div>
-                </div>
-            </div>
-
-            <div style="margin-top: 14px;">
-                <a th:href="@{/admin/qna(type=${currentType}, status=${currentStatus}, search=${searchKeyword}, page=${currentPage}, size=${pageSize})}"
-                   class="btn-reset">선택 해제</a>
-            </div>
         </div>
 
     </div>

@@ -1,7 +1,7 @@
 package com.learnit.learnit.admin.qna;
 
+import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Controller;
 import org.springframework.ui.Model;
 import org.springframework.web.bind.annotation.*;
@@ -15,204 +15,213 @@ import java.util.List;
 public class AdminQnaController {
 
     private final AdminQnaService service;
+    private final AdminQnaAuth auth;
+
     private static final int PAGE_BLOCK_SIZE = 5;
-
-    private boolean isAdmin(Authentication auth) {
-        return auth != null && auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_ADMIN"));
-    }
-
-    private boolean isSubAdmin(Authentication auth) {
-        return auth != null && auth.getAuthorities().stream()
-                .anyMatch(a -> a.getAuthority().equals("ROLE_SUB_ADMIN"));
-    }
 
     @GetMapping
     public String manage(
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "7") int size,
-            @RequestParam(value = "type", required = false) String type,
-            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "type", required = false) String type,       // LECTURE / SITE / null
+            @RequestParam(value = "status", required = false) String status,   // ACTIVE / PASS / null
             @RequestParam(value = "search", required = false) String search,
-            @RequestParam(value = "selectedId", required = false) Integer selectedId,
-            Authentication auth,
-            Model model
+            @RequestParam(value = "qnaId", required = false) Integer qnaId,
+            Model model,
+            HttpSession session
     ) {
-        boolean admin = isAdmin(auth);
-        boolean subAdmin = isSubAdmin(auth);
+        boolean isAdmin = auth.isAdmin(session);
+        boolean isSubAdmin = auth.isSubAdmin(session);
 
-        // ✅ SUB_ADMIN이면 강의 Q&A만 강제
-        if (subAdmin && !admin) {
+        // ✅ 콤마(,) 같은 이상값 정리 (캡처 URL: type=%2C ...)
+        type = normalize(type);
+        status = normalize(status);
+        search = normalize(search);
+
+        // ✅ SUB_ADMIN은 무조건 강의Q&A만
+        if (isSubAdmin && !isAdmin) {
             type = "LECTURE";
         }
 
-        int totalCount = service.getTotalCount(type, status, search);
+        // ✅ size/page 보정
+        if (size < 1) size = 7;
+        if (page < 1) page = 1;
+
+        int totalCount = service.getTotalCount(type, status, search, qnaId);
         int totalPages = (int) Math.ceil((double) totalCount / size);
         if (totalPages <= 0) totalPages = 1;
-
-        if (page < 1) page = 1;
         if (page > totalPages) page = totalPages;
+
+        int offset = (page - 1) * size;
+        List<AdminQnaDto> qnas = service.getList(type, status, search, qnaId, offset, size);
 
         int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
         int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
 
-        List<AdminQnaDto> list = service.getQnas(page, size, type, status, search);
+        // ✅ qnaId 드롭다운 옵션 (현재 조건 기준)
+        List<Integer> qnaIdOptions = service.getQnaIdOptions(type, status, search);
 
-        model.addAttribute("qnas", list);
-        model.addAttribute("currentPage", page);
-        model.addAttribute("totalPages", totalPages);
-        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("qnas", qnas);
+
+        model.addAttribute("isAdmin", isAdmin);
+        model.addAttribute("isSubAdmin", isSubAdmin);
 
         model.addAttribute("currentType", type);
         model.addAttribute("currentStatus", status);
         model.addAttribute("searchKeyword", search);
-        model.addAttribute("pageSize", size);
+        model.addAttribute("qnaIdFilter", qnaId);
 
+        model.addAttribute("qnaIdOptions", qnaIdOptions);
+
+        model.addAttribute("currentPage", page);
+        model.addAttribute("pageSize", size);
+        model.addAttribute("totalCount", totalCount);
+        model.addAttribute("totalPages", totalPages);
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
-
-        // ✅ 권한 플래그 (템플릿에서 버튼/폼 제어)
-        model.addAttribute("isAdmin", admin);
-        model.addAttribute("isSubAdmin", subAdmin);
-
-        if (selectedId != null) {
-            AdminQnaDto detail = service.getDetail(selectedId);
-
-            // ✅ 존재하지 않으면 선택 해제
-            if (detail == null) {
-                model.addAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
-            } else {
-                // ✅ SUB_ADMIN이 SITE(전체Q&A) 접근하면 차단
-                if (subAdmin && !admin && detail.getCourseId() == null) {
-                    model.addAttribute("errorMessage", "SUB_ADMIN은 강의 Q&A만 열람할 수 있습니다.");
-                } else {
-                    model.addAttribute("selectedId", selectedId);
-                    model.addAttribute("selectedQna", detail);
-                }
-            }
-        }
 
         return "admin/adminQnaManage";
     }
 
-    @GetMapping("/{qnaId}")
-    public String detailRedirect(
+    // ✅ 답변+상태 저장 (수정 버튼)
+    @PostMapping("/{qnaId}/save")
+    public String save(
             @PathVariable int qnaId,
+            @RequestParam(value = "content", required = false) String content,
+            @RequestParam(value = "newStatus", defaultValue = "ACTIVE") String newStatus,
+
             @RequestParam(value = "type", required = false) String type,
             @RequestParam(value = "status", required = false) String status,
             @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "qnaId", required = false) Integer qnaIdFilter,
             @RequestParam(value = "page", defaultValue = "1") int page,
             @RequestParam(value = "size", defaultValue = "7") int size,
-            Authentication auth
+
+            RedirectAttributes ra,
+            HttpSession session
     ) {
-        // ✅ SUB_ADMIN이면 type 강제
-        if (isSubAdmin(auth) && !isAdmin(auth)) {
-            type = "LECTURE";
+        type = normalize(type);
+        status = normalize(status);
+        search = normalize(search);
+
+        Long loginUserId = auth.loginUserId(session);
+        if (loginUserId == null) {
+            ra.addFlashAttribute("errorMessage", "로그인 정보가 없습니다.");
+            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
         }
 
-        return "redirect:/admin/qna?selectedId=" + qnaId
-                + (type != null ? "&type=" + type : "")
-                + (status != null ? "&status=" + status : "")
-                + (search != null ? "&search=" + search : "")
-                + "&page=" + page
-                + "&size=" + size;
+        AdminQnaDto detail = service.getDetail(qnaId);
+        if (detail == null) {
+            ra.addFlashAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
+            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+        }
+
+        // ✅ row 권한 체크: 강의Q&A는 SUB_ADMIN 가능, 전체Q&A는 ADMIN만
+        if (!auth.canManageRow(session, detail.getCourseId())) {
+            ra.addFlashAttribute("errorMessage", "권한이 없습니다.");
+            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+        }
+
+        service.saveAnswerAndStatus(qnaId, loginUserId, content, newStatus);
+        ra.addFlashAttribute("successMessage", "저장되었습니다.");
+        return redirectList(ra, type, status, search, qnaIdFilter, page, size);
     }
-
-    // ✅ ADMIN만 가능
-    @PostMapping("/{qnaId}/answer")
-    public String saveAnswer(@PathVariable int qnaId,
-                             @RequestParam("content") String content,
-                             @RequestParam(value = "markResolved", defaultValue = "false") boolean markResolved,
-                             @RequestParam(value = "type", required = false) String type,
-                             @RequestParam(value = "status", required = false) String status,
-                             @RequestParam(value = "search", required = false) String search,
-                             @RequestParam(value = "page", defaultValue = "1") int page,
-                             @RequestParam(value = "size", defaultValue = "7") int size,
-                             Authentication auth,
-                             RedirectAttributes ra) {
-
-        if (!isAdmin(auth)) {
-            ra.addFlashAttribute("errorMessage", "권한이 없습니다. (ADMIN 전용)");
-            addListParams(ra, type, status, search, page, size, qnaId);
-            return "redirect:/admin/qna";
-        }
-
-        try {
-            int adminUserId = 4; // ✅ 임시 고정 (추후 로그인 사용자 id로 교체)
-            service.saveAnswer(qnaId, adminUserId, content, markResolved);
-            ra.addFlashAttribute("successMessage", "답변이 저장되었습니다.");
-        } catch (Exception e) {
-            ra.addFlashAttribute("errorMessage", e.getMessage());
-        }
-
-        addListParams(ra, type, status, search, page, size, qnaId);
-        return "redirect:/admin/qna";
-    }
-
-    // ✅ ADMIN만 가능
+    // ✅ 상태만 변경 (리스트에서 배지 클릭 메뉴용)
     @PostMapping("/{qnaId}/status")
-    public String updateStatus(@PathVariable int qnaId,
-                               @RequestParam("status") String uiStatus,
-                               @RequestParam(value = "type", required = false) String type,
-                               @RequestParam(value = "statusFilter", required = false) String statusFilter,
-                               @RequestParam(value = "search", required = false) String search,
-                               @RequestParam(value = "page", defaultValue = "1") int page,
-                               @RequestParam(value = "size", defaultValue = "7") int size,
-                               Authentication auth,
-                               RedirectAttributes ra) {
+    public String changeStatus(
+            @PathVariable int qnaId,
+            @RequestParam(value = "newStatus", defaultValue = "ACTIVE") String newStatus,
 
-        if (!isAdmin(auth)) {
-            ra.addFlashAttribute("errorMessage", "권한이 없습니다. (ADMIN 전용)");
-            addListParams(ra, type, statusFilter, search, page, size, qnaId);
-            return "redirect:/admin/qna";
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "qnaId", required = false) Integer qnaIdFilter,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "7") int size,
+
+            RedirectAttributes ra,
+            HttpSession session
+    ) {
+        type = normalize(type);
+        status = normalize(status);
+        search = normalize(search);
+
+        Long loginUserId = auth.loginUserId(session);
+        if (loginUserId == null) {
+            ra.addFlashAttribute("errorMessage", "로그인 정보가 없습니다.");
+            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
         }
 
-        try {
-            service.updateStatus(qnaId, uiStatus);
-            ra.addFlashAttribute("successMessage", "상태가 변경되었습니다.");
-        } catch (Exception e) {
-            ra.addFlashAttribute("errorMessage", e.getMessage());
+        AdminQnaDto detail = service.getDetail(qnaId);
+        if (detail == null) {
+            ra.addFlashAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
+            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
         }
 
-        addListParams(ra, type, statusFilter, search, page, size, qnaId);
-        return "redirect:/admin/qna";
+        if (!auth.canManageRow(session, detail.getCourseId())) {
+            ra.addFlashAttribute("errorMessage", "권한이 없습니다.");
+            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+        }
+
+        // ✅ 답변 없이 상태만 바꿈 (content=null)
+        service.saveAnswerAndStatus(qnaId, loginUserId, null, newStatus);
+        ra.addFlashAttribute("successMessage", "상태가 변경되었습니다.");
+        return redirectList(ra, type, status, search, qnaIdFilter, page, size);
     }
 
-    // ✅ ADMIN만 가능
+    // ✅ 삭제(옆 버튼)
     @PostMapping("/{qnaId}/delete")
-    public String delete(@PathVariable int qnaId,
-                         @RequestParam(value = "type", required = false) String type,
-                         @RequestParam(value = "status", required = false) String status,
-                         @RequestParam(value = "search", required = false) String search,
-                         @RequestParam(value = "page", defaultValue = "1") int page,
-                         @RequestParam(value = "size", defaultValue = "7") int size,
-                         Authentication auth,
-                         RedirectAttributes ra) {
+    public String delete(
+            @PathVariable int qnaId,
 
-        if (!isAdmin(auth)) {
-            ra.addFlashAttribute("errorMessage", "권한이 없습니다. (ADMIN 전용)");
-            addListParams(ra, type, status, search, page, size, null);
-            return "redirect:/admin/qna";
+            @RequestParam(value = "type", required = false) String type,
+            @RequestParam(value = "status", required = false) String status,
+            @RequestParam(value = "search", required = false) String search,
+            @RequestParam(value = "qnaId", required = false) Integer qnaIdFilter,
+            @RequestParam(value = "page", defaultValue = "1") int page,
+            @RequestParam(value = "size", defaultValue = "7") int size,
+
+            RedirectAttributes ra,
+            HttpSession session
+    ) {
+        type = normalize(type);
+        status = normalize(status);
+        search = normalize(search);
+
+        AdminQnaDto detail = service.getDetail(qnaId);
+        if (detail == null) {
+            ra.addFlashAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
+            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
+        }
+        if (!auth.canManageRow(session, detail.getCourseId())) {
+            ra.addFlashAttribute("errorMessage", "권한이 없습니다.");
+            return redirectList(ra, type, status, search, qnaIdFilter, page, size);
         }
 
-        try {
-            service.deleteQna(qnaId);
-            ra.addFlashAttribute("successMessage", "Q&A가 삭제되었습니다.");
-        } catch (Exception e) {
-            ra.addFlashAttribute("errorMessage", "삭제 실패: " + e.getMessage());
-        }
-
-        addListParams(ra, type, status, search, page, size, null);
-        return "redirect:/admin/qna";
+        service.delete(qnaId);
+        ra.addFlashAttribute("successMessage", "삭제되었습니다.");
+        return redirectList(ra, type, status, search, qnaIdFilter, page, size);
     }
 
-    private void addListParams(RedirectAttributes ra, String type, String status, String search,
-                               int page, int size, Integer selectedId) {
-        ra.addAttribute("page", page);
-        ra.addAttribute("size", size);
+    private String redirectList(RedirectAttributes ra,
+                                String type, String status, String search, Integer qnaId,
+                                int page, int size) {
         if (type != null && !type.isBlank()) ra.addAttribute("type", type);
         if (status != null && !status.isBlank()) ra.addAttribute("status", status);
         if (search != null && !search.isBlank()) ra.addAttribute("search", search);
-        if (selectedId != null) ra.addAttribute("selectedId", selectedId);
+        if (qnaId != null) ra.addAttribute("qnaId", qnaId);
+        ra.addAttribute("page", page);
+        ra.addAttribute("size", size);
+        return "redirect:/admin/qna";
+    }
+
+    /** null/빈값/"," 같은 이상값 정리 */
+    private String normalize(String v) {
+        if (v == null) return null;
+        String t = v.trim();
+        if (t.isEmpty()) return null;
+        if (",".equals(t)) return null;
+        return t;
     }
 }
+
