@@ -67,9 +67,7 @@ public class PaymentServiceImpl implements PaymentService{
             Long orderId = order.getOrderId();
 
             //2-2. 결제 상세 정보 저장
-            int discount = (userCoupon != null) ? userCoupon.getDiscountAmount() : 0;
-            int finalPrice = Math.max(0, request.getTotalPrice() - discount);
-
+            int finalPrice = request.getTotalPrice();
 
             PaymentDTO payment = new PaymentDTO();
             payment.setOrderId(orderId);
