@@ -24,7 +24,7 @@ public class AdminCouponController {
     public String adminCouponPage(Model model) {
         List<AdminCouponDTO> couponList = adminCouponService.getCouponList();
         model.addAttribute("coupons", couponList);
-        return "admin/admin-coupon";
+        return "admin/coupon/adminCoupon";
     }
 
     //쿠폰 목록 조회

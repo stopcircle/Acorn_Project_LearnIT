@@ -1,6 +1,6 @@
 package com.learnit.learnit.qna.controller;
 
-import com.learnit.learnit.qna.dto.CourseQnaDto;
+import com.learnit.learnit.qna.dto.CourseQnaDTO;
 import com.learnit.learnit.qna.service.CourseQnaService;
 import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
@@ -17,12 +17,12 @@ public class QnaApiController {
 
     // ✅✅ 추가: Q&A 목록 조회 (이게 없어서 405 발생)
     @GetMapping("/questions")
-    public List<CourseQnaDto.QuestionRes> list(@RequestParam Long courseId) {
+    public List<CourseQnaDTO.QuestionRes> list(@RequestParam Long courseId) {
         return courseQnaService.getQuestions(courseId);
     }
 
     @PostMapping("/questions")
-    public ResponseEntity<?> createQuestion(@RequestBody CourseQnaDto.QuestionCreateReq req) {
+    public ResponseEntity<?> createQuestion(@RequestBody CourseQnaDTO.QuestionCreateReq req) {
         try {
             courseQnaService.createQuestion(req.getCourseId(), req.getContent());
             return ResponseEntity.ok().build();
@@ -33,7 +33,7 @@ public class QnaApiController {
 
     @PutMapping("/questions/{qnaId}")
     public ResponseEntity<?> updateQuestion(@PathVariable Long qnaId,
-                                            @RequestBody CourseQnaDto.QuestionUpdateReq req) {
+                                            @RequestBody CourseQnaDTO.QuestionUpdateReq req) {
         try {
             courseQnaService.updateQuestion(qnaId, req.getContent());
             return ResponseEntity.ok().build();
@@ -54,7 +54,7 @@ public class QnaApiController {
     }
 
     @PostMapping("/answers")
-    public ResponseEntity<?> createAnswer(@RequestBody CourseQnaDto.AnswerCreateReq req,
+    public ResponseEntity<?> createAnswer(@RequestBody CourseQnaDTO.AnswerCreateReq req,
                                           @RequestParam Long courseId) {
         try {
             courseQnaService.createAnswer(req, courseId);
@@ -66,7 +66,7 @@ public class QnaApiController {
 
     @PutMapping("/answers/{answerId}")
     public ResponseEntity<?> updateAnswer(@PathVariable Long answerId,
-                                          @RequestBody CourseQnaDto.AnswerUpdateReq req,
+                                          @RequestBody CourseQnaDTO.AnswerUpdateReq req,
                                           @RequestParam Long courseId) {
         try {
             courseQnaService.updateAnswer(answerId, req, courseId);

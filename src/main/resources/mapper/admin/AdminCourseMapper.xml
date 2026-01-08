@@ -72,7 +72,7 @@
         )
     </insert>
 
-    <insert id="insertChapter" parameterType="com.learnit.learnit.admin.AdminChapterInsertDTO" useGeneratedKeys="true" keyProperty="chapterId">
+    <insert id="insertChapter" parameterType="com.learnit.learnit.admin.course.AdminChapterInsertDTO" useGeneratedKeys="true" keyProperty="chapterId">
         INSERT INTO chapter (
             course_id, section_title, title, order_index, video_url
         ) VALUES (
@@ -108,14 +108,14 @@
         WHERE c.course_id = #{courseId} AND c.delete_flg = 0
     </select>
 
-    <resultMap id="ChapterResultMap" type="com.learnit.learnit.admin.AdminChapterDTO">
+    <resultMap id="ChapterResultMap" type="com.learnit.learnit.admin.course.AdminChapterDTO">
         <id property="chapterId" column="chapter_id"/>
         <result property="courseId" column="course_id"/>
         <result property="sectionTitle" column="section_title"/>
         <result property="title" column="title"/>
         <result property="orderIndex" column="order_index"/>
         <result property="videoUrl" column="video_url"/>
-        <collection property="resources" ofType="com.learnit.learnit.admin.AdminChapterResourceDTO">
+        <collection property="resources" ofType="com.learnit.learnit.admin.course.AdminChapterResourceDTO">
             <result property="resourceId" column="resource_id"/>
             <result property="fileUrl" column="file_url"/>
             <result property="originalFilename" column="resource_title"/>

@@ -71,7 +71,7 @@ public class AdminCourseController {
             model.addAttribute("errorMessage", "강의 목록을 불러오는 중 오류가 발생했습니다.");
         }
 
-        return "admin/adminCourseList";
+        return "admin/course/adminCourseList";
     }
 
     @PostMapping("/{courseId}/delete")
@@ -92,7 +92,7 @@ public class AdminCourseController {
     @GetMapping("/create")
     public String createCourseForm(Model model) {
         model.addAttribute("categories", categoryService.getCategoryList());
-        return "admin/adminCourseForm";
+        return "admin/course/adminCourseForm";
     }
 
     @PostMapping("/create")
@@ -117,7 +117,7 @@ public class AdminCourseController {
             // 수정 모드임을 뷰에 알림
             model.addAttribute("isEdit", true);
             
-            return "admin/adminCourseForm";
+            return "admin/course/adminCourseForm";
         } catch (Exception e) {
             log.error("강의 수정 폼 로딩 실패", e);
             return "redirect:/admin/course";

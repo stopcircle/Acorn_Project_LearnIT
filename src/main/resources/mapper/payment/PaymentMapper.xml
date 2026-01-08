@@ -44,7 +44,7 @@
 
 
     <!--4. 주문번호로 조회-->
-    <select id="findOrderByOrderNo" resultType="OrderDTO">
+    <select id="findOrderByOrderNo" resultType="com.learnit.learnit.payment.common.dto.OrderDTO">
         SELECT
             order_id,
             order_no,
@@ -59,7 +59,7 @@
     </select>
 
     <!--5. 주문아이디로 조회-->
-    <select id="findPaymentByOrderId" resultType="PaymentDTO">
+    <select id="findPaymentByOrderId" resultType="com.learnit.learnit.payment.common.dto.PaymentDTO">
         SELECT
             payment_id,
             order_id,

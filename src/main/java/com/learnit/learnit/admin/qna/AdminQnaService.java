@@ -16,13 +16,44 @@ public class AdminQnaService {
         return repo.countQnas(type, status, searchField, search, searchQnaId, instructorUserId);
     }
 
-    public List<AdminQnaDto> getList(String type, String status, String searchField, String search,
+    public List<AdminQnaDTO> getList(String type, String status, String searchField, String search,
                                      Integer searchQnaId, int offset, int size, Long instructorUserId) {
-        return repo.selectQnas(offset, size, type, status, searchField, search, searchQnaId, instructorUserId);
+        List<AdminQnaDTO> list = repo.selectQnas(offset, size, type, status, searchField, search, searchQnaId, instructorUserId);
+        // typeLabel과 statusLabel 설정
+        for (AdminQnaDTO dto : list) {
+            // typeLabel 설정
+            if (dto.getCourseId() != null) {
+                dto.setTypeLabel("강의 Q&A");
+            } else {
+                dto.setTypeLabel("전체 Q&A");
+            }
+            // statusLabel 설정
+            if ("Y".equals(dto.getIsResolved())) {
+                dto.setStatusLabel("PASS");
+            } else {
+                dto.setStatusLabel("ACTIVE");
+            }
+        }
+        return list;
     }
 
-    public AdminQnaDto getDetail(int qnaId) {
-        return repo.selectQnaDetail(qnaId);
+    public AdminQnaDTO getDetail(int qnaId) {
+        AdminQnaDTO dto = repo.selectQnaDetail(qnaId);
+        if (dto != null) {
+            // typeLabel과 statusLabel 설정
+            if (dto.getCourseId() != null) {
+                dto.setTypeLabel("강의 Q&A");
+            } else {
+                dto.setTypeLabel("전체 Q&A");
+            }
+            // statusLabel 설정
+            if ("Y".equals(dto.getIsResolved())) {
+                dto.setStatusLabel("PASS");
+            } else {
+                dto.setStatusLabel("ACTIVE");
+            }
+        }
+        return dto;
     }
 
     public Long getInstructorUserIdByCourseId(Integer courseId) {

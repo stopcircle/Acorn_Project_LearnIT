@@ -32,7 +32,7 @@
     </select>
 
     <!-- 질문 -->
-    <select id="selectQuestions" resultType="com.learnit.learnit.qna.dto.CourseQnaDto$QuestionRes">
+    <select id="selectQuestions" resultType="com.learnit.learnit.qna.dto.CourseQnaDTO$QuestionRes">
         SELECT
         q.qna_id     AS qnaId,
         q.course_id  AS courseId,
@@ -86,7 +86,7 @@
     </update>
 
     <!-- 답변(상위/대댓글 모두) -->
-    <select id="selectAnswers" resultType="com.learnit.learnit.qna.dto.CourseQnaDto$AnswerRes">
+    <select id="selectAnswers" resultType="com.learnit.learnit.qna.dto.CourseQnaDTO$AnswerRes">
         SELECT
         a.answer_id AS answerId,
         a.qna_id AS qnaId,

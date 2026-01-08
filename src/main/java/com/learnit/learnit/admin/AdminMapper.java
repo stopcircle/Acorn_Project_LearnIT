@@ -1,5 +1,6 @@
 package com.learnit.learnit.admin;
 
+import com.learnit.learnit.admin.home.AdminHome;
 import org.apache.ibatis.annotations.Mapper;
 
 import java.util.List;

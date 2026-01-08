@@ -13,9 +13,9 @@ public class AdminNoticeService {
 
     private final AdminNoticeRepository repo;
 
-    public List<AdminNoticeDto> getNotices(int page, int size, String category, String search) {
+    public List<AdminNoticeDTO> getNotices(int page, int size, String category, String search) {
         int offset = (page - 1) * size;
-        List<AdminNoticeDto> list = repo.selectNotices(offset, size, category, search);
+        List<AdminNoticeDTO> list = repo.selectNotices(offset, size, category, search);
         list.forEach(this::enrichOriginalFileName);
         return list;
     }
@@ -24,14 +24,14 @@ public class AdminNoticeService {
         return repo.countNotices(category, search);
     }
 
-    public AdminNoticeDto getNotice(int noticeId) {
-        AdminNoticeDto dto = repo.selectNoticeById(noticeId);
+    public AdminNoticeDTO getNotice(int noticeId) {
+        AdminNoticeDTO dto = repo.selectNoticeById(noticeId);
         enrichOriginalFileName(dto);
         return dto;
     }
 
     @Transactional
-    public void create(AdminNoticeDto dto) {
+    public void create(AdminNoticeDTO dto) {
         validate(dto);
         // ✅ 테이블이 AUTO_INCREMENT라면 notice_id를 직접 안 넣어도 됨.
         // 하지만 너 코드(insertNotice)가 notice_id를 직접 넣는 구조면,
@@ -52,7 +52,7 @@ public class AdminNoticeService {
     }
 
     @Transactional
-    public void update(AdminNoticeDto dto) {
+    public void update(AdminNoticeDTO dto) {
         if (dto.getNoticeId() == null) throw new IllegalArgumentException("noticeId가 없습니다.");
         validate(dto);
         repo.updateNotice(dto);
@@ -73,7 +73,7 @@ public class AdminNoticeService {
         repo.deleteAllByFilter(category, search);
     }
 
-    private void validate(AdminNoticeDto dto) {
+    private void validate(AdminNoticeDTO dto) {
         if (dto.getCategory() == null || dto.getCategory().isBlank())
             throw new IllegalArgumentException("카테고리를 선택하세요.");
         if (dto.getTitle() == null || dto.getTitle().isBlank())
@@ -82,7 +82,7 @@ public class AdminNoticeService {
             throw new IllegalArgumentException("내용을 입력하세요.");
     }
 
-    private void enrichOriginalFileName(AdminNoticeDto dto) {
+    private void enrichOriginalFileName(AdminNoticeDTO dto) {
         if (dto == null) return;
         if (dto.getFileUrl() == null || dto.getFileUrl().isBlank()) return;
 

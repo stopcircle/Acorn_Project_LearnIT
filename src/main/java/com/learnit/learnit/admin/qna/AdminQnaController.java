@@ -72,7 +72,7 @@ public class AdminQnaController {
         if (page > totalPages) page = totalPages;
 
         int offset = (page - 1) * size;
-        List<AdminQnaDto> qnas = service.getList(type, status, searchField, search, searchQnaId, offset, size, instructorUserId);
+        List<AdminQnaDTO> qnas = service.getList(type, status, searchField, search, searchQnaId, offset, size, instructorUserId);
 
         int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
         int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
@@ -94,7 +94,7 @@ public class AdminQnaController {
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
 
-        return "admin/adminQnaManage";
+        return "admin/qna/adminQnaManage";
     }
 
     // ✅ 답변+상태 저장
@@ -123,7 +123,7 @@ public class AdminQnaController {
             return redirectList(ra, type, status, searchField, search, page, size);
         }
 
-        AdminQnaDto detail = service.getDetail(qnaId);
+        AdminQnaDTO detail = service.getDetail(qnaId);
         if (detail == null) {
             ra.addFlashAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
             return redirectList(ra, type, status, searchField, search, page, size);
@@ -179,7 +179,7 @@ public class AdminQnaController {
             return redirectList(ra, type, status, searchField, search, page, size);
         }
 
-        AdminQnaDto detail = service.getDetail(qnaId);
+        AdminQnaDTO detail = service.getDetail(qnaId);
         if (detail == null) {
             ra.addFlashAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
             return redirectList(ra, type, status, searchField, search, page, size);
@@ -229,7 +229,7 @@ public class AdminQnaController {
             return redirectList(ra, type, status, searchField, search, page, size);
         }
 
-        AdminQnaDto detail = service.getDetail(qnaId);
+        AdminQnaDTO detail = service.getDetail(qnaId);
         if (detail == null) {
             ra.addFlashAttribute("errorMessage", "존재하지 않는 Q&A 입니다.");
             return redirectList(ra, type, status, searchField, search, page, size);
