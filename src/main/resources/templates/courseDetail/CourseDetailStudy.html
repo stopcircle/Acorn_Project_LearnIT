@@ -6,14 +6,14 @@
     <title th:fragment="title">강의 상세(수강중)</title>
 
     <th:block th:fragment="css">
-        <link rel="stylesheet" th:href="@{/css/courseDetail/course-detail.css}">
+        <link rel="stylesheet" th:href="@{/css/courseDetail/courseDetail.css}">
     </th:block>
 </head>
 
 <body>
 <div th:fragment="content" class="cd-wrap container">
 
-    <div th:replace="courseDetail/fragments/detail-header :: detailHeader(${course}, ${activeTab}, ${isLoggedIn})"></div>
+    <div th:replace="courseDetail/fragments/detailHeader :: detailHeader(${course}, ${activeTab}, ${isLoggedIn})"></div>
 
     <section class="cd-body">
         <div class="cd-left">
@@ -26,7 +26,7 @@
             </th:block>
         </div>
 
-        <div th:replace="courseDetail/fragments/detail-sidebar :: detailSidebar(${course}, ${isLoggedIn}, ${isEnrolled})"></div>
+        <div th:replace="courseDetail/fragments/detailSidebar :: detailSidebar(${course}, ${isLoggedIn}, ${isEnrolled})"></div>
     </section>
 
     <!-- 모달들 필요하면 그대로 두고, 수강중 페이지는 보통 모달 없어도 됨 -->
@@ -52,7 +52,7 @@
 </div>
 
 <th:block th:fragment="script">
-    <script th:src="@{/js/courseDetail/course-detail.js}"></script>
+    <script th:src="@{/js/courseDetail/courseDetail.js}"></script>
 </th:block>
 </body>
 </html>

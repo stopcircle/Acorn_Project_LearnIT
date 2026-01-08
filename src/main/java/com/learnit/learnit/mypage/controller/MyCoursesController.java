@@ -40,6 +40,6 @@ public class MyCoursesController {
         List<CourseSummaryDTO> myCourses = mypageCoursesService.getMyCourses(userId);
         model.addAttribute("courses", myCourses);
 
-        return "mypage/courses/courses";
+        return "mypage/courses/myCourses";
     }
 }

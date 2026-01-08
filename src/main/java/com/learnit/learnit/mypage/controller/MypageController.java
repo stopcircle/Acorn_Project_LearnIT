@@ -9,9 +9,9 @@ import com.learnit.learnit.mypage.dto.ProfileDTO;
 import com.learnit.learnit.mypage.dto.SkillChartDTO;
 import com.learnit.learnit.mypage.dto.WeeklyLearningDTO;
 import com.learnit.learnit.mypage.dto.CalendarSummaryDTO;
-import com.learnit.learnit.mypage.service.DashboardService;
-import com.learnit.learnit.mypage.service.GitHubAnalysisService;
-import com.learnit.learnit.mypage.service.ProfileService;
+import com.learnit.learnit.mypage.service.MyDashboardService;
+import com.learnit.learnit.mypage.service.MyGitHubAnalysisService;
+import com.learnit.learnit.mypage.service.MyProfileService;
 import com.learnit.learnit.user.util.SessionUtils;
 import com.learnit.learnit.user.dto.UserDTO;
 import com.learnit.learnit.user.service.UserService;
@@ -36,10 +36,10 @@ import java.util.Map;
 @RequiredArgsConstructor
 public class MypageController {
 
-    private final DashboardService dashboardService;
+    private final MyDashboardService dashboardService;
     private final UserService userService;
-    private final ProfileService profileService;
-    private final GitHubAnalysisService githubAnalysisService;
+    private final MyProfileService profileService;
+    private final MyGitHubAnalysisService githubAnalysisService;
 
 
     @GetMapping("/mypage")
@@ -65,7 +65,7 @@ public class MypageController {
         UserDTO user = userService.getUserDTOById(userId);
         model.addAttribute("user", user);
         
-        return "mypage/dashboard/dashboard";
+        return "mypage/dashboard/myDashboard";
     }
 
     /**
@@ -100,7 +100,7 @@ public class MypageController {
             model.addAttribute("skillChart", skillChart);
         }
 
-        return "mypage/profile/profile";
+        return "mypage/profile/myProfile";
     }
 
 
@@ -293,4 +293,3 @@ public class MypageController {
         }
     }
 }
-

@@ -6,8 +6,8 @@
     <title th:fragment="title">강의 상세</title>
 
     <th:block th:fragment="css">
-        <link rel="stylesheet" th:href="@{/css/courseDetail/course-detail.css}">
-        <link rel="stylesheet" th:href="@{/css/courseDetail/course-detail-review.css}">
+        <link rel="stylesheet" th:href="@{/css/courseDetail/courseDetail.css}">
+        <link rel="stylesheet" th:href="@{/css/courseDetail/courseDetailReview.css}">
     </th:block>
 </head>
 
@@ -15,7 +15,7 @@
 <div th:fragment="content" class="cd-wrap container">
 
     <!-- ✅ 상단 헤더(배너+탭) -->
-    <div th:replace="~{courseDetail/fragments/detail-header :: detailHeader(${course}, ${activeTab}, ${isLoggedIn}, ${categoryName})}"></div>
+    <div th:replace="~{courseDetail/fragments/detailHeader :: detailHeader(${course}, ${activeTab}, ${isLoggedIn}, ${categoryName})}"></div>
 
     <section class="cd-body">
         <div class="cd-left">
@@ -29,7 +29,7 @@
         </div>
 
         <!-- ✅ 오른쪽 사이드바 (⭐ 파라미터 6개로 맞춤) -->
-        <div th:replace="~{courseDetail/fragments/detail-sidebar
+        <div th:replace="~{courseDetail/fragments/detailSidebar
             :: detailSidebar(${course}, ${isLoggedIn}, ${isEnrolled}, ${instructorName}, ${periodText}, ${lastWatchedChapterId})}">
         </div>
     </section>
@@ -70,11 +70,11 @@
 </div>
 
 <th:block th:fragment="script">
-    <script th:src="@{/js/courseDetail/course-detail.js}"></script>
+    <script th:src="@{/js/courseDetail/courseDetail.js}"></script>
 
     <!-- ✅ 리뷰 탭일 때만 리뷰 JS 로드 -->
     <script th:if="${activeTab == 'reviews'}"
-            th:src="@{/js/courseDetail/course-detail-review.js}"></script>
+            th:src="@{/js/courseDetail/courseDetailReview.js}"></script>
 </th:block>
 </body>
 </html>

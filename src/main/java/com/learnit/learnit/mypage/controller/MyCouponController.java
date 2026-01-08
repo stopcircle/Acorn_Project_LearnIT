@@ -2,8 +2,8 @@ package com.learnit.learnit.mypage.controller;
 
 import com.learnit.learnit.mypage.dto.PaymentHistoryDTO;
 import com.learnit.learnit.mypage.dto.PaymentReceiptDTO;
-import com.learnit.learnit.mypage.service.CouponService;
-import com.learnit.learnit.mypage.service.MyPagePaymentService;
+import com.learnit.learnit.mypage.service.MyCouponService;
+import com.learnit.learnit.mypage.service.MyPaymentService;
 import com.learnit.learnit.payment.common.LoginRequiredException;
 import com.learnit.learnit.payment.common.dto.UserCouponDTO;
 import com.learnit.learnit.user.dto.UserDTO;
@@ -24,8 +24,8 @@ import java.util.List;
 public class MyCouponController {
 
     private final UserService userService;
-    private final MyPagePaymentService paymentService;
-    private final CouponService couponService;
+    private final MyPaymentService paymentService;
+    private final MyCouponService couponService;
 
     //마이페이지 - 구매/혜택 - 결제 내역
     @GetMapping("/mypage/purchase")
@@ -42,7 +42,7 @@ public class MyCouponController {
         model.addAttribute("user", user);
         model.addAttribute("payments", histories);
 
-        return "mypage/payments/payment_list";
+        return "mypage/payments/myPaymentList";
     }
 
     //마이페이지 - 구매/혜택 - 영수증 (JSON 반환)
@@ -72,6 +72,6 @@ public class MyCouponController {
         model.addAttribute("coupons", coupons);
 
 
-        return "mypage/payments/coupon_list";
+        return "mypage/payments/myCouponList";
     }
 }
