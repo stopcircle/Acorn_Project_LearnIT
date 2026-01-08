@@ -4,7 +4,7 @@ import lombok.Data;
 import java.time.LocalTime;
 
 @Data
-public class DailyCourseDTO {
+public class MyDailyCourseDTO {
     private Long courseId;
     private String courseTitle;
     private Long chapterId;

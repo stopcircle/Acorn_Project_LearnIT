@@ -1,6 +1,6 @@
 package com.learnit.learnit.mypage.service;
 
-import com.learnit.learnit.mypage.dto.CertificateDTO;
+import com.learnit.learnit.mypage.dto.MyCertificateDTO;
 import com.learnit.learnit.mypage.mapper.MyCertificateMapper;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
@@ -28,7 +28,7 @@ public class MyCertificateService {
     /**
      * 수료증 조회
      */
-    public CertificateDTO getCertificate(Long certificateId, Long userId) {
+    public MyCertificateDTO getCertificate(Long certificateId, Long userId) {
         if (certificateId == null || userId == null) {
             throw new IllegalArgumentException("수료증 ID 또는 사용자 ID가 없습니다.");
         }
@@ -38,7 +38,7 @@ public class MyCertificateService {
     /**
      * 수료증 PDF 생성
      */
-    public byte[] generateCertificatePdf(CertificateDTO certificate) throws IOException {
+    public byte[] generateCertificatePdf(MyCertificateDTO certificate) throws IOException {
         if (certificate == null) {
             throw new IllegalArgumentException("수료증 정보가 없습니다.");
         }

@@ -4,7 +4,7 @@ import lombok.Data;
 import java.time.LocalDate;
 
 @Data
-public class CertificateDTO {
+public class MyCertificateDTO {
     private Long certificateId;
     private Long courseId;
     private String courseTitle;

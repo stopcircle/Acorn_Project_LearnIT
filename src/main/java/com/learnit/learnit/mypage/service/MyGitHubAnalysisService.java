@@ -1,8 +1,8 @@
 package com.learnit.learnit.mypage.service;
 
 import com.fasterxml.jackson.core.type.TypeReference;
-import com.learnit.learnit.mypage.dto.GitHubAnalysisDTO;
-import com.learnit.learnit.mypage.dto.SkillChartDTO;
+import com.learnit.learnit.mypage.dto.MyGitHubAnalysisDTO;
+import com.learnit.learnit.mypage.dto.MySkillChartDTO;
 import com.learnit.learnit.mypage.mapper.MyProfileMapper;
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -79,7 +79,7 @@ public class MyGitHubAnalysisService {
     /**
      * GitHub 프로필 분석
      */
-    public GitHubAnalysisDTO analyzeGitHubProfile(String githubUrl) {
+    public MyGitHubAnalysisDTO analyzeGitHubProfile(String githubUrl) {
         String username = extractUsername(githubUrl);
         
         if (username == null) {
@@ -87,7 +87,7 @@ public class MyGitHubAnalysisService {
         }
 
         try {
-            GitHubAnalysisDTO analysis = new GitHubAnalysisDTO();
+            MyGitHubAnalysisDTO analysis = new MyGitHubAnalysisDTO();
             analysis.setUsername(username);
             analysis.setAnalysisDate(LocalDateTime.now().format(DateTimeFormatter.ofPattern("yyyy-MM-dd HH:mm:ss")));
 
@@ -363,8 +363,8 @@ public class MyGitHubAnalysisService {
     /**
      * 스킬 차트 데이터 생성 (항상 6개 꼭짓점으로 고정)
      */
-    public SkillChartDTO generateSkillChart(GitHubAnalysisDTO analysis) {
-        SkillChartDTO chart = new SkillChartDTO();
+    public MySkillChartDTO generateSkillChart(MyGitHubAnalysisDTO analysis) {
+        MySkillChartDTO chart = new MySkillChartDTO();
         
         Map<String, Double> skills = new LinkedHashMap<>();
         List<String> names = new ArrayList<>();
@@ -416,7 +416,7 @@ public class MyGitHubAnalysisService {
      * GitHub 분석 결과 저장
      */
     @Transactional
-    public void saveGitHubAnalysis(Long userId, GitHubAnalysisDTO analysis) {
+    public void saveGitHubAnalysis(Long userId, MyGitHubAnalysisDTO analysis) {
         try {
             // Map을 JSON 문자열로 변환
             String languageStatsJson = null;
@@ -451,9 +451,9 @@ public class MyGitHubAnalysisService {
     /**
      * 저장된 GitHub 분석 결과 조회
      */
-    public GitHubAnalysisDTO getSavedGitHubAnalysis(Long userId) {
+    public MyGitHubAnalysisDTO getSavedGitHubAnalysis(Long userId) {
         try {
-            GitHubAnalysisDTO analysis = profileMapper.selectGitHubAnalysisByUserId(userId);
+            MyGitHubAnalysisDTO analysis = profileMapper.selectGitHubAnalysisByUserId(userId);
             
             if (analysis == null) {
                 return null;

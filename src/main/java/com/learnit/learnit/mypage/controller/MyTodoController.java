@@ -1,6 +1,6 @@
 package com.learnit.learnit.mypage.controller;
 
-import com.learnit.learnit.mypage.dto.TodoDTO;
+import com.learnit.learnit.mypage.dto.MyTodoDTO;
 import com.learnit.learnit.mypage.service.MyTodoService;
 import com.learnit.learnit.payment.common.LoginRequiredException;
 import com.learnit.learnit.user.util.SessionUtils;
@@ -26,7 +26,7 @@ public class MyTodoController {
      */
     @GetMapping("/list")
     @ResponseBody
-    public List<TodoDTO> getTodos(
+    public List<MyTodoDTO> getTodos(
             @RequestParam int year,
             @RequestParam int month,
             @RequestParam int day,
@@ -43,12 +43,12 @@ public class MyTodoController {
      */
     @PostMapping(value = "/save", produces = "application/json")
     @ResponseBody
-    public Map<String, Object> saveTodo(@RequestBody TodoDTO todo, HttpSession session) {
+    public Map<String, Object> saveTodo(@RequestBody MyTodoDTO todo, HttpSession session) {
         Map<String, Object> response = new HashMap<>();
         
         try {
             System.out.println("=== 할일 저장 요청 수신 ===");
-            System.out.println("TodoDTO: " + todo);
+            System.out.println("MyTodoDTO: " + todo);
             System.out.println("Title: " + todo.getTitle());
             System.out.println("TargetDate: " + todo.getTargetDate());
             
@@ -68,7 +68,7 @@ public class MyTodoController {
                 todo.setDescription("");
             }
             
-            TodoDTO savedTodo = todoService.saveTodo(todo);
+            MyTodoDTO savedTodo = todoService.saveTodo(todo);
             System.out.println("Saved Todo: " + savedTodo);
             
             if (savedTodo == null || savedTodo.getTodoId() == null) {
@@ -105,7 +105,7 @@ public class MyTodoController {
             throw new LoginRequiredException("로그인이 필요한 서비스입니다.");
         }
         
-        TodoDTO todo = todoService.completeTodo(todoId, userId, completed);
+        MyTodoDTO todo = todoService.completeTodo(todoId, userId, completed);
         
         Map<String, Object> response = new HashMap<>();
         response.put("success", true);
@@ -140,7 +140,7 @@ public class MyTodoController {
             @RequestParam int year,
             @RequestParam int month,
             @RequestParam int day,
-            @RequestBody List<TodoDTO> todos,
+            @RequestBody List<MyTodoDTO> todos,
             HttpSession session) {
         Long userId = SessionUtils.getUserId(session);
         if (userId == null) {

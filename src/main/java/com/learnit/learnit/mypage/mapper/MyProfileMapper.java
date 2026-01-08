@@ -1,8 +1,8 @@
 package com.learnit.learnit.mypage.mapper;
 
-import com.learnit.learnit.mypage.dto.CertificateDTO;
-import com.learnit.learnit.mypage.dto.GitHubAnalysisDTO;
-import com.learnit.learnit.mypage.dto.ProfileDTO;
+import com.learnit.learnit.mypage.dto.MyCertificateDTO;
+import com.learnit.learnit.mypage.dto.MyGitHubAnalysisDTO;
+import com.learnit.learnit.mypage.dto.MyProfileDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -13,7 +13,7 @@ public interface MyProfileMapper {
     /**
      * 사용자 프로필 조회
      */
-    ProfileDTO selectProfileByUserId(@Param("userId") Long userId);
+    MyProfileDTO selectProfileByUserId(@Param("userId") Long userId);
     
     /**
      * 개인정보 수정
@@ -36,7 +36,7 @@ public interface MyProfileMapper {
     /**
      * GitHub 분석 결과 조회
      */
-    GitHubAnalysisDTO selectGitHubAnalysisByUserId(@Param("userId") Long userId);
+    MyGitHubAnalysisDTO selectGitHubAnalysisByUserId(@Param("userId") Long userId);
     
     /**
      * GitHub 분석 결과 저장/업데이트
@@ -55,5 +55,5 @@ public interface MyProfileMapper {
     /**
      * 사용자 수료증 목록 조회
      */
-    List<CertificateDTO> selectCertificatesByUserId(@Param("userId") Long userId);
+    List<MyCertificateDTO> selectCertificatesByUserId(@Param("userId") Long userId);
 }

@@ -1,14 +1,14 @@
 package com.learnit.learnit.mypage.controller;
 
-import com.learnit.learnit.mypage.dto.CertificateDTO;
-import com.learnit.learnit.mypage.dto.DashboardDTO;
-import com.learnit.learnit.mypage.dto.DailyCourseDTO;
-import com.learnit.learnit.mypage.dto.DailyGoalDTO;
-import com.learnit.learnit.mypage.dto.GitHubAnalysisDTO;
-import com.learnit.learnit.mypage.dto.ProfileDTO;
-import com.learnit.learnit.mypage.dto.SkillChartDTO;
-import com.learnit.learnit.mypage.dto.WeeklyLearningDTO;
-import com.learnit.learnit.mypage.dto.CalendarSummaryDTO;
+import com.learnit.learnit.mypage.dto.MyCertificateDTO;
+import com.learnit.learnit.mypage.dto.MyDashboardDTO;
+import com.learnit.learnit.mypage.dto.MyDailyCourseDTO;
+import com.learnit.learnit.mypage.dto.MyDailyGoalDTO;
+import com.learnit.learnit.mypage.dto.MyGitHubAnalysisDTO;
+import com.learnit.learnit.mypage.dto.MyProfileDTO;
+import com.learnit.learnit.mypage.dto.MySkillChartDTO;
+import com.learnit.learnit.mypage.dto.MyWeeklyLearningDTO;
+import com.learnit.learnit.mypage.dto.MyCalendarSummaryDTO;
 import com.learnit.learnit.mypage.service.MyDashboardService;
 import com.learnit.learnit.mypage.service.MyGitHubAnalysisService;
 import com.learnit.learnit.mypage.service.MyProfileService;
@@ -58,7 +58,7 @@ public class MypageController {
             return "redirect:/login";
         }
         
-        DashboardDTO dashboard = dashboardService.getDashboardData(userId);
+        MyDashboardDTO dashboard = dashboardService.getDashboardData(userId);
         model.addAttribute("dashboard", dashboard);
         
         // 사용자 정보 조회 및 추가
@@ -84,18 +84,18 @@ public class MypageController {
         model.addAttribute("user", user);
 
         // 프로필 정보 조회
-        ProfileDTO profile = profileService.getProfile(userId);
+        MyProfileDTO profile = profileService.getProfile(userId);
         model.addAttribute("profile", profile);
 
         // 수료증 목록 조회
-        java.util.List<CertificateDTO> certificates = profileService.getCertificates(userId);
+        java.util.List<MyCertificateDTO> certificates = profileService.getCertificates(userId);
         model.addAttribute("certificates", certificates);
 
         // 저장된 GitHub 분석 결과 조회
-        GitHubAnalysisDTO savedAnalysis = githubAnalysisService.getSavedGitHubAnalysis(userId);
+        MyGitHubAnalysisDTO savedAnalysis = githubAnalysisService.getSavedGitHubAnalysis(userId);
         
         if (savedAnalysis != null) {
-            SkillChartDTO skillChart = githubAnalysisService.generateSkillChart(savedAnalysis);
+            MySkillChartDTO skillChart = githubAnalysisService.generateSkillChart(savedAnalysis);
             model.addAttribute("githubAnalysis", savedAnalysis);
             model.addAttribute("skillChart", skillChart);
         }
@@ -131,7 +131,7 @@ public class MypageController {
                 weekStart = now.minusDays(now.getDayOfWeek().getValue() - 1);
             }
 
-            WeeklyLearningDTO data = dashboardService.getWeeklyLearningDataByStartDate(userId, year, month, weekStart);
+            MyWeeklyLearningDTO data = dashboardService.getWeeklyLearningDataByStartDate(userId, year, month, weekStart);
             return ResponseEntity.ok(data);
         } catch (Exception e) {
             Map<String, Object> errorResponse = new HashMap<>();
@@ -159,7 +159,7 @@ public class MypageController {
         }
 
         try {
-            CalendarSummaryDTO data = dashboardService.getCalendarData(userId, year, month);
+            MyCalendarSummaryDTO data = dashboardService.getCalendarData(userId, year, month);
             return ResponseEntity.ok(data);
         } catch (Exception e) {
             Map<String, Object> errorResponse = new HashMap<>();
@@ -193,7 +193,7 @@ public class MypageController {
             Integer interpreterGoal = goals.get("noteGoal") != null ? 
                 Integer.parseInt(goals.get("noteGoal").toString()) : null; // noteGoal은 interpreterGoal로 매핑
             
-            DailyGoalDTO savedGoal = dashboardService.saveDailyGoal(userId, classGoal, timeGoal, interpreterGoal);
+            MyDailyGoalDTO savedGoal = dashboardService.saveDailyGoal(userId, classGoal, timeGoal, interpreterGoal);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -224,7 +224,7 @@ public class MypageController {
         }
 
         try {
-            DailyGoalDTO goal = dashboardService.getCurrentDailyGoal(userId);
+            MyDailyGoalDTO goal = dashboardService.getCurrentDailyGoal(userId);
             response.put("success", true);
             response.put("goal", goal);
             return ResponseEntity.ok(response);
@@ -251,7 +251,7 @@ public class MypageController {
         }
 
         try {
-            List<CertificateDTO> certificates = profileService.getCertificates(userId);
+            List<MyCertificateDTO> certificates = profileService.getCertificates(userId);
             response.put("success", true);
             response.put("certificates", certificates != null ? certificates : new java.util.ArrayList<>());
             return response;
@@ -282,7 +282,7 @@ public class MypageController {
         }
 
         try {
-            List<DailyCourseDTO> courses = dashboardService.getDailyCourses(userId, year, month, day);
+            List<MyDailyCourseDTO> courses = dashboardService.getDailyCourses(userId, year, month, day);
             response.put("success", true);
             response.put("courses", courses != null ? courses : new java.util.ArrayList<>());
             return ResponseEntity.ok(response);

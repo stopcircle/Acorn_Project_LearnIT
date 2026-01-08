@@ -3,7 +3,7 @@ package com.learnit.learnit.mypage.util;
 /**
  * 프로필 유효성 검증 유틸리티 클래스
  */
-public class ProfileValidator {
+public class MyProfileValidator {
     
     private static final int MIN_PASSWORD_LENGTH = 8;
     private static final String EMAIL_PATTERN = "^[A-Za-z0-9+_.-]+@(.+)$";

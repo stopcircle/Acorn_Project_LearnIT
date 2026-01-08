@@ -1,6 +1,6 @@
 package com.learnit.learnit.mypage.controller;
 
-import com.learnit.learnit.mypage.dto.CertificateDTO;
+import com.learnit.learnit.mypage.dto.MyCertificateDTO;
 import com.learnit.learnit.mypage.service.MyCertificateService;
 import jakarta.servlet.http.HttpSession;
 import lombok.RequiredArgsConstructor;
@@ -42,7 +42,7 @@ public class MyCertificateController {
             log.info("Certificate download requested: certificateId={}, userId={}", certificateId, userId);
             
             // 수료증 조회
-            CertificateDTO certificate = certificateService.getCertificate(certificateId, userId);
+            MyCertificateDTO certificate = certificateService.getCertificate(certificateId, userId);
             
             if (certificate == null) {
                 log.warn("Certificate not found: certificateId={}, userId={}", certificateId, userId);

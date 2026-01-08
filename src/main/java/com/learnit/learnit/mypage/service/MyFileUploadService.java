@@ -14,7 +14,7 @@ import java.util.UUID;
 
 @Slf4j
 @Service
-public class FileUploadService {
+public class MyFileUploadService {
 
     @Value("${file.upload-dir:uploads/profile}")
     private String uploadDir;

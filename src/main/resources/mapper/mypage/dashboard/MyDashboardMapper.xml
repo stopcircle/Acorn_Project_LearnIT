@@ -5,7 +5,7 @@
 <mapper namespace="com.learnit.learnit.mypage.repository.MyDashboardRepository">
 
     <!-- 최근 학습 강의 조회 -->
-    <select id="selectRecentCourse" resultType="com.learnit.learnit.mypage.dto.CourseSummaryDTO">
+    <select id="selectRecentCourse" resultType="com.learnit.learnit.mypage.dto.MyCourseSummaryDTO">
         SELECT 
             c.course_id AS courseId,
             c.title,
@@ -34,7 +34,7 @@
     </select>
 
     <!-- 주간 학습 데이터 조회 -->
-    <select id="selectWeeklyLearning" resultType="com.learnit.learnit.mypage.dto.WeeklyLearningDTO$DailyLearning">
+    <select id="selectWeeklyLearning" resultType="com.learnit.learnit.mypage.dto.MyWeeklyLearningDTO$DailyLearning">
         SELECT 
             CASE DAYOFWEEK(week_days.study_date)
                 WHEN 1 THEN '일'
@@ -67,7 +67,7 @@
     </select>
 
     <!-- 최근 수료증 조회 -->
-    <select id="selectLatestCertificate" resultType="com.learnit.learnit.mypage.dto.CertificateDTO">
+    <select id="selectLatestCertificate" resultType="com.learnit.learnit.mypage.dto.MyCertificateDTO">
         SELECT 
             cert.cert_id AS certificateId,
             c.course_id AS courseId,
@@ -85,7 +85,7 @@
 
     <!-- 캘린더 데이터 조회 (월별) -->
     <!-- 캘린더 데이터 조회 (월별) -->
-    <select id="selectCalendarData" resultType="com.learnit.learnit.mypage.dto.CalendarSummaryDTO$CalendarDay">
+    <select id="selectCalendarData" resultType="com.learnit.learnit.mypage.dto.MyCalendarSummaryDTO$CalendarDay">
         SELECT 
             COALESCE(s.day, t.day) AS day,
             COALESCE(s.lectureCount, 0) AS lectureCount,
@@ -153,7 +153,7 @@
     </select>
 
     <!-- 특정 날짜의 수강한 강의 목록 조회 -->
-    <select id="selectDailyCourses" resultType="com.learnit.learnit.mypage.dto.DailyCourseDTO">
+    <select id="selectDailyCourses" resultType="com.learnit.learnit.mypage.dto.MyDailyCourseDTO">
         SELECT 
             c.course_id AS courseId,
             c.title AS courseTitle,
@@ -174,7 +174,7 @@
     </select>
 
     <!-- 일일 학습 목표 저장 또는 업데이트 -->
-    <insert id="upsertDailyGoal" parameterType="com.learnit.learnit.mypage.dto.DailyGoalDTO">
+    <insert id="upsertDailyGoal" parameterType="com.learnit.learnit.mypage.dto.MyDailyGoalDTO">
         INSERT INTO daily_goal (
             user_id,
             class_goal,
@@ -200,7 +200,7 @@
     </insert>
 
     <!-- 현재 주의 목표 조회 -->
-    <select id="selectCurrentDailyGoal" resultType="com.learnit.learnit.mypage.dto.DailyGoalDTO">
+    <select id="selectCurrentDailyGoal" resultType="com.learnit.learnit.mypage.dto.MyDailyGoalDTO">
         SELECT 
             goal_id AS goalId,
             user_id AS userId,

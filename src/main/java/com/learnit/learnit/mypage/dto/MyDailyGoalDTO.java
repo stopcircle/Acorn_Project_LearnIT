@@ -5,7 +5,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-public class DailyGoalDTO {
+public class MyDailyGoalDTO {
     private Long goalId;
     private Long userId;
     private Integer classGoal;      // 하루 목표 강의 수

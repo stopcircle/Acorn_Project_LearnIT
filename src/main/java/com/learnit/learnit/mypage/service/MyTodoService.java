@@ -1,6 +1,6 @@
 package com.learnit.learnit.mypage.service;
 
-import com.learnit.learnit.mypage.dto.TodoDTO;
+import com.learnit.learnit.mypage.dto.MyTodoDTO;
 import com.learnit.learnit.mypage.repository.MyDashboardRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -19,9 +19,9 @@ public class MyTodoService {
     /**
      * 날짜별 할일 목록 조회
      */
-    public List<TodoDTO> getTodosByDate(Long userId, int year, int month, int day) {
+    public List<MyTodoDTO> getTodosByDate(Long userId, int year, int month, int day) {
         try {
-            List<TodoDTO> todos = dashboardRepository.selectTodosByDate(userId, year, month, day);
+            List<MyTodoDTO> todos = dashboardRepository.selectTodosByDate(userId, year, month, day);
             return todos != null ? todos : new java.util.ArrayList<>();
         } catch (Exception e) {
             // 로그 기록 후 빈 리스트 반환
@@ -33,7 +33,7 @@ public class MyTodoService {
      * 할일 저장
      */
     @Transactional
-    public TodoDTO saveTodo(TodoDTO todo) {
+    public MyTodoDTO saveTodo(MyTodoDTO todo) {
         try {
             if (todo.getTodoId() == null) {
                 // 새 할일 생성
@@ -66,11 +66,11 @@ public class MyTodoService {
                 }
                 
                 // 생성된 todoId로 다시 조회하여 완전한 데이터 가져오기
-                TodoDTO savedTodo = dashboardRepository.selectTodoById(generatedTodoId, todo.getUserId());
+                MyTodoDTO savedTodo = dashboardRepository.selectTodoById(generatedTodoId, todo.getUserId());
                 
                 if (savedTodo == null) {
                     // 조회 실패해도 todoId는 있으므로, 최소한의 정보로 DTO 생성
-                    savedTodo = new TodoDTO();
+                    savedTodo = new MyTodoDTO();
                     savedTodo.setTodoId(generatedTodoId);
                     savedTodo.setUserId(todo.getUserId());
                     savedTodo.setTitle(todo.getTitle());
@@ -83,7 +83,7 @@ public class MyTodoService {
             } else {
                 // 기존 할일 수정
                 dashboardRepository.updateTodo(todo);
-                TodoDTO updatedTodo = dashboardRepository.selectTodoById(todo.getTodoId(), todo.getUserId());
+                MyTodoDTO updatedTodo = dashboardRepository.selectTodoById(todo.getTodoId(), todo.getUserId());
                 if (updatedTodo == null) {
                     throw new RuntimeException("수정된 할일을 조회할 수 없습니다.");
                 }
@@ -98,8 +98,8 @@ public class MyTodoService {
      * 할일 완료 처리
      */
     @Transactional
-    public TodoDTO completeTodo(Long todoId, Long userId, boolean isCompleted) {
-        TodoDTO todo = dashboardRepository.selectTodoById(todoId, userId);
+    public MyTodoDTO completeTodo(Long todoId, Long userId, boolean isCompleted) {
+        MyTodoDTO todo = dashboardRepository.selectTodoById(todoId, userId);
         if (todo == null) {
             throw new RuntimeException("할일을 찾을 수 없습니다.");
         }
@@ -130,11 +130,11 @@ public class MyTodoService {
      * 할일 일괄 저장 (날짜별)
      */
     @Transactional
-    public void saveTodosBatch(Long userId, LocalDate targetDate, List<TodoDTO> todos) {
+    public void saveTodosBatch(Long userId, LocalDate targetDate, List<MyTodoDTO> todos) {
         // 기존 할일 삭제 후 새로 저장
         // 또는 기존 할일과 비교하여 업데이트/삭제/추가
         // 간단하게는 기존 할일을 모두 삭제하고 새로 저장
-        for (TodoDTO todo : todos) {
+        for (MyTodoDTO todo : todos) {
             todo.setUserId(userId);
             todo.setTargetDate(targetDate);
             if (todo.getIsCompleted() == null) {

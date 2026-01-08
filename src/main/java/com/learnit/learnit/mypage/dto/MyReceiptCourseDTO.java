@@ -3,7 +3,7 @@ package com.learnit.learnit.mypage.dto;
 import lombok.Data;
 
 @Data
-public class ReceiptCourseDTO {
+public class MyReceiptCourseDTO {
 
     private Long courseId;
     private String courseTitle;

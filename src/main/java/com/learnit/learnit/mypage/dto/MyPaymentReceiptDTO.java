@@ -8,7 +8,7 @@ import java.time.LocalDateTime;
 import java.util.List;
 
 @Data
-public class PaymentReceiptDTO {
+public class MyPaymentReceiptDTO {
 
     private Long paymentId;
     private String orderNo;
@@ -19,7 +19,7 @@ public class PaymentReceiptDTO {
     private Integer totalAmount;
     private LocalDateTime paidAt;
 
-    private List<ReceiptCourseDTO> courses;
+    private List<MyReceiptCourseDTO> courses;
 
     public String getPaymentStatusDesc() {
         return paymentStatus != null ? paymentStatus.getDescription() : "";

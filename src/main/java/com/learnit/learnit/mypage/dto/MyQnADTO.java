@@ -4,7 +4,7 @@ import lombok.Data;
 import java.time.LocalDateTime;
 
 @Data
-public class QnADTO {
+public class MyQnADTO {
     private Long qnaId;
     private Integer courseId;
     private String courseTitle;

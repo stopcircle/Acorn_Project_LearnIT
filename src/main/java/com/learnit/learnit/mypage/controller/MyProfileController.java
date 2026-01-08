@@ -1,8 +1,8 @@
 package com.learnit.learnit.mypage.controller;
 
 import com.learnit.learnit.user.util.SessionUtils;
-import com.learnit.learnit.mypage.dto.ProfileDTO;
-import com.learnit.learnit.mypage.dto.ProfileUpdateDTO;
+import com.learnit.learnit.mypage.dto.MyProfileDTO;
+import com.learnit.learnit.mypage.dto.MyProfileUpdateDTO;
 import com.learnit.learnit.mypage.service.MyProfileService;
 import com.learnit.learnit.user.dto.UserDTO;
 import com.learnit.learnit.user.entity.User;
@@ -46,7 +46,7 @@ public class MyProfileController {
         model.addAttribute("user", user);
 
         // 프로필 정보 조회
-        ProfileDTO profile = profileService.getProfile(userId);
+        MyProfileDTO profile = profileService.getProfile(userId);
         model.addAttribute("profile", profile);
         
         // 소셜 로그인 여부 확인을 위해 provider 정보 추가
@@ -85,7 +85,7 @@ public class MyProfileController {
         }
 
         try {
-            ProfileUpdateDTO updateDTO = new ProfileUpdateDTO();
+            MyProfileUpdateDTO updateDTO = new MyProfileUpdateDTO();
             updateDTO.setName(name);
             updateDTO.setPassword(password);
             updateDTO.setEmail(email);

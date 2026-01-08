@@ -6,7 +6,7 @@
 <mapper namespace="com.learnit.learnit.mypage.mapper.MyCertificateMapper">
 
     <!-- 수료증 상세 조회 -->
-    <select id="selectCertificateById" resultType="com.learnit.learnit.mypage.dto.CertificateDTO">
+    <select id="selectCertificateById" resultType="com.learnit.learnit.mypage.dto.MyCertificateDTO">
         SELECT 
             cert.cert_id AS certificateId,
             c.course_id AS courseId,

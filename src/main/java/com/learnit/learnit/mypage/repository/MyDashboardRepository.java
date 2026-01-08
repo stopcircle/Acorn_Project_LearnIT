@@ -10,27 +10,27 @@ import java.util.List;
 @Mapper
 public interface MyDashboardRepository {
     // 최근 학습 강의 조회
-    CourseSummaryDTO selectRecentCourse(@Param("userId") Long userId);
+    MyCourseSummaryDTO selectRecentCourse(@Param("userId") Long userId);
 
     // 주간 학습 데이터 조회
-    List<WeeklyLearningDTO.DailyLearning> selectWeeklyLearning(
+    List<MyWeeklyLearningDTO.DailyLearning> selectWeeklyLearning(
             @Param("userId") Long userId,
             @Param("startDate") String startDate,
             @Param("endDate") String endDate
     );
 
     // 최근 수료증 조회
-    CertificateDTO selectLatestCertificate(@Param("userId") Long userId);
+    MyCertificateDTO selectLatestCertificate(@Param("userId") Long userId);
 
     // 캘린더 데이터 조회 (월별)
-    List<CalendarSummaryDTO.CalendarDay> selectCalendarData(
+    List<MyCalendarSummaryDTO.CalendarDay> selectCalendarData(
             @Param("userId") Long userId,
             @Param("year") Integer year,
             @Param("month") Integer month
     );
 
     // 특정 날짜의 수강한 강의 목록 조회
-    List<DailyCourseDTO> selectDailyCourses(
+    List<MyDailyCourseDTO> selectDailyCourses(
             @Param("userId") Long userId,
             @Param("year") Integer year,
             @Param("month") Integer month,
@@ -38,7 +38,7 @@ public interface MyDashboardRepository {
     );
 
     // 날짜별 할일 조회
-    List<TodoDTO> selectTodosByDate(
+    List<MyTodoDTO> selectTodosByDate(
             @Param("userId") Long userId,
             @Param("year") int year,
             @Param("month") int month,
@@ -46,27 +46,27 @@ public interface MyDashboardRepository {
     );
     
     // 할일 저장
-    int insertTodo(TodoDTO todo);
+    int insertTodo(MyTodoDTO todo);
     
     // 할일 수정
-    int updateTodo(TodoDTO todo);
+    int updateTodo(MyTodoDTO todo);
     
     // 할일 삭제
     int deleteTodo(@Param("todoId") Long todoId, @Param("userId") Long userId);
     
     // 할일 ID로 조회
-    TodoDTO selectTodoById(@Param("todoId") Long todoId, @Param("userId") Long userId);
+    MyTodoDTO selectTodoById(@Param("todoId") Long todoId, @Param("userId") Long userId);
     
     // 월별 할일 목록 조회 (미완료만)
-    List<TodoDTO> selectTodosByMonth(
+    List<MyTodoDTO> selectTodosByMonth(
             @Param("userId") Long userId,
             @Param("year") Integer year,
             @Param("month") Integer month
     );
 
     // 일일 학습 목표 저장 또는 업데이트
-    void upsertDailyGoal(DailyGoalDTO goal);
+    void upsertDailyGoal(MyDailyGoalDTO goal);
 
     // 현재 주의 목표 조회
-    DailyGoalDTO selectCurrentDailyGoal(@Param("userId") Long userId, @Param("startDate") LocalDate startDate);
+    MyDailyGoalDTO selectCurrentDailyGoal(@Param("userId") Long userId, @Param("startDate") LocalDate startDate);
 }

@@ -1,7 +1,7 @@
 package com.learnit.learnit.mypage.controller;
 
-import com.learnit.learnit.mypage.dto.PaymentHistoryDTO;
-import com.learnit.learnit.mypage.dto.PaymentReceiptDTO;
+import com.learnit.learnit.mypage.dto.MyPaymentHistoryDTO;
+import com.learnit.learnit.mypage.dto.MyPaymentReceiptDTO;
 import com.learnit.learnit.mypage.service.MyCouponService;
 import com.learnit.learnit.mypage.service.MyPaymentService;
 import com.learnit.learnit.payment.common.LoginRequiredException;
@@ -37,7 +37,7 @@ public class MyCouponController {
 
         UserDTO user = userService.getUserDTOById(userId);
 
-        List<PaymentHistoryDTO> histories = paymentService.getPaymentHistories(userId);
+        List<MyPaymentHistoryDTO> histories = paymentService.getPaymentHistories(userId);
 
         model.addAttribute("user", user);
         model.addAttribute("payments", histories);
@@ -48,7 +48,7 @@ public class MyCouponController {
     //마이페이지 - 구매/혜택 - 영수증 (JSON 반환)
     @GetMapping("/mypage/purchase/{paymentId}/receipt")
     @ResponseBody
-    public PaymentReceiptDTO paymentReceipt(@PathVariable long paymentId,
+    public MyPaymentReceiptDTO paymentReceipt(@PathVariable long paymentId,
                                             HttpSession session){
 
         Long userId = SessionUtils.getUserId(session);

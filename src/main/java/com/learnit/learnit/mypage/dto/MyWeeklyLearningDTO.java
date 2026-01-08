@@ -4,7 +4,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class WeeklyLearningDTO {
+public class MyWeeklyLearningDTO {
     private String weekLabel;  // "25년 12월 3주차"
     private Integer weekNumber;
     private Integer year;
@@ -13,7 +13,7 @@ public class WeeklyLearningDTO {
     private Integer totalLectures;  // 주간 총 학습 강의 수
     private Integer totalMinutes;   // 주간 총 학습 시간 (분)
     private Integer totalNotes;      // 주간 총 노트 수
-    private DailyGoalDTO goal;      // 현재 주의 목표 (있는 경우)
+    private MyDailyGoalDTO goal;      // 현재 주의 목표 (있는 경우)
 
     @Data
     public static class DailyLearning {

@@ -1,8 +1,8 @@
 package com.learnit.learnit.mypage.service;
 
-import com.learnit.learnit.mypage.dto.CertificateDTO;
-import com.learnit.learnit.mypage.dto.ProfileDTO;
-import com.learnit.learnit.mypage.dto.ProfileUpdateDTO;
+import com.learnit.learnit.mypage.dto.MyCertificateDTO;
+import com.learnit.learnit.mypage.dto.MyProfileDTO;
+import com.learnit.learnit.mypage.dto.MyProfileUpdateDTO;
 import com.learnit.learnit.mypage.mapper.MyProfileMapper;
 import com.learnit.learnit.user.entity.User;
 import com.learnit.learnit.user.repository.UserRepository;
@@ -21,14 +21,14 @@ public class MyProfileService {
 
     private final MyProfileMapper profileMapper;
     private final PasswordEncoder passwordEncoder;
-    private final FileUploadService fileUploadService;
+    private final MyFileUploadService fileUploadService;
     private final UserRepository userRepository;
     private final EmailService emailService;
 
     /**
      * 사용자 프로필 조회
      */
-    public ProfileDTO getProfile(Long userId) {
+    public MyProfileDTO getProfile(Long userId) {
         if (userId == null) {
             throw new IllegalArgumentException("사용자 ID가 없습니다.");
         }
@@ -38,7 +38,7 @@ public class MyProfileService {
     /**
      * 사용자 수료증 목록 조회
      */
-    public List<CertificateDTO> getCertificates(Long userId) {
+    public List<MyCertificateDTO> getCertificates(Long userId) {
         if (userId == null) {
             throw new IllegalArgumentException("사용자 ID가 없습니다.");
         }
@@ -49,7 +49,7 @@ public class MyProfileService {
      * 개인정보 수정
      */
     @Transactional
-    public void updateProfile(Long userId, ProfileUpdateDTO updateDTO, String currentPassword) {
+    public void updateProfile(Long userId, MyProfileUpdateDTO updateDTO, String currentPassword) {
         if (userId == null) {
             throw new IllegalArgumentException("사용자 ID가 없습니다.");
         }
@@ -164,7 +164,7 @@ public class MyProfileService {
 
         try {
             // 기존 프로필 이미지 조회
-            ProfileDTO profile = profileMapper.selectProfileByUserId(userId);
+            MyProfileDTO profile = profileMapper.selectProfileByUserId(userId);
             String oldImageUrl = profile != null ? profile.getProfileImageUrl() : null;
 
             // 새 이미지 업로드
@@ -194,7 +194,7 @@ public class MyProfileService {
         }
 
         // 기존 프로필 이미지 조회
-        ProfileDTO profile = profileMapper.selectProfileByUserId(userId);
+        MyProfileDTO profile = profileMapper.selectProfileByUserId(userId);
         String oldImageUrl = profile != null ? profile.getProfileImageUrl() : null;
 
         // DB에서 이미지 제거 (기본 이미지로 설정)

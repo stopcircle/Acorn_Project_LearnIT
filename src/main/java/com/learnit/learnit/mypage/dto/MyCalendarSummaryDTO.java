@@ -4,7 +4,7 @@ import lombok.Data;
 import java.util.List;
 
 @Data
-public class CalendarSummaryDTO {
+public class MyCalendarSummaryDTO {
     private Integer year;
     private Integer month;
     private List<CalendarDay> days;

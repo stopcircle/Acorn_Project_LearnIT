@@ -1,8 +1,8 @@
 package com.learnit.learnit.mypage.controller;
 
-import com.learnit.learnit.mypage.dto.GitHubAnalysisDTO;
-import com.learnit.learnit.mypage.dto.ProfileDTO;
-import com.learnit.learnit.mypage.dto.SkillChartDTO;
+import com.learnit.learnit.mypage.dto.MyGitHubAnalysisDTO;
+import com.learnit.learnit.mypage.dto.MyProfileDTO;
+import com.learnit.learnit.mypage.dto.MySkillChartDTO;
 import com.learnit.learnit.mypage.service.MyGitHubAnalysisService;
 import com.learnit.learnit.mypage.service.MyProfileService;
 import com.learnit.learnit.user.util.SessionUtils;
@@ -41,7 +41,7 @@ public class MyGitHubAnalysisController {
         }
 
         try {
-            GitHubAnalysisDTO analysis = githubAnalysisService.getSavedGitHubAnalysis(userId);
+            MyGitHubAnalysisDTO analysis = githubAnalysisService.getSavedGitHubAnalysis(userId);
             
             if (analysis == null) {
                 Map<String, Object> response = new HashMap<>();
@@ -50,7 +50,7 @@ public class MyGitHubAnalysisController {
                 return ResponseEntity.ok(response);
             }
             
-            SkillChartDTO skillChart = githubAnalysisService.generateSkillChart(analysis);
+            MySkillChartDTO skillChart = githubAnalysisService.generateSkillChart(analysis);
             
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);
@@ -82,7 +82,7 @@ public class MyGitHubAnalysisController {
 
         try {
             // 사용자 프로필 조회
-            ProfileDTO profile = profileService.getProfile(userId);
+            MyProfileDTO profile = profileService.getProfile(userId);
             
             if (profile == null || profile.getGithubUrl() == null || profile.getGithubUrl().trim().isEmpty()) {
                 Map<String, Object> error = new HashMap<>();
@@ -92,14 +92,14 @@ public class MyGitHubAnalysisController {
             }
 
             // GitHub 분석 수행
-            GitHubAnalysisDTO analysis = githubAnalysisService.analyzeGitHubProfile(profile.getGithubUrl());
+            MyGitHubAnalysisDTO analysis = githubAnalysisService.analyzeGitHubProfile(profile.getGithubUrl());
             analysis.setUserId(userId);
             
             // 분석 결과 저장
             githubAnalysisService.saveGitHubAnalysis(userId, analysis);
             
             // 스킬 차트 데이터 생성
-            SkillChartDTO skillChart = githubAnalysisService.generateSkillChart(analysis);
+            MySkillChartDTO skillChart = githubAnalysisService.generateSkillChart(analysis);
 
             Map<String, Object> response = new HashMap<>();
             response.put("success", true);

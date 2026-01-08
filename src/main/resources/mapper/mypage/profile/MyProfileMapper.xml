@@ -6,7 +6,7 @@
 <mapper namespace="com.learnit.learnit.mypage.mapper.MyProfileMapper">
 
     <!-- 사용자 프로필 조회 -->
-    <select id="selectProfileByUserId" resultType="com.learnit.learnit.mypage.dto.ProfileDTO">
+    <select id="selectProfileByUserId" resultType="com.learnit.learnit.mypage.dto.MyProfileDTO">
         SELECT 
             user_id AS userId,
             name,
@@ -63,7 +63,7 @@
     </update>
 
     <!-- GitHub 분석 결과 조회 -->
-    <select id="selectGitHubAnalysisByUserId" resultType="com.learnit.learnit.mypage.dto.GitHubAnalysisDTO">
+    <select id="selectGitHubAnalysisByUserId" resultType="com.learnit.learnit.mypage.dto.MyGitHubAnalysisDTO">
         SELECT 
             analysis_id AS analysisId,
             user_id AS userId,
@@ -100,7 +100,7 @@
     </insert>
 
     <!-- 사용자 수료증 목록 조회 -->
-    <select id="selectCertificatesByUserId" resultType="com.learnit.learnit.mypage.dto.CertificateDTO">
+    <select id="selectCertificatesByUserId" resultType="com.learnit.learnit.mypage.dto.MyCertificateDTO">
         SELECT 
             cert.cert_id AS certificateId,
             c.course_id AS courseId,

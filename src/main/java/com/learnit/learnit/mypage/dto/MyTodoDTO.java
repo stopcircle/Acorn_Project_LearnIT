@@ -6,7 +6,7 @@ import java.time.LocalDate;
 import java.time.LocalDateTime;
 
 @Data
-public class TodoDTO {
+public class MyTodoDTO {
     private Long todoId;
     private Long userId;
     private String title;

@@ -4,7 +4,7 @@ import lombok.Data;
 import java.util.Map;
 
 @Data
-public class GitHubAnalysisDTO {
+public class MyGitHubAnalysisDTO {
     private Long analysisId;
     private Long userId;
     private String username;

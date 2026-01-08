@@ -20,12 +20,12 @@ public class MyDashboardService {
 
     private final MyDashboardRepository dashboardRepository;
 
-    public DashboardDTO getDashboardData(Long userId) {
-        DashboardDTO dashboard = new DashboardDTO();
+    public MyDashboardDTO getDashboardData(Long userId) {
+        MyDashboardDTO dashboard = new MyDashboardDTO();
 
         try {
             // 최근 학습 강의
-            CourseSummaryDTO recentCourse = dashboardRepository.selectRecentCourse(userId);
+            MyCourseSummaryDTO recentCourse = dashboardRepository.selectRecentCourse(userId);
             // 진행률 재계산
             if (recentCourse != null) {
                 if (recentCourse.getTotalLectures() != null && recentCourse.getTotalLectures() > 0) {
@@ -39,11 +39,11 @@ public class MyDashboardService {
 
             // 주간 학습 데이터
             LocalDate now = LocalDate.now();
-            WeeklyLearningDTO weeklyLearning = getWeeklyLearningData(userId, now.getYear(), now.getMonthValue());
+            MyWeeklyLearningDTO weeklyLearning = getWeeklyLearningData(userId, now.getYear(), now.getMonthValue());
             dashboard.setWeeklyLearning(weeklyLearning);
 
             // 캘린더 데이터
-            CalendarSummaryDTO calendarSummary = getCalendarData(userId, now.getYear(), now.getMonthValue());
+            MyCalendarSummaryDTO calendarSummary = getCalendarData(userId, now.getYear(), now.getMonthValue());
             dashboard.setCalendarSummary(calendarSummary);
 
         } catch (Exception e) {
@@ -54,14 +54,14 @@ public class MyDashboardService {
         return dashboard;
     }
 
-    public WeeklyLearningDTO getWeeklyLearningDataByStartDate(Long userId, int year, int month, LocalDate startOfWeek) {
+    public MyWeeklyLearningDTO getWeeklyLearningDataByStartDate(Long userId, int year, int month, LocalDate startOfWeek) {
         LocalDate endOfWeek = startOfWeek.plusDays(6);
         
         // 주의 시작일(월요일)이 속한 월을 기준으로 표시
         // 예: 12월 30일(월) ~ 1월 5일(일) 주는 "12월 5주차"로 표시
         LocalDate displayDate = startOfWeek;
         
-        WeeklyLearningDTO weeklyLearning = new WeeklyLearningDTO();
+        MyWeeklyLearningDTO weeklyLearning = new MyWeeklyLearningDTO();
         weeklyLearning.setYear(displayDate.getYear());
         weeklyLearning.setMonth(displayDate.getMonthValue());
         
@@ -92,7 +92,7 @@ public class MyDashboardService {
             String startDateStr = startOfWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             String endDateStr = endOfWeek.format(DateTimeFormatter.ofPattern("yyyy-MM-dd"));
             
-            List<WeeklyLearningDTO.DailyLearning> dailyLearnings = dashboardRepository.selectWeeklyLearning(
+            List<MyWeeklyLearningDTO.DailyLearning> dailyLearnings = dashboardRepository.selectWeeklyLearning(
                     userId, startDateStr, endDateStr
             );
             
@@ -112,7 +112,7 @@ public class MyDashboardService {
             weeklyLearning.setTotalNotes(totalNotes);
 
             // 현재 주의 목표 조회
-            DailyGoalDTO goal = getCurrentDailyGoal(userId);
+            MyDailyGoalDTO goal = getCurrentDailyGoal(userId);
             weeklyLearning.setGoal(goal);
             
         } catch (Exception e) {
@@ -126,39 +126,39 @@ public class MyDashboardService {
         return weeklyLearning;
     }
 
-    private WeeklyLearningDTO getWeeklyLearningData(Long userId, int year, int month) {
+    private MyWeeklyLearningDTO getWeeklyLearningData(Long userId, int year, int month) {
         LocalDate now = LocalDate.now();
         LocalDate startOfWeek = now.minusDays(now.getDayOfWeek().getValue() - 1);
         return getWeeklyLearningDataByStartDate(userId, year, month, startOfWeek);
     }
 
-    public CalendarSummaryDTO getCalendarData(Long userId, int year, int month) {
-        CalendarSummaryDTO calendar = new CalendarSummaryDTO();
+    public MyCalendarSummaryDTO getCalendarData(Long userId, int year, int month) {
+        MyCalendarSummaryDTO calendar = new MyCalendarSummaryDTO();
         calendar.setYear(year);
         calendar.setMonth(month);
 
         try {
-            List<CalendarSummaryDTO.CalendarDay> days = dashboardRepository.selectCalendarData(userId, year, month);
+            List<MyCalendarSummaryDTO.CalendarDay> days = dashboardRepository.selectCalendarData(userId, year, month);
             log.debug("캘린더 데이터 조회 결과: userId={}, year={}, month={}, daysCount={}", userId, year, month, days != null ? days.size() : 0);
             if (days == null) {
                 days = new ArrayList<>();
             }
             
             // 해당 월의 모든 할일 조회
-            List<TodoDTO> todos = dashboardRepository.selectTodosByMonth(userId, year, month);
+            List<MyTodoDTO> todos = dashboardRepository.selectTodosByMonth(userId, year, month);
             
             // 날짜별로 할일 그룹화
-            Map<Integer, List<CalendarSummaryDTO.TodoItem>> todosByDay = new HashMap<>();
+            Map<Integer, List<MyCalendarSummaryDTO.TodoItem>> todosByDay = new HashMap<>();
             if (todos != null) {
-                for (TodoDTO todo : todos) {
+                for (MyTodoDTO todo : todos) {
                     int day = todo.getTargetDate().getDayOfMonth();
                     todosByDay.computeIfAbsent(day, k -> new ArrayList<>()).add(createTodoItem(todo));
                 }
             }
             
             // 각 날짜에 할일 목록 할당
-            for (CalendarSummaryDTO.CalendarDay day : days) {
-                List<CalendarSummaryDTO.TodoItem> dayTodos = todosByDay.get(day.getDay());
+            for (MyCalendarSummaryDTO.CalendarDay day : days) {
+                List<MyCalendarSummaryDTO.TodoItem> dayTodos = todosByDay.get(day.getDay());
                 if (dayTodos != null && !dayTodos.isEmpty()) {
                     day.setTodos(dayTodos);
                 } else {
@@ -182,8 +182,8 @@ public class MyDashboardService {
         return calendar;
     }
     
-    private CalendarSummaryDTO.TodoItem createTodoItem(TodoDTO todo) {
-        CalendarSummaryDTO.TodoItem item = new CalendarSummaryDTO.TodoItem();
+    private MyCalendarSummaryDTO.TodoItem createTodoItem(MyTodoDTO todo) {
+        MyCalendarSummaryDTO.TodoItem item = new MyCalendarSummaryDTO.TodoItem();
         item.setTodoId(todo.getTodoId());
         item.setTitle(todo.getTitle());
         item.setIsCompleted(todo.getIsCompleted());
@@ -193,7 +193,7 @@ public class MyDashboardService {
     /**
      * 일일 학습 목표 저장
      */
-    public DailyGoalDTO saveDailyGoal(Long userId, Integer classGoal, Integer timeGoal, Integer interpreterGoal) {
+    public MyDailyGoalDTO saveDailyGoal(Long userId, Integer classGoal, Integer timeGoal, Integer interpreterGoal) {
         if (userId == null) {
             throw new IllegalArgumentException("사용자 ID가 없습니다.");
         }
@@ -202,7 +202,7 @@ public class MyDashboardService {
         LocalDate now = LocalDate.now();
         LocalDate startOfWeek = now.minusDays(now.getDayOfWeek().getValue() - 1);
 
-        DailyGoalDTO goal = new DailyGoalDTO();
+        MyDailyGoalDTO goal = new MyDailyGoalDTO();
         goal.setUserId(userId);
         goal.setClassGoal(classGoal != null ? classGoal : 2);
         goal.setTimeGoal(timeGoal != null ? timeGoal : 10);
@@ -217,7 +217,7 @@ public class MyDashboardService {
     /**
      * 현재 주의 일일 학습 목표 조회
      */
-    public DailyGoalDTO getCurrentDailyGoal(Long userId) {
+    public MyDailyGoalDTO getCurrentDailyGoal(Long userId) {
         if (userId == null) {
             return null;
         }
@@ -231,13 +231,13 @@ public class MyDashboardService {
     /**
      * 특정 날짜의 수강한 강의 목록 조회
      */
-    public List<DailyCourseDTO> getDailyCourses(Long userId, int year, int month, int day) {
+    public List<MyDailyCourseDTO> getDailyCourses(Long userId, int year, int month, int day) {
         if (userId == null) {
             throw new IllegalArgumentException("사용자 ID가 없습니다.");
         }
 
         try {
-            List<DailyCourseDTO> courses = dashboardRepository.selectDailyCourses(userId, year, month, day);
+            List<MyDailyCourseDTO> courses = dashboardRepository.selectDailyCourses(userId, year, month, day);
             log.debug("일일 강의 목록 조회 결과: userId={}, year={}, month={}, day={}, coursesCount={}", 
                     userId, year, month, day, courses != null ? courses.size() : 0);
             return courses != null ? courses : new ArrayList<>();

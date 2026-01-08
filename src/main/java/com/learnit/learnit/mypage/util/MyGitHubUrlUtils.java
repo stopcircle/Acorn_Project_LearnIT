@@ -3,7 +3,7 @@ package com.learnit.learnit.mypage.util;
 /**
  * GitHub URL 관련 유틸리티 클래스
  */
-public class GitHubUrlUtils {
+public class MyGitHubUrlUtils {
     
     /**
      * GitHub URL을 표준 형식으로 변환합니다.

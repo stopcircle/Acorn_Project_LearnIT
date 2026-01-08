@@ -1,6 +1,6 @@
 package com.learnit.learnit.mypage.controller;
 
-import com.learnit.learnit.mypage.dto.QnADTO;
+import com.learnit.learnit.mypage.dto.MyQnADTO;
 import com.learnit.learnit.mypage.service.MyQnAService;
 import com.learnit.learnit.user.dto.UserDTO;
 import com.learnit.learnit.user.service.UserService;
@@ -56,7 +56,7 @@ public class MyQnAController {
         int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
 
         // 사용자가 작성한 Q&A 목록 조회
-        List<QnADTO> qnaList = qnAService.getMyQnAList(userId, page, size);
+        List<MyQnADTO> qnaList = qnAService.getMyQnAList(userId, page, size);
         model.addAttribute("qnaList", qnaList != null ? qnaList : new java.util.ArrayList<>());
         model.addAttribute("currentPage", page);
         model.addAttribute("totalPages", totalPages);

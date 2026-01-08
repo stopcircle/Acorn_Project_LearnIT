@@ -3,7 +3,7 @@ package com.learnit.learnit.mypage.dto;
 import lombok.Data;
 
 @Data
-public class ProfileUpdateDTO {
+public class MyProfileUpdateDTO {
     private String name;
     private String password;
     private String email;
