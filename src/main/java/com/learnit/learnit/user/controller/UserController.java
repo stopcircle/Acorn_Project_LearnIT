@@ -199,10 +199,10 @@ public class UserController {
         
         // ACTIVE 상태면 이미 가입 완료된 사용자이므로 홈으로 리다이렉트
         if (User.STATUS_ACTIVE.equals(user.getStatus())) {
-            // 관리자 계정인 경우 관리자 페이지로 리다이렉트
+            // 관리자 계정인 경우 메인 페이지로 리다이렉트 - ADMIN 또는 SUB_ADMIN
             String userRole = user.getRole();
-            if (userRole != null && "ADMIN".equals(userRole.trim())) {
-                return "redirect:/admin/home";
+            if (userRole != null && ("ADMIN".equals(userRole.trim()) || "SUB_ADMIN".equals(userRole.trim()))) {
+                return "redirect:/home";
             }
             return "redirect:/home";
         }
@@ -239,10 +239,10 @@ public class UserController {
             // 세션 갱신 (ACTIVE 상태로 변경된 사용자 정보로)
             sessionService.setLoginSession(session, updatedUser);
             
-            // 관리자 계정인 경우 관리자 페이지로 리다이렉트
+            // 관리자 계정인 경우 메인 페이지로 리다이렉트 - ADMIN 또는 SUB_ADMIN
             String userRole = updatedUser.getRole();
-            if (userRole != null && "ADMIN".equals(userRole.trim())) {
-                return "redirect:/admin/home";
+            if (userRole != null && ("ADMIN".equals(userRole.trim()) || "SUB_ADMIN".equals(userRole.trim()))) {
+                return "redirect:/home";
             }
             
             return "redirect:/home";
