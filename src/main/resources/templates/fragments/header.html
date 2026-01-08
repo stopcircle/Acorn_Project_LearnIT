@@ -51,8 +51,8 @@
                     <a th:href="@{/admin/home}" class="admin-btn" aria-label="관리자 페이지">관리자</a>
                 </th:block>
 
-                <a th:href="@{/cart}" class="cart-btn" aria-label="장바구니">
-                    <img th:src="@{/images/cart-icon.png}" class="cart-icon" alt="cart">
+                <a th:href="@{/cart}" class="header-cart-btn" aria-label="장바구니">
+                    <img th:src="@{/images/cart-icon.png}" class="header-cart-icon" alt="cart">
                     <span class="cart-count-badge"
                           th:if="${cartCount > 0}"
                           th:text="${cartCount}">0</span>
