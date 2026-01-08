@@ -44,6 +44,20 @@ public class AuthInterceptor implements HandlerInterceptor {
                 response.sendRedirect("/home?error=unauthorized");
                 return false;
             }
+
+            // 서브 어드민(SUB_ADMIN) 접근 경로 제한
+            if ("SUB_ADMIN".equals(role.trim())) {
+                boolean isAllowed = requestURI.equals("/admin") 
+                                 || requestURI.equals("/admin/home")
+                                 || requestURI.startsWith("/admin/review")
+                                 || requestURI.startsWith("/admin/qna");
+                
+                if (!isAllowed) {
+                    // 권한 없음 -> 홈으로 리다이렉트 (또는 에러 페이지)
+                    response.sendRedirect("/admin/home?error=access_denied");
+                    return false;
+                }
+            }
         }
         
         // 세션이 없거나 로그인 정보가 없으면 통과 (Spring Security가 처리)
