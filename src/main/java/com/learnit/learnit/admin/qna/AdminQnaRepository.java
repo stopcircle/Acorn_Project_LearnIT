@@ -8,7 +8,7 @@ import java.util.List;
 @Mapper
 public interface AdminQnaRepository {
 
-    List<AdminQnaDto> selectQnas(
+    List<AdminQnaDTO> selectQnas(
             @Param("offset") int offset,
             @Param("limit") int limit,
             @Param("type") String type,
@@ -28,7 +28,7 @@ public interface AdminQnaRepository {
             @Param("instructorUserId") Long instructorUserId   // ✅ 추가
     );
 
-    AdminQnaDto selectQnaDetail(@Param("qnaId") int qnaId);
+    AdminQnaDTO selectQnaDetail(@Param("qnaId") int qnaId);
 
     Integer selectLatestAnswerId(@Param("qnaId") int qnaId);
 

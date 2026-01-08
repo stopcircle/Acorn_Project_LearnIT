@@ -4,7 +4,7 @@
 
 <mapper namespace="com.learnit.learnit.admin.notice.AdminNoticeRepository">
 
-    <select id="selectNotices" resultType="com.learnit.learnit.admin.notice.AdminNoticeDto">
+    <select id="selectNotices" resultType="com.learnit.learnit.admin.notice.AdminNoticeDTO">
         SELECT
         n.notice_id AS noticeId,
         n.user_id AS userId,
@@ -51,7 +51,7 @@
         </where>
     </select>
 
-    <select id="selectNoticeById" resultType="com.learnit.learnit.admin.notice.AdminNoticeDto">
+    <select id="selectNoticeById" resultType="com.learnit.learnit.admin.notice.AdminNoticeDTO">
         SELECT
         n.notice_id AS noticeId,
         n.user_id AS userId,
@@ -68,12 +68,12 @@
     </select>
 
     <!-- notice_id 직접 넣어서 insert (AUTO_INCREMENT 미사용) -->
-    <insert id="insertNotice" parameterType="com.learnit.learnit.admin.notice.AdminNoticeDto">
+    <insert id="insertNotice" parameterType="com.learnit.learnit.admin.notice.AdminNoticeDTO">
         INSERT INTO notice (notice_id, user_id, category, title, content, file_url, created_at, updated_at)
         VALUES (#{noticeId}, #{userId}, #{category}, #{title}, #{content}, #{fileUrl}, NOW(), NOW())
     </insert>
 
-    <update id="updateNotice" parameterType="com.learnit.learnit.admin.notice.AdminNoticeDto">
+    <update id="updateNotice" parameterType="com.learnit.learnit.admin.notice.AdminNoticeDTO">
         UPDATE notice
         SET
         category = #{category},

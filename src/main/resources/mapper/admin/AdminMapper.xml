@@ -20,7 +20,7 @@
         AND (comment_status = 'Active' OR comment_status IS NULL)
     </select>
 
-    <select id="selectLatestNotices" resultType="com.learnit.learnit.admin.AdminHome$AdminNotice">
+    <select id="selectLatestNotices" resultType="com.learnit.learnit.admin.home.AdminHome$AdminNotice">
         SELECT COALESCE(category, '') as category,
                COALESCE(title, '') as title,
                COALESCE(DATE_FORMAT(created_at, '%Y-%m-%d'), '') as createdAt
@@ -29,7 +29,7 @@
             LIMIT 4
     </select>
 
-    <select id="selectPendingCertificates" resultType="com.learnit.learnit.admin.AdminHome$AdminCertificate">
+    <select id="selectPendingCertificates" resultType="com.learnit.learnit.admin.home.AdminHome$AdminCertificate">
         SELECT COALESCE(c.title, '') as title, COALESCE(u.name, '') as name
         FROM certificate cert
             INNER JOIN enrollment e ON cert.enrollment_id = e.enrollment_id

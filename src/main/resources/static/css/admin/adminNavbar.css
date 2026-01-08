@@ -1,0 +1,67 @@
+.admin-sidebar{
+    width: 220px;
+    height: 605px;
+    background: #fff;
+    border-radius: 1rem;
+    padding: 2.4rem 2rem;
+    margin: 2rem 2rem;
+    border: 0.1rem solid #d5dbe3;
+}
+
+.sidebar-tabs ul {
+    list-style: none;
+    padding: 0;
+    margin: 0;
+}
+
+.sidebar-tabs ul li{
+    margin-bottom: 1rem;
+}
+
+.sidebar-tabs ul li a {
+    display: block;
+    padding: 0.8rem 1.2rem;
+    color: #333;
+    text-decoration: none;
+    border-radius: 0.8rem;
+    transition: all 0.2s ease;
+    font-size: 1.4rem;
+}
+
+.sidebar-tabs ul li a:hover {
+    background-color: #f0f7ff;
+    color: #0A4A7A;
+}
+
+.sidebar-tabs ul li a.active {
+    background-color: #F0F7FF;
+    color: #0A4A7A;
+    font-weight: 600;
+    position: relative;
+    padding-left: 1.8rem;
+}
+
+.sidebar-tabs ul li a.active::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 50%;
+    transform: translateY(-50%);
+    width: 0.3rem;
+    height: 60%;
+    background: #0A4A7A;
+    border-radius: 0 0.2rem 0.2rem 0;
+}
+
+/*admin-layout용*/
+.main-body {
+    max-width: 1200px;
+    margin: 0 auto;
+    display: flex;
+    flex: 1;
+}
+
+.content {
+    flex: 1;
+    padding: 30px;
+}

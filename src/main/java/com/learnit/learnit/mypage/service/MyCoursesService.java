@@ -1,6 +1,6 @@
 package com.learnit.learnit.mypage.service;
 
-import com.learnit.learnit.mypage.dto.CourseSummaryDTO;
+import com.learnit.learnit.mypage.dto.MyCourseSummaryDTO;
 import com.learnit.learnit.mypage.mapper.MyCoursesMapper;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -21,7 +21,7 @@ public class MyCoursesService {
      * @param userId 사용자 ID
      * @return 강의 목록
      */
-    public List<CourseSummaryDTO> getMyCourses(Long userId) {
+    public List<MyCourseSummaryDTO> getMyCourses(Long userId) {
         try {
             return mypageCoursesMapper.selectMyCourses(userId);
         } catch (Exception e) {

@@ -1,6 +1,6 @@
 package com.learnit.learnit.qna.mapper;
 
-import com.learnit.learnit.qna.dto.CourseQnaDto;
+import com.learnit.learnit.qna.dto.CourseQnaDTO;
 import org.apache.ibatis.annotations.Mapper;
 import org.apache.ibatis.annotations.Param;
 
@@ -15,7 +15,7 @@ public interface CourseQnaMapper {
     int isSubAdminOfCourse(@Param("userId") Long userId, @Param("courseId") Long courseId); // SUB_ADMIN
 
     // 질문
-    List<CourseQnaDto.QuestionRes> selectQuestions(@Param("courseId") Long courseId);
+    List<CourseQnaDTO.QuestionRes> selectQuestions(@Param("courseId") Long courseId);
     Long selectQuestionOwnerId(@Param("qnaId") Long qnaId);
 
     int insertQuestion(@Param("courseId") Long courseId, @Param("userId") Long userId, @Param("content") String content);
@@ -25,7 +25,7 @@ public interface CourseQnaMapper {
     int updateQuestionResolved(@Param("qnaId") Long qnaId, @Param("isResolved") String isResolved);
 
     // 답변
-    List<CourseQnaDto.AnswerRes> selectAnswers(@Param("courseId") Long courseId);
+    List<CourseQnaDTO.AnswerRes> selectAnswers(@Param("courseId") Long courseId);
 
     Long selectAnswerQnaId(@Param("answerId") Long answerId);
 

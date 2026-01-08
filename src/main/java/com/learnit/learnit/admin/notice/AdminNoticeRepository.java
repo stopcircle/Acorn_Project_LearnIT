@@ -8,7 +8,7 @@ import java.util.List;
 @Mapper
 public interface AdminNoticeRepository {
 
-    List<AdminNoticeDto> selectNotices(
+    List<AdminNoticeDTO> selectNotices(
             @Param("offset") int offset,
             @Param("limit") int limit,
             @Param("category") String category,
@@ -20,12 +20,12 @@ public interface AdminNoticeRepository {
             @Param("search") String search
     );
 
-    AdminNoticeDto selectNoticeById(@Param("noticeId") int noticeId);
+    AdminNoticeDTO selectNoticeById(@Param("noticeId") int noticeId);
 
     // notice_id 직접 넣어서 insert (AUTO_INCREMENT 미사용)
-    void insertNotice(AdminNoticeDto dto);
+    void insertNotice(AdminNoticeDTO dto);
 
-    void updateNotice(AdminNoticeDto dto);
+    void updateNotice(AdminNoticeDTO dto);
 
     void deleteNotice(@Param("noticeId") int noticeId);
 

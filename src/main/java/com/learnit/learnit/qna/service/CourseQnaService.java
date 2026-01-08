@@ -1,6 +1,6 @@
 package com.learnit.learnit.qna.service;
 
-import com.learnit.learnit.qna.dto.CourseQnaDto;
+import com.learnit.learnit.qna.dto.CourseQnaDTO;
 import com.learnit.learnit.qna.mapper.CourseQnaMapper;
 import com.learnit.learnit.user.util.SessionUtils;
 import lombok.RequiredArgsConstructor;
@@ -34,19 +34,19 @@ public class CourseQnaService {
     }
 
     @Transactional(readOnly = true)
-    public List<CourseQnaDto.QuestionRes> getQuestions(Long courseId) {
+    public List<CourseQnaDTO.QuestionRes> getQuestions(Long courseId) {
         Long loginUserId = SessionUtils.getLoginUserId();
         boolean isAdmin = (loginUserId != null && isAdmin(loginUserId));
         boolean isSubAdmin = (loginUserId != null && isSubAdminOfCourse(loginUserId, courseId));
         boolean canAdminAnswer = (loginUserId != null && (isAdmin || isSubAdmin));
 
-        List<CourseQnaDto.QuestionRes> questions = courseQnaMapper.selectQuestions(courseId);
-        List<CourseQnaDto.AnswerRes> answers = courseQnaMapper.selectAnswers(courseId);
+        List<CourseQnaDTO.QuestionRes> questions = courseQnaMapper.selectQuestions(courseId);
+        List<CourseQnaDTO.AnswerRes> answers = courseQnaMapper.selectAnswers(courseId);
 
-        Map<Long, List<CourseQnaDto.AnswerRes>> byQna = answers.stream()
-                .collect(Collectors.groupingBy(CourseQnaDto.AnswerRes::getQnaId));
+        Map<Long, List<CourseQnaDTO.AnswerRes>> byQna = answers.stream()
+                .collect(Collectors.groupingBy(CourseQnaDTO.AnswerRes::getQnaId));
 
-        for (CourseQnaDto.QuestionRes q : questions) {
+        for (CourseQnaDTO.QuestionRes q : questions) {
             Long questionOwnerId = q.getUserId();
             boolean isQuestionOwner = (loginUserId != null && Objects.equals(loginUserId, questionOwnerId));
 
@@ -64,9 +64,9 @@ public class CourseQnaService {
 
             q.setCanSetResolved(canAdminAnswer);
 
-            List<CourseQnaDto.AnswerRes> list = byQna.getOrDefault(q.getQnaId(), Collections.emptyList());
+            List<CourseQnaDTO.AnswerRes> list = byQna.getOrDefault(q.getQnaId(), Collections.emptyList());
 
-            for (CourseQnaDto.AnswerRes a : list) {
+            for (CourseQnaDTO.AnswerRes a : list) {
                 boolean isWriter = (loginUserId != null && Objects.equals(loginUserId, a.getUserId()));
 
                 // 수정: 작성자만
@@ -135,7 +135,7 @@ public class CourseQnaService {
      * - 질문자: 댓글 가능(해결여부 변경 불가)
      */
     @Transactional
-    public void createAnswer(CourseQnaDto.AnswerCreateReq req, Long courseId) {
+    public void createAnswer(CourseQnaDTO.AnswerCreateReq req, Long courseId) {
         Long userId = SessionUtils.requireLoginUserId();
 
         // ❌ 답변에 대한 댓글(대댓글) 기능 제거: parentAnswerId가 오면 차단
@@ -167,7 +167,7 @@ public class CourseQnaService {
     }
 
     @Transactional
-    public void updateAnswer(Long answerId, CourseQnaDto.AnswerUpdateReq req, Long courseId) {
+    public void updateAnswer(Long answerId, CourseQnaDTO.AnswerUpdateReq req, Long courseId) {
         Long userId = SessionUtils.requireLoginUserId();
 
         Long ownerId = courseQnaMapper.selectAnswerOwnerId(answerId);

@@ -92,6 +92,6 @@ public class PaymentController {
 
     @GetMapping("/payment/fail")
     public String fail() {
-        return "payment/payment-fail";
+        return "payment/paymentFail";
     }
 }

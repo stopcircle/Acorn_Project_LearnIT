@@ -1,6 +1,6 @@
 package com.learnit.learnit.mypage.controller;
 
-import com.learnit.learnit.mypage.dto.CourseSummaryDTO;
+import com.learnit.learnit.mypage.dto.MyCourseSummaryDTO;
 import com.learnit.learnit.mypage.service.MyCoursesService;
 import com.learnit.learnit.user.dto.UserDTO;
 import com.learnit.learnit.user.service.UserService;
@@ -37,9 +37,9 @@ public class MyCoursesController {
         model.addAttribute("user", user);
         
         // 수강 중인 강의 목록 조회
-        List<CourseSummaryDTO> myCourses = mypageCoursesService.getMyCourses(userId);
+        List<MyCourseSummaryDTO> myCourses = mypageCoursesService.getMyCourses(userId);
         model.addAttribute("courses", myCourses);
 
-        return "mypage/courses/courses";
+        return "mypage/courses/myCourses";
     }
 }

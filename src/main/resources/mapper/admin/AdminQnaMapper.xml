@@ -82,7 +82,7 @@
         </if>
     </sql>
 
-    <select id="selectQnas" resultType="com.learnit.learnit.admin.qna.AdminQnaDto">
+    <select id="selectQnas" resultType="com.learnit.learnit.admin.qna.AdminQnaDTO">
         SELECT
         q.qna_id AS qnaId,
         q.course_id AS courseId,
@@ -125,7 +125,7 @@
         </where>
     </select>
 
-    <select id="selectQnaDetail" resultType="com.learnit.learnit.admin.qna.AdminQnaDto">
+    <select id="selectQnaDetail" resultType="com.learnit.learnit.admin.qna.AdminQnaDTO">
         SELECT
         q.qna_id AS qnaId,
         q.course_id AS courseId,

@@ -1,0 +1,219 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE mapper PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+<mapper namespace="com.learnit.learnit.mypage.repository.MyDashboardRepository">
+
+    <!-- 최근 학습 강의 조회 -->
+    <select id="selectRecentCourse" resultType="com.learnit.learnit.mypage.dto.MyCourseSummaryDTO">
+        SELECT 
+            c.course_id AS courseId,
+            c.title,
+            c.thumbnail_url AS thumbnailUrl,
+            COALESCE(MAX(ch.order_index), 0) AS currentLecture,
+            COALESCE((SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id), 0) AS totalLectures,
+            CASE 
+                WHEN (SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id) > 0 
+                THEN ROUND(COALESCE(MAX(ch.order_index), 0) * 100.0 / (SELECT COUNT(*) FROM chapter WHERE course_id = c.course_id), 2)
+                ELSE 0
+            END AS progressRate,
+            e.enrollment_id AS enrollmentId,
+            (SELECT sl_inner.chapter_id 
+             FROM study_log sl_inner 
+             WHERE sl_inner.user_id = e.user_id AND sl_inner.course_id = c.course_id 
+             ORDER BY sl_inner.created_at DESC LIMIT 1) AS lastChapterId
+        FROM enrollment e
+        JOIN course c ON e.course_id = c.course_id
+        LEFT JOIN study_log sl ON e.user_id = sl.user_id AND e.course_id = sl.course_id
+        LEFT JOIN chapter ch ON sl.chapter_id = ch.chapter_id
+        WHERE e.user_id = #{userId}
+          AND e.status = 'ACTIVE'
+        GROUP BY e.enrollment_id, c.course_id, c.title, c.thumbnail_url
+        ORDER BY MAX(sl.created_at) DESC, e.created_at DESC
+        LIMIT 1
+    </select>
+
+    <!-- 주간 학습 데이터 조회 -->
+    <select id="selectWeeklyLearning" resultType="com.learnit.learnit.mypage.dto.MyWeeklyLearningDTO$DailyLearning">
+        SELECT 
+            CASE DAYOFWEEK(week_days.study_date)
+                WHEN 1 THEN '일'
+                WHEN 2 THEN '월'
+                WHEN 3 THEN '화'
+                WHEN 4 THEN '수'
+                WHEN 5 THEN '목'
+                WHEN 6 THEN '금'
+                WHEN 7 THEN '토'
+            END AS dayOfWeek,
+            DAY(week_days.study_date) AS day,
+            COALESCE(COUNT(DISTINCT sl.chapter_id), 0) AS lectureCount,
+            COALESCE(SUM(sl.studied_sec) / 60, 0) AS studyMinutes,
+            COALESCE(COUNT(DISTINCT il.log_id), 0) AS noteCount,
+            CASE WHEN COUNT(sl.log_id) > 0 THEN 1 ELSE 0 END AS hasStudy
+        FROM (
+            SELECT DATE(#{startDate}) + INTERVAL seq DAY AS study_date
+            FROM (
+                SELECT 0 AS seq UNION SELECT 1 UNION SELECT 2 UNION SELECT 3 UNION 
+                SELECT 4 UNION SELECT 5 UNION SELECT 6
+            ) AS days
+        ) AS week_days
+        LEFT JOIN study_log sl ON DATE(sl.created_at) = week_days.study_date 
+            AND sl.user_id = #{userId}
+        LEFT JOIN interpreter_log il ON DATE(il.executed_at) = week_days.study_date 
+            AND il.user_id = #{userId}
+        WHERE week_days.study_date BETWEEN DATE(#{startDate}) AND DATE(#{endDate})
+        GROUP BY week_days.study_date
+        ORDER BY week_days.study_date
+    </select>
+
+    <!-- 최근 수료증 조회 -->
+    <select id="selectLatestCertificate" resultType="com.learnit.learnit.mypage.dto.MyCertificateDTO">
+        SELECT 
+            cert.cert_id AS certificateId,
+            c.course_id AS courseId,
+            c.title AS courseTitle,
+            DATE(cert.issued_at) AS issuedDate,
+            CONCAT('/mypage/certificates/', cert.cert_id, '/download') AS certificateUrl
+        FROM certificate cert
+        JOIN enrollment e ON cert.enrollment_id = e.enrollment_id
+        JOIN course c ON e.course_id = c.course_id
+        WHERE e.user_id = #{userId}
+          AND cert.is_approved = 'Y'
+        ORDER BY cert.issued_at DESC
+        LIMIT 1
+    </select>
+
+    <!-- 캘린더 데이터 조회 (월별) -->
+    <!-- 캘린더 데이터 조회 (월별) -->
+    <select id="selectCalendarData" resultType="com.learnit.learnit.mypage.dto.MyCalendarSummaryDTO$CalendarDay">
+        SELECT 
+            COALESCE(s.day, t.day) AS day,
+            COALESCE(s.lectureCount, 0) AS lectureCount,
+            COALESCE(s.studyMinutes, 0) AS studyMinutes,
+            COALESCE(s.hasAttendance, 0) AS hasAttendance,
+            COALESCE(s.hasStudy, 0) AS hasStudy,
+            CASE WHEN COALESCE(t.todoCount, 0) > 0 THEN 1 ELSE 0 END AS hasTodo,
+            COALESCE(t.todoCount, 0) AS todoCount
+        FROM (
+            SELECT 
+                DAY(sl.created_at) AS day,
+                COUNT(DISTINCT sl.chapter_id) AS lectureCount,
+                SUM(sl.studied_sec) / 60 AS studyMinutes,
+                CASE WHEN COUNT(DISTINCT sl.log_id) > 0 THEN 1 ELSE 0 END AS hasAttendance,
+                CASE WHEN COUNT(sl.log_id) > 0 THEN 1 ELSE 0 END AS hasStudy
+            FROM study_log sl
+            WHERE sl.user_id = #{userId}
+              AND YEAR(sl.created_at) = #{year}
+              AND MONTH(sl.created_at) = #{month}
+            GROUP BY DAY(sl.created_at)
+        ) AS s
+        RIGHT JOIN (
+            SELECT 
+                DAY(t.target_date) AS day,
+                COUNT(*) AS todoCount
+            FROM todo t
+            WHERE t.user_id = #{userId}
+              AND YEAR(t.target_date) = #{year}
+              AND MONTH(t.target_date) = #{month}
+              AND (t.is_completed IS NULL OR t.is_completed = 'N')
+            GROUP BY DAY(t.target_date)
+        ) AS t ON s.day = t.day
+        UNION
+        SELECT 
+            s.day,
+            s.lectureCount,
+            s.studyMinutes,
+            s.hasAttendance,
+            s.hasStudy,
+            0 AS hasTodo,
+            0 AS todoCount
+        FROM (
+            SELECT 
+                DAY(sl.created_at) AS day,
+                COUNT(DISTINCT sl.chapter_id) AS lectureCount,
+                SUM(sl.studied_sec) / 60 AS studyMinutes,
+                CASE WHEN COUNT(DISTINCT sl.log_id) > 0 THEN 1 ELSE 0 END AS hasAttendance,
+                CASE WHEN COUNT(sl.log_id) > 0 THEN 1 ELSE 0 END AS hasStudy
+            FROM study_log sl
+            WHERE sl.user_id = #{userId}
+              AND YEAR(sl.created_at) = #{year}
+              AND MONTH(sl.created_at) = #{month}
+            GROUP BY DAY(sl.created_at)
+        ) AS s
+        WHERE NOT EXISTS (
+            SELECT 1
+            FROM todo t
+            WHERE t.user_id = #{userId}
+              AND YEAR(t.target_date) = #{year}
+              AND MONTH(t.target_date) = #{month}
+              AND DAY(t.target_date) = s.day
+              AND (t.is_completed IS NULL OR t.is_completed = 'N')
+        )
+        ORDER BY day
+    </select>
+
+    <!-- 특정 날짜의 수강한 강의 목록 조회 -->
+    <select id="selectDailyCourses" resultType="com.learnit.learnit.mypage.dto.MyDailyCourseDTO">
+        SELECT 
+            c.course_id AS courseId,
+            c.title AS courseTitle,
+            ch.chapter_id AS chapterId,
+            ch.title AS chapterTitle,
+            ch.order_index AS chapterOrder,
+            TIME(sl.created_at) AS studiedTime,
+            SUM(sl.studied_sec) / 60 AS studiedMinutes
+        FROM study_log sl
+        JOIN course c ON sl.course_id = c.course_id
+        LEFT JOIN chapter ch ON sl.chapter_id = ch.chapter_id
+        WHERE sl.user_id = #{userId}
+          AND YEAR(sl.created_at) = #{year}
+          AND MONTH(sl.created_at) = #{month}
+          AND DAY(sl.created_at) = #{day}
+        GROUP BY c.course_id, c.title, ch.chapter_id, ch.title, ch.order_index, TIME(sl.created_at)
+        ORDER BY sl.created_at ASC
+    </select>
+
+    <!-- 일일 학습 목표 저장 또는 업데이트 -->
+    <insert id="upsertDailyGoal" parameterType="com.learnit.learnit.mypage.dto.MyDailyGoalDTO">
+        INSERT INTO daily_goal (
+            user_id,
+            class_goal,
+            time_goal,
+            interpreter_goal,
+            start_date,
+            created_at,
+            updated_at
+        ) VALUES (
+            #{userId},
+            #{classGoal},
+            #{timeGoal},
+            #{interpreterGoal},
+            #{startDate},
+            NOW(),
+            NOW()
+        )
+        ON DUPLICATE KEY UPDATE
+            class_goal = #{classGoal},
+            time_goal = #{timeGoal},
+            interpreter_goal = #{interpreterGoal},
+            updated_at = NOW()
+    </insert>
+
+    <!-- 현재 주의 목표 조회 -->
+    <select id="selectCurrentDailyGoal" resultType="com.learnit.learnit.mypage.dto.MyDailyGoalDTO">
+        SELECT 
+            goal_id AS goalId,
+            user_id AS userId,
+            class_goal AS classGoal,
+            time_goal AS timeGoal,
+            interpreter_goal AS interpreterGoal,
+            start_date AS startDate,
+            created_at AS createdAt,
+            updated_at AS updatedAt
+        FROM daily_goal
+        WHERE user_id = #{userId}
+          AND start_date = #{startDate}
+        LIMIT 1
+    </select>
+
+</mapper>

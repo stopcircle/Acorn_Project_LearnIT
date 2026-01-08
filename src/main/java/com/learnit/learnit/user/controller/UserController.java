@@ -208,7 +208,7 @@ public class UserController {
         }
         
         // SIGNUP_PENDING 상태만 추가 정보 입력 페이지 표시
-        return "user/additional-info";
+        return "user/additionalInfo";
     }
 
     @PostMapping("/user/additional-info")
@@ -248,7 +248,7 @@ public class UserController {
             return "redirect:/home";
         } catch (IllegalArgumentException e) {
             model.addAttribute("error", e.getMessage());
-            return "user/additional-info";
+            return "user/additionalInfo";
         }
     }
 
@@ -261,7 +261,7 @@ public class UserController {
         if (!model.containsAttribute("error")) {
             model.addAttribute("error", null);
         }
-        return "user/find-password";
+        return "user/findPassword";
     }
 
     @PostMapping("/user/find-password")
@@ -297,7 +297,7 @@ public class UserController {
             model.addAttribute("error", "비밀번호 찾기 중 오류가 발생했습니다.");
         }
         
-        return "user/find-password";
+        return "user/findPassword";
     }
 
     @PostMapping("/logout")

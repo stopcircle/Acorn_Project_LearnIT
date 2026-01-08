@@ -22,6 +22,6 @@ public class AdminUserRolePageController {
         }
 
         model.addAttribute("activeTab", "user");
-        return "admin/admin-user";
+        return "admin/user/adminUser";
     }
 }

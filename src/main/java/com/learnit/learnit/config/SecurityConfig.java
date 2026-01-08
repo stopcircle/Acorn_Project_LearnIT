@@ -29,7 +29,7 @@ public class SecurityConfig {
                                 "/api/mypage/**", "/mypage/**",
                                 "/oauth2/authorization/**", "/login/oauth2/code/**",
                                 "/cart/**", "/payment/**", "/payments/**",
-                                "/admin/**","/api/chatbot/**","/api/reviews/**","/api/qna/questions", "/api/qna/**",
+                                "/admin/**","/api/chatbot/**","/about", "/about/**", "/api/reviews/**","/api/qna/questions", "/api/qna/**",
                                 "/api/admin/**", "/api/resources", "/api/quiz/**", "/api/interpreter/**").permitAll() // Security는 통과시키고, 실제 검증은 AuthInterceptor에게 위임
                         .anyRequest().authenticated()
                 )

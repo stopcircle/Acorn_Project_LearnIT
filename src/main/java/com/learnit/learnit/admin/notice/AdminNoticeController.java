@@ -45,7 +45,7 @@ public class AdminNoticeController {
         int startPage = ((page - 1) / PAGE_BLOCK_SIZE) * PAGE_BLOCK_SIZE + 1;
         int endPage = Math.min(startPage + PAGE_BLOCK_SIZE - 1, totalPages);
 
-        List<AdminNoticeDto> notices = service.getNotices(page, size, category, search);
+        List<AdminNoticeDTO> notices = service.getNotices(page, size, category, search);
 
         model.addAttribute("notices", notices);
         model.addAttribute("currentPage", page);
@@ -58,7 +58,7 @@ public class AdminNoticeController {
         model.addAttribute("startPage", startPage);
         model.addAttribute("endPage", endPage);
 
-        return "admin/adminNoticeList";
+        return "admin/notice/adminNoticeList";
     }
 
     @GetMapping("/new")
@@ -70,19 +70,19 @@ public class AdminNoticeController {
             Model model
     ) {
         model.addAttribute("mode", "create");
-        model.addAttribute("notice", new AdminNoticeDto());
+        model.addAttribute("notice", new AdminNoticeDTO());
 
         model.addAttribute("returnPage", returnPage);
         model.addAttribute("returnSize", returnSize);
         model.addAttribute("returnCategory", returnCategory);
         model.addAttribute("returnSearch", returnSearch);
 
-        return "admin/adminNoticeForm";
+        return "admin/notice/adminNoticeForm";
     }
 
     @PostMapping
     public String create(
-            @ModelAttribute AdminNoticeDto notice,
+            @ModelAttribute AdminNoticeDTO notice,
             @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "returnPage", defaultValue = "1") int returnPage,
             @RequestParam(value = "returnSize", defaultValue = "7") int returnSize,
@@ -91,7 +91,7 @@ public class AdminNoticeController {
             RedirectAttributes ra
     ) {
         try {
-            notice.setUserId(4); // 임시
+            notice.setUserId(4L); // 임시
 
             if (file != null && !file.isEmpty()) {
                 String savedUrl = saveNoticeFile(file);
@@ -122,7 +122,7 @@ public class AdminNoticeController {
             @RequestParam(value = "returnSearch", required = false) String returnSearch,
             Model model
     ) {
-        AdminNoticeDto notice = service.getNotice(noticeId);
+        AdminNoticeDTO notice = service.getNotice(noticeId);
         if (notice == null) return "redirect:/admin/notice";
 
         model.addAttribute("mode", "edit");
@@ -133,13 +133,13 @@ public class AdminNoticeController {
         model.addAttribute("returnCategory", returnCategory);
         model.addAttribute("returnSearch", returnSearch);
 
-        return "admin/adminNoticeForm";
+        return "admin/notice/adminNoticeForm";
     }
 
     @PostMapping("/{noticeId}/update")
     public String update(
             @PathVariable int noticeId,
-            @ModelAttribute AdminNoticeDto notice,
+            @ModelAttribute AdminNoticeDTO notice,
             @RequestParam(value = "file", required = false) MultipartFile file,
             @RequestParam(value = "deleteFile", defaultValue = "false") boolean deleteFile,
             @RequestParam(value = "returnPage", defaultValue = "1") int returnPage,
@@ -150,9 +150,9 @@ public class AdminNoticeController {
     ) {
         try {
             notice.setNoticeId(noticeId);
-            notice.setUserId(4); // 임시
+            notice.setUserId(4L); // 임시
 
-            AdminNoticeDto origin = service.getNotice(noticeId);
+            AdminNoticeDTO origin = service.getNotice(noticeId);
             String originUrl = (origin != null) ? origin.getFileUrl() : null;
 
             notice.setFileUrl(originUrl);
@@ -197,7 +197,7 @@ public class AdminNoticeController {
     ) {
         try {
             // ✅ 첨부파일도 같이 지우고 싶으면(권장)
-            AdminNoticeDto origin = service.getNotice(noticeId);
+            AdminNoticeDTO origin = service.getNotice(noticeId);
             if (origin != null && hasText(origin.getFileUrl())) {
                 deletePhysicalFile(origin.getFileUrl());
             }

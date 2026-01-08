@@ -1,0 +1,45 @@
+<!DOCTYPE html>
+<html lang="ko" xmlns:th="http://www.thymeleaf.org"
+      th:fragment="layout(title, content, css, script)">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title th:replace="${title}">관리자 페이지</title>
+
+    <link rel="stylesheet" th:href="@{/css/common/base.css}">
+    <link rel="stylesheet" th:href="@{/css/common/header.css}">
+    <link rel="stylesheet" th:href="@{/css/admin/adminNavbar.css}">
+    <link rel="stylesheet" th:href="@{/css/common/mainnav.css}">
+    <th:block th:replace="${css}"></th:block>
+</head>
+
+<body>
+<div class="layout-wrapper">
+    <header th:replace="~{fragments/header :: site-header}"></header>
+    <div class="main-body">
+        <nav th:replace="~{fragments/adminNavbar :: admin-navbar}"></nav>
+        <main class="content">
+            <div th:replace="${content}"></div>
+        </main>
+    </div>
+</div>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        const currentPath = window.location.pathname;
+        const navLinks = document.querySelectorAll('.sidebar-tabs ul li a');
+        
+        navLinks.forEach(link => {
+            const linkPath = link.getAttribute('href');
+            // /admin/home 또는 /admin으로 접근 시 대시보드 활성화
+            if (linkPath === '/admin/home' && (currentPath === '/admin/home' || currentPath === '/admin' || currentPath === '/admin/')) {
+                link.classList.add('active');
+            } else if (linkPath !== '/admin/home' && currentPath.startsWith(linkPath)) {
+                link.classList.add('active');
+            }
+        });
+    });
+</script>
+<th:block th:replace="${script}"></th:block>
+</body>
+</html>
+
