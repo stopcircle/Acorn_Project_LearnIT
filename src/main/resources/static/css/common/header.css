@@ -30,7 +30,7 @@
   flex: 1 1 auto;
   display: flex;
   align-items: center;
-  gap: clamp(1.6rem, 4vw, 8.2rem);
+  gap: 13.4rem;
   min-width: 0;
 }
 
@@ -115,7 +115,7 @@
 .header-search {
   /* 반응형 수축 */
   flex: 1 1 32rem;
-  max-width: 48rem;
+  max-width: 42rem;
   min-width: 12rem;
 
   position: relative;
@@ -124,14 +124,14 @@
 
   /* ✅ 기본(언더라인) */
   border: none;
-  border-bottom: 3px solid #4a4a4a;
+  border-bottom: 3px solid #3a3a3a;
   border-radius: 0;
   background: transparent;
 
   padding: 0.35rem 0;     /* 아래줄만 보이게 */
 }
 
-/* ✅ 포커스 되면 “검색틀”로 변신 */
+/* ✅ 포커스 되면 “검색틀”로 변신
 .header-search:focus-within {
   border: 1px solid var(--border-light);
   border-bottom: 1px solid var(--border-light);
@@ -141,13 +141,14 @@
   padding: 0.6rem 1.2rem;
   box-shadow: 0 6px 18px rgba(0,0,0,0.06);
 }
+*/
 
 .search-input {
   flex: 1 1 auto;
   border: none;
   outline: none;
   background: transparent;
-  font-size: 1.3rem;
+  font-size: 1.4rem;
 
   /* ✅ 오른쪽 아이콘 공간 확보 */
   padding-right: 3.2rem;
@@ -174,10 +175,11 @@
   justify-content: center;
 }
 
-/* ✅ 포커스 상태에서 버튼이 안쪽으로 들어가게 */
+/* ✅ 포커스 상태에서 버튼이 안쪽으로 들어가게
 .header-search:focus-within .search-btn {
   right: 10px;
 }
+*/
 
 .search-icon-img {
   width: 20px;     /* 원하면 18~24로 조절 */
@@ -259,13 +261,14 @@
 }
 
 /* 장바구니 */
-.cart-btn {
-  position: relative;
-  display: inline-flex;
-  align-items: center;
+.header-cart-btn{
+  margin-right: 1.2rem;
+    display: inline-flex;
+    align-items: center;
+    position: relative;
   flex: 0 0 auto;
 }
-.cart-icon {
+.header-cart-icon {
   width: 22px;
   height: 22px;
   vertical-align: middle;
