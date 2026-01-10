@@ -141,4 +141,29 @@
         LIMIT 1
     </select>
 
+    <!-- enrollment_id 조회 -->
+    <select id="selectEnrollmentId" resultType="Long">
+        SELECT enrollment_id
+        FROM enrollment
+        WHERE user_id = #{userId}
+          AND course_id = #{courseId}
+        LIMIT 1
+    </select>
+
+    <!-- enrollment 완강 처리 (completed_at 업데이트) -->
+    <update id="updateEnrollmentCompleted">
+        UPDATE enrollment
+        SET completed_at = NOW(),
+            progress_rate = 100
+        WHERE enrollment_id = #{enrollmentId}
+          AND completed_at IS NULL
+    </update>
+
+    <!-- 수료증 존재 여부 확인 -->
+    <select id="existsCertificate" resultType="boolean">
+        SELECT COUNT(*) > 0
+        FROM certificate
+        WHERE enrollment_id = #{enrollmentId}
+    </select>
+
 </mapper>

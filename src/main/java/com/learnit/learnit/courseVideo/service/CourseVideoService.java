@@ -5,23 +5,30 @@ import com.learnit.learnit.courseVideo.dto.CourseFile;
 import com.learnit.learnit.courseVideo.dto.CourseVideo;
 import com.learnit.learnit.courseVideo.dto.CurriculumSection;
 import com.learnit.learnit.courseVideo.repository.CourseVideoMapper;
+import com.learnit.learnit.mypage.mapper.MyCertificateMapper;
 import com.learnit.learnit.quiz.dto.Quiz;
 import lombok.RequiredArgsConstructor;
+import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpEntity;
 import org.springframework.http.HttpHeaders;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 import org.springframework.web.client.RestTemplate;
 
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.*;
 import java.util.stream.Collectors;
 
+@Slf4j
 @Service
 @RequiredArgsConstructor
 public class CourseVideoService {
     private final CourseVideoMapper courseVideoMapper;
+    private final MyCertificateMapper certificateMapper;
 
     @Value("${rapid-api.key}")
     private String rapidApiKey;
@@ -44,8 +51,72 @@ public class CourseVideoService {
         return courseVideoMapper.selectNextChapterId(courseId, currentOrder);
     }
 
+    @Transactional
     public void saveStudyLog(Long userId, Long courseId, Long chapterId, Integer playTime) {
+        // 학습 로그 저장
         courseVideoMapper.insertOrUpdateStudyLog(userId, courseId, chapterId, playTime);
+        
+        // 완강 여부 체크 및 수료증 자동 발급
+        checkAndIssueCertificate(userId, courseId);
+    }
+    
+    /**
+     * 완강 여부 체크 및 수료증 자동 발급
+     */
+    private void checkAndIssueCertificate(Long userId, Long courseId) {
+        try {
+            // 전체 챕터 수 확인
+            int totalChapters = courseVideoMapper.countTotalChapters(courseId);
+            if (totalChapters == 0) {
+                return; // 챕터가 없으면 수료증 발급 불가
+            }
+            
+            // 완료한 챕터 수 확인 (95% 이상 수강한 챕터)
+            int completedChapters = courseVideoMapper.countCompletedChapters(userId, courseId);
+            
+            // 모든 챕터를 완료했는지 확인
+            if (completedChapters >= totalChapters) {
+                // enrollment_id 조회
+                Long enrollmentId = courseVideoMapper.selectEnrollmentId(userId, courseId);
+                if (enrollmentId == null) {
+                    log.warn("Enrollment not found: userId={}, courseId={}", userId, courseId);
+                    return;
+                }
+                
+                // 이미 수료증이 발급되었는지 확인
+                if (courseVideoMapper.existsCertificate(enrollmentId)) {
+                    log.debug("Certificate already exists: enrollmentId={}", enrollmentId);
+                    return;
+                }
+                
+                // enrollment 완강 처리
+                courseVideoMapper.updateEnrollmentCompleted(enrollmentId);
+                
+                // 수료증 자동 생성
+                createCertificate(enrollmentId, userId, courseId);
+                
+                log.info("Certificate auto-issued: userId={}, courseId={}, enrollmentId={}", 
+                    userId, courseId, enrollmentId);
+            }
+        } catch (Exception e) {
+            log.error("Error checking completion and issuing certificate: userId={}, courseId={}", 
+                userId, courseId, e);
+            // 수료증 발급 실패해도 학습 로그 저장은 성공했으므로 예외를 던지지 않음
+        }
+    }
+    
+    /**
+     * 수료증 생성
+     */
+    private void createCertificate(Long enrollmentId, Long userId, Long courseId) {
+        // 수료증 번호 생성 (CERT-YYYYMMDD-ENROLLMENT_ID 형식)
+        String certificateNumber = "CERT-" + 
+            LocalDate.now().format(DateTimeFormatter.ofPattern("yyyyMMdd")) + 
+            "-" + enrollmentId;
+        
+        certificateMapper.insertCertificate(enrollmentId, certificateNumber);
+        log.info("Certificate created: enrollmentId={}, certificateNumber={}", 
+            enrollmentId, certificateNumber);
     }
 
     public int getProgressPercent(Long userId, Long courseId) {

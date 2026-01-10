@@ -40,4 +40,19 @@ public interface CourseVideoMapper {
                               @Param("languageId") Integer languageId);
 
     Long selectFirstChapterId(@Param("courseId") Long courseId);
+    
+    /**
+     * enrollment_id 조회
+     */
+    Long selectEnrollmentId(@Param("userId") Long userId, @Param("courseId") Long courseId);
+    
+    /**
+     * enrollment 완강 처리 (completed_at 업데이트)
+     */
+    void updateEnrollmentCompleted(@Param("enrollmentId") Long enrollmentId);
+    
+    /**
+     * 수료증 존재 여부 확인
+     */
+    boolean existsCertificate(@Param("enrollmentId") Long enrollmentId);
 }
