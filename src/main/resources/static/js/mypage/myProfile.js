@@ -11,13 +11,8 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
     
-    // 수료증 발급 체크 버튼 클릭
-    const checkCertificatesBtn = document.getElementById('check-certificates-btn');
-    if (checkCertificatesBtn) {
-        checkCertificatesBtn.addEventListener('click', function() {
-            checkAndIssueCertificates();
-        });
-    }
+    // 페이지 로드 시 수료증 목록 자동 로드
+    loadCertificates();
 
     // 수료증 전체 보기 버튼 클릭
     const viewAllCertificatesBtn = document.getElementById('view-all-certificates-btn');
@@ -66,20 +61,12 @@ document.addEventListener('DOMContentLoaded', function() {
 });
 
 /**
- * 수료증 발급 체크 및 발급
+ * 수료증 목록 로드 (페이지 로드 시 자동 호출)
  */
-function checkAndIssueCertificates() {
-    const checkBtn = document.getElementById('check-certificates-btn');
-    if (!checkBtn) return;
-    
-    const originalText = checkBtn.textContent;
-    checkBtn.disabled = true;
-    checkBtn.textContent = '체크 중...';
-    
-    fetch('/api/mypage/certificates/check', {
-        method: 'POST',
+function loadCertificates() {
+    fetch('/api/mypage/certificates', {
+        method: 'GET',
         headers: {
-            'Content-Type': 'application/json',
             'Accept': 'application/json'
         },
         credentials: 'same-origin'
@@ -92,25 +79,11 @@ function checkAndIssueCertificates() {
         })
         .then(data => {
             if (data.success) {
-                const certCount = data.certificates && data.certificates.length > 0 ? data.certificates.length : 0;
-                alert('수료증 발급 체크가 완료되었습니다.\n' + 
-                      (certCount > 0 
-                       ? certCount + '개의 수료증이 발급되었습니다.' 
-                       : '발급 가능한 수료증이 없습니다.'));
-                
-                // 수료증 목록만 업데이트 (페이지 새로고침 없이)
                 updateCertificateList(data.certificates || []);
-            } else {
-                alert('수료증 발급 체크 실패: ' + (data.error || '알 수 없는 오류'));
             }
         })
         .catch(error => {
-            console.error('수료증 발급 체크 실패:', error);
-            alert('수료증 발급 체크 중 오류가 발생했습니다: ' + error.message);
-        })
-        .finally(() => {
-            checkBtn.disabled = false;
-            checkBtn.textContent = originalText;
+            // 에러 발생 시 조용히 처리 (초기 로드 실패는 무시)
         });
 }
 
