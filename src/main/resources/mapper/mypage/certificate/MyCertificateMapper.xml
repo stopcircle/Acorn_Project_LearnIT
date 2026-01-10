@@ -29,13 +29,11 @@
             enrollment_id,
             certificate_number,
             is_approved,
-            issued_at,
-            created_at
+            issued_at
         ) VALUES (
             #{enrollmentId},
             #{certificateNumber},
             'Y',
-            NOW(),
             NOW()
         )
     </insert>

@@ -21,6 +21,11 @@ public interface CourseVideoMapper {
                                 @Param("playTime") Integer playTime);
 
     int countTotalChapters(@Param("courseId") Long courseId);
+    
+    /**
+     * duration_sec > 0인 챕터 수 카운트 (수료증 발급용)
+     */
+    int countTotalChaptersWithDuration(@Param("courseId") Long courseId);
 
     int countCompletedChapters(@Param("userId") Long userId, @Param("courseId") Long courseId);
 
@@ -55,4 +60,14 @@ public interface CourseVideoMapper {
      * 수료증 존재 여부 확인
      */
     boolean existsCertificate(@Param("enrollmentId") Long enrollmentId);
+    
+    /**
+     * 사용자가 수강 중인 모든 강의 ID 조회
+     */
+    List<Long> selectEnrolledCourseIds(@Param("userId") Long userId);
+    
+    /**
+     * 특정 챕터의 학습 시간 조회 (디버깅용)
+     */
+    Integer selectStudiedSec(@Param("userId") Long userId, @Param("chapterId") Long chapterId);
 }

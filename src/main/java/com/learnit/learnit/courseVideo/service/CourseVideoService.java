@@ -61,32 +61,89 @@ public class CourseVideoService {
     }
     
     /**
-     * 완강 여부 체크 및 수료증 자동 발급
+     * 완강 여부 체크 및 수료증 자동 발급 (public 메서드 - API에서 호출 가능)
      */
-    private void checkAndIssueCertificate(Long userId, Long courseId) {
+    public void checkAndIssueCertificateForUser(Long userId, Long courseId) {
+        checkAndIssueCertificate(userId, courseId);
+    }
+    
+    /**
+     * 사용자의 모든 완료된 강의에 대해 수료증 발급 체크
+     */
+    public void checkAndIssueCertificatesForAllCompletedCourses(Long userId) {
         try {
-            // 전체 챕터 수 확인
-            int totalChapters = courseVideoMapper.countTotalChapters(courseId);
+            List<Long> enrolledCourseIds = courseVideoMapper.selectEnrolledCourseIds(userId);
+            
+            if (enrolledCourseIds.isEmpty()) {
+                return;
+            }
+            
+            for (Long courseId : enrolledCourseIds) {
+                // 챕터가 있는 강의만 체크
+                int totalChapters = courseVideoMapper.countTotalChaptersWithDuration(courseId);
+                if (totalChapters == 0) {
+                    int allChapters = courseVideoMapper.countTotalChapters(courseId);
+                    if (allChapters == 0) {
+                        continue;
+                    }
+                    // duration이 없는 챕터만 있는 경우도 체크
+                    totalChapters = allChapters;
+                }
+                
+                // 수료증 발급 체크
+                checkAndIssueCertificateWithResult(userId, courseId);
+            }
+        } catch (Exception e) {
+            log.error("Error checking certificates for all courses: userId={}", userId, e);
+        }
+    }
+    
+    /**
+     * 수료증 발급 체크 (발급 결과 반환)
+     * @return 0: 발급 안됨, 1: 새로 발급됨, 2: 이미 발급됨
+     */
+    private int checkAndIssueCertificateWithResult(Long userId, Long courseId) {
+        try {
+            // 전체 챕터 수 확인 (duration_sec > 0인 챕터만 카운트)
+            int totalChapters = courseVideoMapper.countTotalChaptersWithDuration(courseId);
+            log.info("Certificate check - totalChapters (with duration): {}, userId: {}, courseId: {}", 
+                totalChapters, userId, courseId);
+            
             if (totalChapters == 0) {
-                return; // 챕터가 없으면 수료증 발급 불가
+                log.warn("No chapters with duration found for courseId: {}", courseId);
+                // duration이 없는 챕터만 있는 경우, 전체 챕터 수로 다시 확인
+                int allChapters = courseVideoMapper.countTotalChapters(courseId);
+                if (allChapters == 0) {
+                    log.warn("No chapters found at all for courseId: {}", courseId);
+                    return 0;
+                }
+                // duration이 없는 챕터만 있는 경우, 전체 챕터 수로 진행
+                totalChapters = allChapters;
+                log.info("Using all chapters (no duration): {}", totalChapters);
             }
             
             // 완료한 챕터 수 확인 (95% 이상 수강한 챕터)
             int completedChapters = courseVideoMapper.countCompletedChapters(userId, courseId);
+            log.info("Certificate check - completedChapters: {}, totalChapters: {}, userId: {}, courseId: {}", 
+                completedChapters, totalChapters, userId, courseId);
             
-            // 모든 챕터를 완료했는지 확인
-            if (completedChapters >= totalChapters) {
+            // 모든 챕터를 완료했는지 확인 (완료 챕터 수가 전체 챕터 수 이상이면 완료)
+            // 단, totalChapters가 0이면 완료로 간주하지 않음
+            boolean conditionMet = totalChapters > 0 && completedChapters >= totalChapters;
+            
+            if (conditionMet) {
                 // enrollment_id 조회
                 Long enrollmentId = courseVideoMapper.selectEnrollmentId(userId, courseId);
+                
                 if (enrollmentId == null) {
-                    log.warn("Enrollment not found: userId={}, courseId={}", userId, courseId);
-                    return;
+                    return 0;
                 }
                 
                 // 이미 수료증이 발급되었는지 확인
-                if (courseVideoMapper.existsCertificate(enrollmentId)) {
-                    log.debug("Certificate already exists: enrollmentId={}", enrollmentId);
-                    return;
+                boolean exists = courseVideoMapper.existsCertificate(enrollmentId);
+                
+                if (exists) {
+                    return 2; // 이미 발급됨
                 }
                 
                 // enrollment 완강 처리
@@ -95,14 +152,23 @@ public class CourseVideoService {
                 // 수료증 자동 생성
                 createCertificate(enrollmentId, userId, courseId);
                 
-                log.info("Certificate auto-issued: userId={}, courseId={}, enrollmentId={}", 
-                    userId, courseId, enrollmentId);
+                return 1; // 새로 발급됨
+            } else {
+                return 0; // 발급 안됨
             }
         } catch (Exception e) {
             log.error("Error checking completion and issuing certificate: userId={}, courseId={}", 
                 userId, courseId, e);
-            // 수료증 발급 실패해도 학습 로그 저장은 성공했으므로 예외를 던지지 않음
+            return 0;
         }
+    }
+    
+    
+    /**
+     * 완강 여부 체크 및 수료증 자동 발급
+     */
+    private void checkAndIssueCertificate(Long userId, Long courseId) {
+        checkAndIssueCertificateWithResult(userId, courseId);
     }
     
     /**
@@ -233,7 +299,7 @@ public class CourseVideoService {
             return result;
 
         } catch (Exception e) {
-            e.printStackTrace();
+            log.error("Error running interpreter code", e);
             Map<String, Object> error = new HashMap<>();
             error.put("output", "서버 오류: " + e.getMessage());
             return error;
