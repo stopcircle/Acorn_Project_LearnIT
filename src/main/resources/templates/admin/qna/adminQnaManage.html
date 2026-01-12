@@ -99,10 +99,10 @@
 
                         <td class="title-cell"
                             th:text="${q.courseId != null
-                                    ? (q.courseTitle + ' / ' + (q.questionTitle != null ? q.questionTitle : '(제목없음)'))
-                                    : (q.questionTitle != null ? q.questionTitle : '전체 Q&A')}">
-                            -
+                            ? (q.courseTitle + ' / ' + q.questionTitleDisplay)
+                            : q.questionTitleDisplay}">
                         </td>
+
 
                         <td th:text="${q.questionUserName}">작성자</td>
 
@@ -146,7 +146,7 @@
                                     </span>
                                 </div>
 
-                                <div class="detail-title" th:text="${q.questionTitle != null ? q.questionTitle : '(제목없음)'}"></div>
+                                <div class="detail-title" th:text="${q.questionTitleDisplay}"></div>
 
                                 <div class="detail-body">
                                     <div class="question-box">

@@ -12,27 +12,21 @@ public class AdminQnaService {
 
     private final AdminQnaRepository repo;
 
-    public int getTotalCount(String type, String status, String searchField, String search, Integer searchQnaId, Long instructorUserId) {
+    public int getTotalCount(String type, String status, String searchField, String search,
+                             Integer searchQnaId, Long instructorUserId) {
         return repo.countQnas(type, status, searchField, search, searchQnaId, instructorUserId);
     }
 
     public List<AdminQnaDTO> getList(String type, String status, String searchField, String search,
                                      Integer searchQnaId, int offset, int size, Long instructorUserId) {
         List<AdminQnaDTO> list = repo.selectQnas(offset, size, type, status, searchField, search, searchQnaId, instructorUserId);
-        // typeLabel과 statusLabel 설정
+
         for (AdminQnaDTO dto : list) {
-            // typeLabel 설정
-            if (dto.getCourseId() != null) {
-                dto.setTypeLabel("강의 Q&A");
-            } else {
-                dto.setTypeLabel("전체 Q&A");
-            }
-            // statusLabel 설정
-            if ("Y".equals(dto.getIsResolved())) {
-                dto.setStatusLabel("PASS");
-            } else {
-                dto.setStatusLabel("ACTIVE");
-            }
+            dto.setTypeLabel(dto.getCourseId() != null ? "강의 Q&A" : "전체 Q&A");
+            dto.setStatusLabel("Y".equals(dto.getIsResolved()) ? "PASS" : "ACTIVE");
+
+            // ✅ 제목 표시값 생성
+            dto.setQuestionTitleDisplay(makeTitle(dto.getQuestionTitle(), dto.getQuestionContent()));
         }
         return list;
     }
@@ -40,18 +34,9 @@ public class AdminQnaService {
     public AdminQnaDTO getDetail(int qnaId) {
         AdminQnaDTO dto = repo.selectQnaDetail(qnaId);
         if (dto != null) {
-            // typeLabel과 statusLabel 설정
-            if (dto.getCourseId() != null) {
-                dto.setTypeLabel("강의 Q&A");
-            } else {
-                dto.setTypeLabel("전체 Q&A");
-            }
-            // statusLabel 설정
-            if ("Y".equals(dto.getIsResolved())) {
-                dto.setStatusLabel("PASS");
-            } else {
-                dto.setStatusLabel("ACTIVE");
-            }
+            dto.setTypeLabel(dto.getCourseId() != null ? "강의 Q&A" : "전체 Q&A");
+            dto.setStatusLabel("Y".equals(dto.getIsResolved()) ? "PASS" : "ACTIVE");
+            dto.setQuestionTitleDisplay(makeTitle(dto.getQuestionTitle(), dto.getQuestionContent()));
         }
         return dto;
     }
@@ -63,7 +48,8 @@ public class AdminQnaService {
 
     @Transactional
     public void saveAnswerAndStatus(int qnaId, long adminUserId, String content, String newStatus) {
-        Integer answerId = repo.selectLatestAnswerId(qnaId);
+        // ✅ 관리자/서브관리자 답변만 "수정 대상"으로 잡기
+        Integer answerId = repo.selectLatestStaffAnswerId(qnaId);
 
         if (content != null) {
             String trimmed = content.trim();
@@ -81,5 +67,18 @@ public class AdminQnaService {
     public void delete(int qnaId) {
         repo.softDeleteAnswersByQnaId(qnaId);
         repo.softDeleteQuestionById(qnaId);
+    }
+
+    // ✅ 제목 없으면 질문 내용 앞부분 요약으로 대체
+    private String makeTitle(String title, String content) {
+        String t = (title == null) ? "" : title.trim();
+        if (!t.isEmpty()) return t;
+
+        String c = (content == null) ? "" : content.trim();
+        if (c.isEmpty()) return "질문";
+
+        int max = 18; // 원하는 길이로 조절
+        if (c.length() <= max) return c;
+        return c.substring(0, max) + "…";
     }
 }

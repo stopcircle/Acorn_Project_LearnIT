@@ -39,7 +39,7 @@
                             <b>강의</b> : <span th:text="${qna.courseTitle}"></span>
                         </span>
                     </div>
-                    <div class="qtitle" th:text="${qna.questionTitle != null ? qna.questionTitle : '(제목없음)'}"></div>
+                    <div class="qtitle" th:text="${q.questionTitleDisplay}"></div>
                 </div>
 
                 <div class="detail-actions">
