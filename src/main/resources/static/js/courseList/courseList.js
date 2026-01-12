@@ -24,6 +24,11 @@ document.addEventListener('DOMContentLoaded', () => {
         return {};
     }
 
+    // ✅ 헤더 장바구니 뱃지 실시간 갱신 트리거
+    function notifyCartUpdated() {
+        document.dispatchEvent(new CustomEvent('cart:updated'));
+    }
+
     // ---------- URL <-> state ----------
     function readStateFromUrl() {
         const p = new URLSearchParams(location.search);
@@ -252,7 +257,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .replaceAll("'", '&#039;');
     }
 
-    // ✅✅ (추가) 🛒 클릭 이벤트 위임 (무한스크롤로 추가되는 카드도 자동 적용)
+    // ✅✅ 🛒 클릭 이벤트 위임 (무한스크롤로 추가되는 카드도 자동 적용)
     if (grid) {
         grid.addEventListener('click', async (e) => {
             const btn = e.target.closest('.cart-btn');
@@ -272,6 +277,9 @@ document.addEventListener('DOMContentLoaded', () => {
                     if (text === 'OK' || text === 'NOOP') {
                         btn.classList.remove('is-active');
                         state.cartSet.delete(String(courseId));
+
+                        // ✅ 헤더 뱃지 갱신
+                        notifyCartUpdated();
                     } else {
                         alert('장바구니 제거 실패: ' + text);
                     }
@@ -288,6 +296,9 @@ document.addEventListener('DOMContentLoaded', () => {
                 if (text === 'OK' || text === 'DUPLICATE') {
                     btn.classList.add('is-active');
                     state.cartSet.add(String(courseId));
+
+                    // ✅ 헤더 뱃지 갱신
+                    notifyCartUpdated();
                 } else if (text === 'LOGIN_REQUIRED') {
                     location.href = '/login';
                 } else {
