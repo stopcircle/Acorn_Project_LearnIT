@@ -127,4 +127,19 @@ public class CartController {
         }
         return cartService.getCartCourseIds(userId);
     }
+
+    /**
+     * 헤더 장바구니 뱃지(개수) 실시간 갱신용 API
+     * - 로그인: DB 기반 count
+     * - 비로그인: 세션 기반 count
+     */
+    @GetMapping("/cart/count")
+    @ResponseBody
+    public int cartCount(HttpSession session) {
+        Long userId = SessionUtils.getUserId(session);
+        if (userId == null) {
+            return guestCartService.getCourseIds(session).size();
+        }
+        return cartService.countByUserId(userId);
+    }
 }

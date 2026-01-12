@@ -93,4 +93,10 @@ public class CartService {
         return cartMapper.deleteByUserIdAndCourseId(userId, courseId);
     }
 
+    // ✅ 헤더 뱃지(장바구니 개수) 조회
+    public int countByUserId(Long userId) {
+        if (userId == null) return 0;
+        return cartMapper.countByUserId(userId);
+    }
+
 }
