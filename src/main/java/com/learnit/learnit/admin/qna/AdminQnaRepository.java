@@ -29,7 +29,6 @@ public interface AdminQnaRepository {
 
     AdminQnaDTO selectQnaDetail(@Param("qnaId") int qnaId);
 
-    // ✅ 변경: "관리자(ADMIN/SUB_ADMIN)의 최신 답변"만 대상으로
     Integer selectLatestStaffAnswerId(@Param("qnaId") int qnaId);
 
     void insertAnswer(
@@ -52,4 +51,7 @@ public interface AdminQnaRepository {
     void softDeleteQuestionById(@Param("qnaId") int qnaId);
 
     Long selectInstructorUserIdByCourseId(@Param("courseId") int courseId);
+
+    // ✅✅✅ 추가: 강의 첫 챕터 id 조회 (관리자 -> 강의 재생 화면으로 이동할 때 필요)
+    Integer selectFirstChapterIdByCourseId(@Param("courseId") int courseId);
 }
