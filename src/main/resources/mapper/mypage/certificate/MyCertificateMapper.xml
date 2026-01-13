@@ -42,6 +42,7 @@
         <select id="selectCertificateByEnrollmentId" resultType="com.learnit.learnit.mypage.dto.MyCertificateDTO">
             SELECT 
                 cert.cert_id AS certificateId,
+                c.course_id AS courseId,
                 c.title AS courseTitle,
                 u.name AS userName,
                 cert.issued_at AS issuedDate,
