@@ -220,6 +220,7 @@ document.addEventListener('DOMContentLoaded', () => {
         // ✅ 장바구니에 담긴 강의면 활성화 색
         const activeClass = state.cartSet.has(courseId) ? 'is-active' : '';
 
+        // ✅✅ 변경: 장바구니 버튼을 가격 라인(meta) 오른쪽으로 이동
         return `
       <article class="course-card">
         <a class="course-link" href="/CourseDetail?courseId=${courseId}&tab=intro">
@@ -227,16 +228,19 @@ document.addEventListener('DOMContentLoaded', () => {
             ${thumb
             ? `<img class="thumb" src="${escapeHtml(thumb)}" alt="">`
             : `<div class="thumb thumb-placeholder"></div>`}
-            <button class="cart-btn ${activeClass}"
-                    type="button"
-                    aria-label="장바구니"
-                    data-course-id="${courseId}">🛒</button>
           </div>
+
           <div class="card-body">
             <h3 class="title">${escapeHtml(c.title ?? '')}</h3>
             <p class="desc">${escapeHtml(String(c.description ?? '').slice(0, 80))}</p>
+
             <div class="meta">
               <span class="price">${priceText}</span>
+
+              <button class="cart-btn ${activeClass}"
+                      type="button"
+                      aria-label="장바구니"
+                      data-course-id="${courseId}">🛒</button>
             </div>
           </div>
         </a>
@@ -252,7 +256,7 @@ document.addEventListener('DOMContentLoaded', () => {
             .replaceAll("'", '&#039;');
     }
 
-    // ✅✅ (추가) 🛒 클릭 이벤트 위임 (무한스크롤로 추가되는 카드도 자동 적용)
+    // ✅✅ 🛒 클릭 이벤트 위임 (무한스크롤로 추가되는 카드도 자동 적용)
     if (grid) {
         grid.addEventListener('click', async (e) => {
             const btn = e.target.closest('.cart-btn');
