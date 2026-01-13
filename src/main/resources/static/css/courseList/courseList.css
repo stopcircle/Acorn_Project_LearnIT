@@ -218,7 +218,7 @@
     align-items:center;
     justify-content:center;
 
-    border:1px solid #e5e7eb;
+    border:1px solid #3764be30;
     background:#fff;
 
     border-radius:10px;        /* 톤 맞춤(둥글게) */
@@ -316,9 +316,9 @@
 }
 
 .cart-btn.is-active{
-  background:#111;
+  background:#3764be30;
   color:#fff;
-  border-color:#111;
+  border-color:#3764be30;
   box-shadow: 0 8px 18px rgba(0,0,0,0.18);
   transform: translateY(-1px);
 }
@@ -412,4 +412,17 @@
         height:32px;
         border-radius:10px;
     }
+}
+/* 썸네일 우상단 수강중 뱃지 */
+.course-badge{
+  position:absolute;
+  right:10px;
+  top:10px;
+  padding:6px 10px;
+  border-radius:999px;
+  font-size:12px;
+  font-weight:700;
+  background:#2f6fed;
+  color:#fff;
+  box-shadow: 0 8px 18px rgba(0,0,0,0.12);
 }

@@ -91,8 +91,6 @@ document.addEventListener('DOMContentLoaded', () => {
     // ---------- APIs ----------
     async function safeGetJson(url) {
         const res = await fetch(url, { method: 'GET', headers: { 'Accept': 'application/json' } });
-
-        // content-type이 JSON이 아니면(로그인 페이지 HTML/리다이렉트 등) 즉시 실패 처리
         const ct = (res.headers.get('content-type') || '').toLowerCase();
 
         if (!res.ok) {
@@ -122,7 +120,6 @@ document.addEventListener('DOMContentLoaded', () => {
         }
     }
 
-    // ✅ 핵심: 페이지 로딩 시점에 수강중 목록을 먼저 확보해야 "수강중"이 처음부터 뜬다
     async function loadEnrolledIds() {
         try {
             const ids = await safeGetJson('/api/enrollmentsIds');
@@ -130,7 +127,6 @@ document.addEventListener('DOMContentLoaded', () => {
             (ids || []).forEach(id => s.add(String(id)));
             state.enrolledSet = s;
         } catch (e) {
-            // 여기서 실패하면 "수강중" 렌더링이 불가능하므로 콘솔로 원인을 강하게 남김
             console.error('[CourseList] loadEnrolledIds failed:', e);
             state.enrolledSet = new Set();
         } finally {
@@ -164,7 +160,6 @@ document.addEventListener('DOMContentLoaded', () => {
 
     // ---------- Course list fetch ----------
     async function fetchPageAndAppend() {
-        // ✅ 절대 "ready" 이전엔 렌더링 금지
         await readyPromise;
 
         if (!grid) return;
@@ -224,7 +219,6 @@ document.addEventListener('DOMContentLoaded', () => {
                 return;
             }
 
-            // ✅ 여기서 state.enrolledSet이 이미 채워져 있으니 "처음부터" 수강중이 표시됨
             grid.insertAdjacentHTML('beforeend', content.map(courseCardHtml).join(''));
 
             state.last = isLast;
@@ -244,18 +238,24 @@ document.addEventListener('DOMContentLoaded', () => {
         const thumb = c.thumbnailUrl ? c.thumbnailUrl : '';
         const courseId = String(c.courseId);
 
-        // ✅ 수강중이면 버튼이 아예 없어야 함 (요구사항)
+        // ✅ 수강중 여부
         const isEnrolled = state.enrolledSet.has(courseId);
 
-        // 장바구니 활성화
+        // ✅ 장바구니 활성화
         const activeClass = state.cartSet.has(courseId) ? 'is-active' : '';
 
-        const actionEl = isEnrolled
+        // ✅ 썸네일 우상단: 수강중이면 뱃지, 아니면 아무것도(장바구니 버튼은 meta로만)
+        const actionInThumb = isEnrolled
             ? `<span class="course-badge">수강중</span>`
+            : ``;
+
+        // ✅ 가격 라인 오른쪽: 수강중이면 버튼 X, 아니면 장바구니 버튼 O
+        const actionInMeta = isEnrolled
+            ? ``
             : `<button class="cart-btn ${activeClass}"
-                    type="button"
-                    aria-label="장바구니"
-                    data-course-id="${courseId}">🛒</button>`;
+                      type="button"
+                      aria-label="장바구니"
+                      data-course-id="${courseId}">🛒</button>`;
 
         return `
       <article class="course-card">
@@ -264,7 +264,7 @@ document.addEventListener('DOMContentLoaded', () => {
             ${thumb
                 ? `<img class="thumb" src="${escapeHtml(thumb)}" alt="">`
                 : `<div class="thumb thumb-placeholder"></div>`}
-            ${actionEl}
+            ${actionInThumb}
           </div>
 
           <div class="card-body">
@@ -273,11 +273,7 @@ document.addEventListener('DOMContentLoaded', () => {
 
             <div class="meta">
               <span class="price">${priceText}</span>
-
-              <button class="cart-btn ${activeClass}"
-                      type="button"
-                      aria-label="장바구니"
-                      data-course-id="${courseId}">🛒</button>
+              ${actionInMeta}
             </div>
           </div>
         </a>
@@ -294,8 +290,6 @@ document.addEventListener('DOMContentLoaded', () => {
     }
 
     // ---------- Click (장바구니) ----------
-    // 원칙상 수강중이면 버튼이 없어서 클릭 자체가 불가능
-    // (ALREADY_ENROLLED 처리 코드는 안전장치로만 유지)
     if (grid) {
         grid.addEventListener('click', async (e) => {
             const btn = e.target.closest('.cart-btn');
@@ -337,12 +331,19 @@ document.addEventListener('DOMContentLoaded', () => {
                 }
 
                 if (text === 'ALREADY_ENROLLED') {
-                    // 안전장치: 서버가 수강중이라고 하면 버튼 제거 + 수강중 뱃지
+                    // ✅ 서버가 수강중이라면: 세트에 추가 후 "현재 카드"를 뱃지로 갱신하고 버튼 제거
                     state.enrolledSet.add(String(courseId));
-                    const wrap = btn.closest('.thumb-wrap');
-                    if (wrap) {
+
+                    const card = btn.closest('.course-card');
+                    if (card) {
+                        // meta 버튼 제거
                         btn.remove();
-                        wrap.insertAdjacentHTML('beforeend', '<span class="course-badge">수강중</span>');
+
+                        // thumb에 수강중 배지 없으면 추가
+                        const thumbWrap = card.querySelector('.thumb-wrap');
+                        if (thumbWrap && !thumbWrap.querySelector('.course-badge')) {
+                            thumbWrap.insertAdjacentHTML('beforeend', '<span class="course-badge">수강중</span>');
+                        }
                     }
                     return;
                 }
@@ -420,11 +421,9 @@ document.addEventListener('DOMContentLoaded', () => {
         applyControls();
         syncUrl(false);
 
-        // ✅✅✅ 여기 핵심: "수강중 목록"을 먼저 확보한 후에만 렌더링 게이트 오픈
         await loadEnrolledIds();
         await loadCartIds();
 
-        // 이제부터 렌더링 가능
         readyResolve();
 
         resetPaging();
