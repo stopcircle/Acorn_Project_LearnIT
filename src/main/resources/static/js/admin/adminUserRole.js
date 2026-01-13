@@ -215,9 +215,7 @@ async function loadUsers(page = currentPage) {
 
 /* ===============================
    ✅ Filter popup positioning fix (STABLE)
-   - "body로 먼저 옮긴 뒤 display/width 계산"으로 레이아웃 끼임 방지
 =============================== */
-
 function closeAllFilterPopups() {
   document.querySelectorAll(".filter-popup").forEach(p => hidePopup(p));
 }
@@ -251,12 +249,12 @@ function showPopup(popup, anchorBtn) {
     });
   }
 
-  // ✅ 1) 먼저 body로 이동 (table/thead 레이아웃 영향 제거)
+  // ✅ 1) 먼저 body로 이동
   if (popup.parentNode !== document.body) {
     document.body.appendChild(popup);
   }
 
-  // ✅ 2) 그 다음 보여주기(여기서부터는 레이아웃에 끼지 않음)
+  // ✅ 2) 보여주기
   popup.style.display = "block";
   popup.style.position = "fixed";
   popup.style.zIndex = "999999";
@@ -265,7 +263,7 @@ function showPopup(popup, anchorBtn) {
   // ✅ 3) 좌표 계산
   const rect = anchorBtn.getBoundingClientRect();
 
-  // ✅ 4) width 계산(보이는 상태에서 측정해야 정확)
+  // ✅ 4) width 계산
   const w = popup.offsetWidth || 260;
 
   // top: 버튼 아래
@@ -464,7 +462,7 @@ function renderSingleFilterPopup({ popupEl, title, items, selected, onApply, onC
 }
 
 /* ===============================
-   아래(유저 렌더/저장/페이징)는 네 코드 그대로
+   ✅ 유저 렌더/저장/페이징
 =============================== */
 
 function renderUsers(users) {
@@ -529,15 +527,22 @@ function renderUsers(users) {
         ${isSocial ? `<div class="role-lock-hint">🔒 소셜가입: 관리자 권한 부여 불가</div>` : ""}
 
         <div class="subadmin-box" style="display:${u.role==="SUB_ADMIN" ? "block" : "none"};">
-          <div class="sub-line">
-            <input class="course-keyword" placeholder="강의 검색" disabled />
-            <button class="btn-course-search" type="button" disabled>검색</button>
+          <div class="subadmin-head">
+            <span class="subadmin-title">SUB_ADMIN 강의 관리</span>
+            <button type="button" class="subadmin-toggle" aria-expanded="false">펼치기</button>
           </div>
-          <div class="sub-line">
-            <select class="course-select" disabled></select>
-            <button class="btn-course-add" type="button" disabled>+</button>
+
+          <div class="subadmin-body is-collapsed">
+            <div class="sub-line">
+              <input class="course-keyword" placeholder="강의 검색" disabled />
+              <button class="btn-course-search" type="button" disabled>검색</button>
+            </div>
+            <div class="sub-line">
+              <select class="course-select" disabled></select>
+              <button class="btn-course-add" type="button" disabled>+</button>
+            </div>
+            <div class="managed">${managedHtml}</div>
           </div>
-          <div class="managed">${managedHtml}</div>
         </div>
       </td>
     `;
@@ -551,8 +556,34 @@ function renderUsers(users) {
     const roleSel = tr.querySelector(".role");
     const subBox = tr.querySelector(".subadmin-box");
 
+    // ✅ SUB_ADMIN 박스 접기/펼치기
+    tr.querySelector(".subadmin-toggle")?.addEventListener("click", () => {
+      const box = tr.querySelector(".subadmin-box");
+      const body = tr.querySelector(".subadmin-body");
+      const btn = tr.querySelector(".subadmin-toggle");
+      if (!box || !body || !btn) return;
+
+      const collapsed = body.classList.toggle("is-collapsed");
+      btn.textContent = collapsed ? "펼치기" : "접기";
+      btn.setAttribute("aria-expanded", collapsed ? "false" : "true");
+    });
+
     roleSel?.addEventListener("change", () => {
-      if (subBox) subBox.style.display = (roleSel.value === "SUB_ADMIN") ? "block" : "none";
+      if (!subBox) return;
+
+      const isSub = (roleSel.value === "SUB_ADMIN");
+      subBox.style.display = isSub ? "block" : "none";
+
+      // ✅ SUB_ADMIN으로 바꾸면 기본은 "접힘"
+      if (isSub) {
+        const body = subBox.querySelector(".subadmin-body");
+        const btn = subBox.querySelector(".subadmin-toggle");
+        body?.classList.add("is-collapsed");
+        if (btn) {
+          btn.textContent = "펼치기";
+          btn.setAttribute("aria-expanded", "false");
+        }
+      }
     });
 
     statusSel?.addEventListener("change", () => {
@@ -577,8 +608,18 @@ function renderUsers(users) {
       const editing = tr.classList.contains("role-editing");
       if (!editing) {
         setRoleEditMode(tr, true);
+
         const roleValue = tr.querySelector(".role")?.value;
-        if (roleValue === "SUB_ADMIN") searchCourse(tr);
+        if (roleValue === "SUB_ADMIN") {
+          // ✅ 편집 시작하면 펼쳐서 작업하기 편하게
+          const subBox = tr.querySelector(".subadmin-box");
+          const body = subBox?.querySelector(".subadmin-body");
+          const btn = subBox?.querySelector(".subadmin-toggle");
+          body?.classList.remove("is-collapsed");
+          if (btn) { btn.textContent = "접기"; btn.setAttribute("aria-expanded", "true"); }
+
+          searchCourse(tr);
+        }
         return;
       }
       await saveRole(u, tr);

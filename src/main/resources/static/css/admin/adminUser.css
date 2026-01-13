@@ -4,7 +4,7 @@
    - 상단 검색바: adminUser.html(.admin-role-toolbar) 구조 기준
    - 상태/권한: select + 버튼 한 줄 정렬 + 말줄임
    - 필터 팝업: fixed + shadow + 둥글게 + body 이동 JS와 호환
-   - SUB_ADMIN 강의 검색 UI: 필터/수정버튼 톤으로 통일 + 폰트 개선
+   - SUB_ADMIN 강의 검색 UI: ✅큰 박스 + ✅좌측정렬 + ✅접기/펼치기 + ✅길이 제어
 =============================== */
 
 /* ✅ 폰트 통일 */
@@ -44,7 +44,7 @@
   justify-content: space-between;
   align-items:center;
   gap: 10px;
-  flex-wrap: nowrap;
+  flex-wrap: wrap;
 
   padding: 10px 12px;
   border-radius: 12px;
@@ -59,7 +59,7 @@
   gap: 10px;
   flex-wrap: nowrap;
   min-width: 0;
-  flex: 1;
+  flex: 1 1 auto;
 }
 
 .admin-role-actions{
@@ -230,7 +230,6 @@
 
 /* ===============================
    ✅ select 말줄임(핵심)
-   - SIGNUP_PENDING 같은 긴 값이 ... 처리되게
 =============================== */
 .admin-role-table select{
   height: 32px;
@@ -301,7 +300,7 @@
 }
 
 /* ===============================
-   가입구분 배지 (깔끔하게)
+   가입구분 배지
 =============================== */
 .signup-badge{
   display:inline-flex;
@@ -421,26 +420,72 @@
 }
 
 /* ===============================
-   ✅ SUB_ADMIN 강의 검색 영역 개선
+   ✅ SUB_ADMIN 강의 검색 영역 (큰 박스 + 정렬 통일)
 =============================== */
 .subadmin-box{
-  margin-top: 8px;
+  margin-top: 10px;
+  padding: 10px 10px 12px;
+  border: 1px solid #e6ebf2;
+  border-radius: 12px;
+  background: #f8fafc;
+  box-shadow: 0 2px 10px rgba(16, 24, 40, 0.06);
+
+  width: 100%;
+  box-sizing: border-box;
   text-align: left;
 }
 
+/* ✅ SUB_ADMIN 헤더(타이틀 + 토글버튼) */
+.subadmin-head{
+  display:flex;
+  align-items:center;
+  justify-content:space-between;
+  gap: 8px;
+  padding-bottom: 8px;
+  border-bottom: 1px solid #e6ebf2;
+  margin-bottom: 10px;
+}
+
+.subadmin-title{
+  font-size: 13px;
+  font-weight: 900;
+  color:#111;
+}
+
+/* 토글 버튼 */
+.subadmin-toggle{
+  height: 28px;
+  padding: 0 10px;
+  border-radius: 999px;
+  border: 1px solid #d5dbe3;
+  background:#fff;
+  color:#0A4A7A;
+  font-size: 12.5px;
+  font-weight: 900;
+  cursor:pointer;
+}
+.subadmin-toggle:hover{
+  background:#f3f7fb;
+}
+
+/* ✅ 줄(한 줄씩) = 무조건 왼쪽 기준선 */
 .sub-line{
   display:flex;
   align-items:center;
+  justify-content:flex-start;
   gap: 8px;
-  justify-content: center;
-  margin-top: 6px;
+  width: 100%;
+  margin-top: 8px;
 }
+.sub-line:first-child{ margin-top: 0; }
 
-/* 인풋 */
+/* ✅ 인풋/셀렉트는 남는 공간을 먹고, 버튼은 고정 */
 .course-keyword{
   height: 32px;
-  width: 160px;
-  max-width: 160px;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+
   border-radius: 10px;
   border: 1px solid #d5dbe3;
   padding: 0 10px;
@@ -448,6 +493,7 @@
   font-weight: 800;
   color:#111;
   outline:none;
+  background:#fff;
 }
 .course-keyword::placeholder{
   color:#9aa3af;
@@ -458,11 +504,17 @@
   box-shadow: 0 0 0 3px rgba(10,74,122,.12);
 }
 
+.btn-course-search{
+  flex: 0 0 auto;
+}
+
 /* 강의 select */
 .course-select{
   height: 32px;
-  width: 180px;
-  max-width: 180px;
+  flex: 1 1 auto;
+  width: auto;
+  min-width: 0;
+
   border-radius: 10px;
   border: 1px solid #d5dbe3;
   background:#fff;
@@ -478,6 +530,7 @@
 
 /* + 버튼 */
 .btn-course-add{
+  flex: 0 0 auto;
   width: 32px;
   height: 32px;
   border-radius: 8px;
@@ -493,11 +546,11 @@
   box-shadow: 0 2px 8px rgba(16,24,40,.08);
 }
 
-/* 태그 */
+/* ✅ 태그 영역: wrap 정렬 */
 .managed{
-  margin-top: 8px;
+  margin-top: 10px;
   display:flex;
-  flex-direction: column;
+  flex-wrap: wrap;
   gap: 6px;
 }
 
@@ -508,7 +561,7 @@
   border: 1px solid #e6ebf2;
   border-radius: 999px;
   padding: 6px 10px;
-  background: #f8fafc;
+  background: #fff;
   max-width: 100%;
 }
 
@@ -519,7 +572,7 @@
   overflow:hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
-  max-width: 220px;
+  max-width: 180px;
 }
 
 .tag-del{
@@ -531,6 +584,27 @@
   color:#6b7280;
 }
 .tag-del:hover{ color:#dc3545; }
+
+/* ✅ 접힘/펼침 제어 */
+.subadmin-body.is-collapsed .sub-line{
+  display:none;
+}
+.subadmin-body.is-collapsed .managed{
+  margin-top: 0;
+}
+
+/* ✅ 접힌 상태에서는 태그만 보이게, 너무 길면 스크롤 */
+.subadmin-body.is-collapsed .managed{
+  max-height: 74px;      /* 2줄 정도 */
+  overflow:auto;
+  padding-top: 8px;
+}
+
+/* 펼친 상태에서는 제한 해제 */
+.subadmin-body:not(.is-collapsed) .managed{
+  max-height: none;
+  overflow: visible;
+}
 
 /* ===============================
    Pagination
