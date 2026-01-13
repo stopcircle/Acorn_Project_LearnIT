@@ -44,8 +44,7 @@ public class MyCertificateService {
             MyCertificateDTO certificate = getCertificate(certificateId, userId);
             if (certificate != null) {
                 byte[] pdfBytes = generateCertificatePdf(certificate);
-                String safeTitle = certificate.getCourseTitle().replaceAll("[^a-zA-Z0-9가-힣]", "_");
-                String fileName = "Certificate_" + safeTitle + "_" + userId + ".pdf";
+                String fileName = "Certificate_" + certificate.getCourseId() + "_" + userId + ".pdf";
                 s3Service.uploadFile("certificates/pdf/", fileName, pdfBytes);
             }
         } catch (Exception e) {
