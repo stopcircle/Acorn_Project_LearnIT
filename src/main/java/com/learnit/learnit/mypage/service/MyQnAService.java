@@ -54,12 +54,17 @@ public class MyQnAService {
                 // null인 경우에도 일단 설정 (강의에 챕터가 없는 경우는 드뭅지만 가능)
             }
             
-            // 일반 사용자는 답변 내용을 볼 수 없도록 설정 (관리자/서브어드민만 답변 내용 확인 가능)
+            // 일반 사용자는 강의 관련 질문의 답변 내용을 볼 수 없도록 설정 (강의 영상 페이지에서만 확인 가능)
+            // 단, 챗봇 질문(course_id가 NULL)의 답변은 마이 Q&A에서 바로 볼 수 있게 함
             if (!"ADMIN".equals(userRole) && !"SUB_ADMIN".equals(userRole)) {
-                // 답변이 있으면 "답변 등록되었습니다"만 알 수 있도록 answer 내용은 숨김
-                if (qna.getAnswer() != null && !qna.getAnswer().isEmpty()) {
-                    qna.setAnswer(""); // 답변 내용은 숨기지만 answeredAt은 유지하여 답변 등록 여부는 알 수 있음
+                // 강의 관련 질문(course_id가 있는 경우)의 답변은 숨김
+                if (qna.getCourseId() != null && qna.getCourseId() > 0) {
+                    // 답변이 있으면 "답변 등록되었습니다"만 알 수 있도록 answer 내용은 숨김
+                    if (qna.getAnswer() != null && !qna.getAnswer().isEmpty()) {
+                        qna.setAnswer(""); // 답변 내용은 숨기지만 answeredAt은 유지하여 답변 등록 여부는 알 수 있음
+                    }
                 }
+                // 챗봇 질문(course_id가 NULL)의 답변은 그대로 표시
             }
         }
         
